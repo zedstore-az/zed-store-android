@@ -51,6 +51,9 @@ jobs:
           echo "=== WEB ASSET FILES ==="
           find "$PROJECT_DIR" -type f \( -name '*.html' -o -name '*.js' -o -name '*.css' \) -print
 
+      - name: Add Ambar products screen
+        run: python3 tools/inject-products-screen.py
+
       - name: Build APK
         run: gradle -p "$PROJECT_DIR" assembleDebug
 
