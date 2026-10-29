@@ -46,6 +46,10 @@ jobs:
           PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
           echo "Android project found: $PROJECT_DIR"
+          echo "=== SOURCE FILE MAP ==="
+          find "$PROJECT_DIR" -type f \( -name 'index.html' -o -name '*.java' -o -name '*.kt' -o -name 'AndroidManifest.xml' -o -name '*.gradle' -o -name '*.gradle.kts' \) -print
+          echo "=== WEB ASSET FILES ==="
+          find "$PROJECT_DIR" -type f \( -name '*.html' -o -name '*.js' -o -name '*.css' \) -print
 
       - name: Build APK
         run: gradle -p "$PROJECT_DIR" assembleDebug
