@@ -3,61 +3,56 @@ name: Build ZED STORE APK
 on: [push, workflow_dispatch]
 
 jobs:
-build:
-runs-on: ubuntu-24.04
+  build:
+    runs-on: ubuntu-24.04
 
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  - name: Set up Java
-    uses: actions/setup-java@v5
-    with:
-      distribution: temurin
-      java-version: '17'
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
 
-  - name: Configure Android SDK
-    run: |
-      echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> "$GITHUB_ENV"
-      echo "/usr/local/lib/android/sdk/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
-      echo "/usr/local/lib/android/sdk/platform-tools" >> "$GITHUB_PATH"
+      - name: Configure Android SDK
+        run: |
+          echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> "$GITHUB_ENV"
+          echo "/usr/local/lib/android/sdk/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "/usr/local/lib/android/sdk/platform-tools" >> "$GITHUB_PATH"
 
-  - name: Accept SDK licenses
-    run: yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses
+      - name: Accept SDK licenses
+        run: yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses
 
-  - name: Install SDK packages
-    run: sdkmanager --sdk_root="$ANDROID_HOME" "platforms;android-35" "build-tools;35.0.0"
+      - name: Install SDK packages
+        run: sdkmanager --sdk_root="$ANDROID_HOME" "platforms;android-35" "build-tools;35.0.0"
 
-  - name: Set up Gradle
-    uses: gradle/actions/setup-gradle@v4
-    with:
-      gradle-version: '8.9'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
 
-  - name: Extract Android project
-    shell: bash
-    run: |
-      set -e
+      - name: Extract Android project
+        shell: bash
+        run: |
+          set -e
+          unzip -q ZED_STORE_Android_Studio_Project.zip -d project
+          SETTINGS_FILE="$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit)"
+          if [ -z "$SETTINGS_FILE" ]; then
+            echo "Android project not found"
+            exit 1
+          fi
+          PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Android project found: $PROJECT_DIR"
 
-      unzip -q ZED_STORE_Android_Studio_Project.zip -d project
+      - name: Build APK
+        run: gradle -p "$PROJECT_DIR" assembleDebug
 
-      SETTINGS_FILE="$(find project -name settings.gradle -o -name settings.gradle.kts -print -quit)"
-
-      if [ -z "$SETTINGS_FILE" ]; then
-        echo "Android project not found"
-        exit 1
-      fi
-
-      PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
-      echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-
-      echo "Android project found: $PROJECT_DIR"
-
-  - name: Build APK
-    run: gradle -p "$PROJECT_DIR" assembleDebug
-
-  - name: Upload APK
-    uses: actions/upload-artifact@v4
-    with:
-      name: ZED-STORE-APK
-      path: project/**/app/build/outputs/apk/debug/*.apk
-      if-no-files-found: error
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZED-STORE-APK
+          path: project/**/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
