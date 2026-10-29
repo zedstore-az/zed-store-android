@@ -75,7 +75,7 @@ jobs:
                   anchor = "import android.app.Activity;"
                   if anchor not in source:
                       raise SystemExit("Android Activity import not found")
-                  source = source.replace(anchor, anchor + "\\nimport android.content.Intent;\\nimport android.net.Uri;", 1)
+                  source = source.replace(anchor, anchor + chr(10) + "import android.content.Intent;" + chr(10) + "import android.net.Uri;", 1)
 
               marker = "new WebViewClient()"
               pos = source.find(marker)
