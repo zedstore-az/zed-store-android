@@ -7,6 +7,17 @@ origins = [x.strip() for x in os.getenv("CORS_ORIGINS", "").split(",") if x.stri
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=False,
                    allow_methods=["GET"], allow_headers=["Authorization", "Content-Type"])
 
+@app.get("/")
+def root():
+    return {
+        "ok": True,
+        "service": "zed-store-backend",
+        "message": "ZED STORE backend is running",
+        "health": "/health",
+        "api_docs": "/docs"
+    }
+
+
 def require_app_key(authorization: str | None):
     expected = os.getenv("ZED_APP_API_KEY")
     if not expected:
