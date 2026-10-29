@@ -35,7 +35,8 @@ injection = r"""
   <div class="zap-head"><div><div class="zap-title">📦 Ambar / Məhsullarım</div><div class="zap-muted">Birmarket mağazanızdakı məhsulların siyahısı</div></div><button id="zed-ambar-close" class="zap-btn" type="button">Bağla ✕</button></div>
   <input id="zed-ambar-search" class="zap-search" type="search" placeholder="Məhsul adı və ya ID ilə axtar..." autocomplete="off">
   <div class="zap-actions"><button id="zed-ambar-refresh" class="zap-btn" type="button">↻ Yenilə</button><button id="zed-ambar-portal" class="zap-btn" type="button">🔐 Birmarket satıcı portalı</button></div>
-  <div id="zed-ambar-status" class="zap-status">Məhsul siyahısı üçün Birmarket satıcı API bağlantısı konfiqurasiya edilməlidir. Bu ekran hələ canlı məhsul məlumatı göstərmir.</div>
+  <div id="zed-ambar-status" class="zap-status">Sınaq rejimi: açıq məhsul səhifəsindən təsdiqlənmiş məlumat. Bu üsul hələ bütün mağaza məhsullarını avtomatik tapmır.</div>
+  <div class="zap-actions"><button id="zed-ambar-open-product" class="zap-btn" type="button">↗ Məhsulu Birmarket-də aç</button></div>
   <div id="zed-ambar-list"></div>
 </section>
 <script id="zed-ambar-products-script">
@@ -48,7 +49,9 @@ injection = r"""
  const list=document.getElementById('zed-ambar-list');
  const refresh=document.getElementById('zed-ambar-refresh');
  const portal=document.getElementById('zed-ambar-portal');
- let products=[];
+ const openProduct=document.getElementById('zed-ambar-open-product');
+ const productUrl='https://umico.az/product/3034575';
+ let products=[{id:'3034575',sku:'3034575',name:'Ağıllı saat HK11 Ultra 3 Beige',price:'95.00',image:'',url:productUrl}];
  function show(){panel.style.display='block';}
  function hide(){panel.style.display='none';}
  open.addEventListener('click',show); close.addEventListener('click',hide);
@@ -62,6 +65,8 @@ injection = r"""
    }
    found.forEach(p=>{
      const card=document.createElement('article');card.className='zap-card';
+     card.style.cursor='pointer';
+     card.addEventListener('click',()=>{if(p.url) window.open(p.url,'_blank');});
      const icon=document.createElement('div');icon.className='zap-icon';
      if(p.image){const img=document.createElement('img');img.src=p.image;img.alt='';img.style.cssText='width:100%;height:100%;object-fit:contain;border-radius:10px';img.onerror=()=>{icon.textContent='📦'};icon.appendChild(img)}else icon.textContent='📦';
      const info=document.createElement('div');info.className='zap-info';
@@ -72,8 +77,10 @@ injection = r"""
    });
  }
  search.addEventListener('input',render);
+ openProduct.addEventListener('click',()=>window.open(productUrl,'_blank'));
  refresh.addEventListener('click',()=>{
-   status.textContent='Əvvəlcə Birmarket hesabınıza daxil olun. Girişdən sonra məhsullar səhifəsinə keçib məhsul siyahısının oxunmasını yoxlayacağıq. Bu mərhələdə portal səhifəsi açılır, lakin məhsulların avtomatik oxunması və siyahıya köçürülməsi hələ qoşulmayıb.';
+   render();
+   status.textContent='Siyahı yeniləndi. Hazırda yalnız sınaq üçün əlavə edilmiş 3034575 kodlu məhsul göstərilir. Umico-nun açıq səhifəsi bütün mağaza məhsullarının siyahısını təqdim etmədiyindən, tam avtomatik sinxronizasiya bu üsulla hələ təsdiqlənməyib.';
  });
 })();
 </script>
