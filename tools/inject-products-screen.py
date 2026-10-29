@@ -52,7 +52,7 @@ injection = r"""
  function show(){panel.style.display='block';}
  function hide(){panel.style.display='none';}
  open.addEventListener('click',show); close.addEventListener('click',hide);
- portal.addEventListener('click',()=>{ window.location.href='https://business.umico.az/account/products/my'; });
+ portal.addEventListener('click',()=>{ window.location.href='https://business.umico.az/sign-in'; });
  function render(){
    const q=search.value.trim().toLocaleLowerCase();
    list.replaceChildren();
@@ -73,7 +73,7 @@ injection = r"""
  }
  search.addEventListener('input',render);
  refresh.addEventListener('click',()=>{
-   status.textContent='Birmarket satıcı portalını açmaq üçün yuxarıdakı düymədən istifadə edin. Bu mərhələdə portal səhifəsi açılır, lakin məhsulların avtomatik oxunması və siyahıya köçürülməsi hələ qoşulmayıb.';
+   status.textContent='Əvvəlcə Birmarket hesabınıza daxil olun. Girişdən sonra məhsullar səhifəsinə keçib məhsul siyahısının oxunmasını yoxlayacağıq. Bu mərhələdə portal səhifəsi açılır, lakin məhsulların avtomatik oxunması və siyahıya köçürülməsi hələ qoşulmayıb.';
  });
 })();
 </script>
