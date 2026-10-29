@@ -68,43 +68,48 @@ jobs:
           path = next(iter(root.rglob("MainActivity.java")), None)
           if path is None:
               raise SystemExit("MainActivity.java not found")
+
           source = path.read_text(encoding="utf-8")
           if "External seller portal navigation" not in source:
-              source = source.replace(
-                  "import android.app.Activity;\\n",
-                  "import android.app.Activity;\\nimport android.content.Intent;\\nimport android.net.Uri;\\n",
-                  1
-              )
-              needle = "        webView.setWebViewClient(new WebViewClient() {\\n"
-              lines = [
-                  "            // External seller portal navigation",
-                  "            @Override",
-                  "            public boolean shouldOverrideUrlLoading(WebView view, android.webkit.WebResourceRequest request) {",
-                  "                Uri uri = request.getUrl();",
-                  "                String host = uri.getHost();",
-                  '                if (host != null && (host.equalsIgnoreCase("business.umico.az") || host.equalsIgnoreCase("business.birmarket.az"))) {',
-                  "                    try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); } catch (Exception ignored) {}",
-                  "                    return true;",
-                  "                }",
-                  "                return false;",
-                  "            }",
-                  "",
-                  "            @Override",
-                  "            public boolean shouldOverrideUrlLoading(WebView view, String url) {",
-                  "                Uri uri = Uri.parse(url);",
-                  "                String host = uri.getHost();",
-                  '                if (host != null && (host.equalsIgnoreCase("business.umico.az") || host.equalsIgnoreCase("business.birmarket.az"))) {',
-                  "                    try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); } catch (Exception ignored) {}",
-                  "                    return true;",
-                  "                }",
-                  "                return false;",
-                  "            }",
-                  ""
-              ]
-              addition = "\\n".join(lines) + "\\n"
-              if needle not in source:
-                  raise SystemExit("WebViewClient insertion point not found")
-              source = source.replace(needle, needle + addition, 1)
+              if "import android.content.Intent;" not in source:
+                  anchor = "import android.app.Activity;"
+                  if anchor not in source:
+                      raise SystemExit("Android Activity import not found")
+                  source = source.replace(anchor, anchor + "\\nimport android.content.Intent;\\nimport android.net.Uri;", 1)
+
+              marker = "new WebViewClient()"
+              pos = source.find(marker)
+              if pos < 0:
+                  raise SystemExit("new WebViewClient() not found")
+              brace = source.find("{", pos + len(marker))
+              if brace < 0:
+                  raise SystemExit("WebViewClient opening brace not found")
+
+              addition = '''
+                      // External seller portal navigation
+                      @Override
+                      public boolean shouldOverrideUrlLoading(WebView view, android.webkit.WebResourceRequest request) {
+                          Uri uri = request.getUrl();
+                          String host = uri.getHost();
+                          if (host != null && (host.equalsIgnoreCase("business.umico.az") || host.equalsIgnoreCase("business.birmarket.az"))) {
+                              try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); } catch (Exception ignored) {}
+                              return true;
+                          }
+                          return false;
+                      }
+
+                      @Override
+                      public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                          Uri uri = Uri.parse(url);
+                          String host = uri.getHost();
+                          if (host != null && (host.equalsIgnoreCase("business.umico.az") || host.equalsIgnoreCase("business.birmarket.az"))) {
+                              try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); } catch (Exception ignored) {}
+                              return true;
+                          }
+                          return false;
+                      }
+              '''
+              source = source[:brace + 1] + addition + source[brace + 1:]
               path.write_text(source, encoding="utf-8")
               print(f"Patched {path}")
           else:
