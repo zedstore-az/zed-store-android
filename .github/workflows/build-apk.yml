@@ -36,7 +36,15 @@ jobs:
       - name: Extract Android project
         run: |
           unzip -q ZED_STORE_Android_Studio_Project.zip -d project
-          PROJECT_DIR="$(dirname "$(find project -name settings.gradle -print -quit)")"
+          SETTINGS_FILE="$(find project \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit)"
+
+if [ -z "$SETTINGS_FILE" ]; then
+  echo "Android project not found"
+  exit 1
+fi
+
+PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
+echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
           if [ -z "$PROJECT_DIR" ]; then
             echo "Android project not found"
             exit 1
