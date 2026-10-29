@@ -56,6 +56,69 @@ jobs:
           echo "=== WEB ASSET FILES ==="
           find "$PROJECT_DIR" -type f \( -name '*.html' -o -name '*.js' -o -name '*.css' \) -print
 
+      - name: Route Birmarket seller portal to external browser
+        shell: bash
+        run: |
+          set -e
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+
+          root = Path(os.environ["PROJECT_DIR"])
+          candidates = list(root.rglob("MainActivity.java"))
+          if not candidates:
+              raise SystemExit("MainActivity.java not found")
+          path = candidates[0]
+          source = path.read_text(encoding="utf-8")
+          if "External seller portal navigation" in source:
+              print("External portal navigation already patched")
+              raise SystemExit(0)
+
+          source = source.replace(
+              "import android.app.Activity;\n",
+              "import android.app.Activity;\nimport android.content.Intent;\nimport android.net.Uri;\n",
+              1
+          )
+          needle = "        webView.setWebViewClient(new WebViewClient() {\n"
+          replacement = needle + """            // External seller portal navigation: do not load sign-in inside the app WebView.
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, android.webkit.WebResourceRequest request) {
+                Uri uri = request.getUrl();
+                String host = uri.getHost();
+                if (host != null && (host.equalsIgnoreCase("business.umico.az") || host.equalsIgnoreCase("business.birmarket.az"))) {
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                        startActivity(intent);
+                    } catch (Exception ignored) {
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                Uri uri = Uri.parse(url);
+                String host = uri.getHost();
+                if (host != null && (host.equalsIgnoreCase("business.umico.az") || host.equalsIgnoreCase("business.birmarket.az"))) {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                    } catch (Exception ignored) {
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+"""
+          if needle not in source:
+              raise SystemExit("WebViewClient insertion point not found")
+          source = source.replace(needle, replacement, 1)
+          source = source.replace("// External seller portal navigation", "// External seller portal navigation", 1)
+          path.write_text(source, encoding="utf-8")
+          print(f"Patched external seller portal navigation in {path}")
+          PY
+
       - name: Add Ambar products screen
         run: python3 tools/inject-products-screen.py
 
