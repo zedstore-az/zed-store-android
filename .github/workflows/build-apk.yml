@@ -1,12 +1,12 @@
 name: Build ZED STORE APK
 
-on:
+'on':
   push:
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
@@ -18,31 +18,37 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-            - name: Set up Android SDK
+      - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          packages: 'platforms;android-35,build-tools;35.0.0'
 
-      - name: Accept Android SDK licenses
+      - name: Accept SDK licenses
         run: yes | sdkmanager --licenses
+
+      - name: Install SDK packages
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Extract Android project
+      - name: Extract project
         run: |
           mkdir project
           unzip -q ZED_STORE_Android_Studio_Project.zip -d project
-          PROJECT_DIR=$(dirname "$(find project -name settings.gradle -print -quit)")
+          PROJECT_DIR="$(dirname "$(find project -name settings.gradle -print -quit)")"
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "Android project not found"
+            exit 1
+          fi
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
       - name: Build APK
         run: gradle -p "$PROJECT_DIR" assembleDebug
 
-      - name: Save APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: ZED-STORE-APK
           path: project/**/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
