@@ -66,7 +66,7 @@ injection = r"""
    found.forEach(p=>{
      const card=document.createElement('article');card.className='zap-card';
      card.style.cursor='pointer';
-     card.addEventListener('click',()=>{if(p.url) window.open(p.url,'_blank');});
+     card.addEventListener('click',()=>{if(p.url) window.location.href=p.url;});
      const icon=document.createElement('div');icon.className='zap-icon';
      if(p.image){const img=document.createElement('img');img.src=p.image;img.alt='';img.style.cssText='width:100%;height:100%;object-fit:contain;border-radius:10px';img.onerror=()=>{icon.textContent='📦'};icon.appendChild(img)}else icon.textContent='📦';
      const info=document.createElement('div');info.className='zap-info';
@@ -77,7 +77,7 @@ injection = r"""
    });
  }
  search.addEventListener('input',render);
- openProduct.addEventListener('click',()=>window.open(productUrl,'_blank'));
+ openProduct.addEventListener('click',()=>window.location.href=productUrl);
  refresh.addEventListener('click',()=>{
    render();
    status.textContent='Siyahı yeniləndi. Hazırda yalnız sınaq üçün əlavə edilmiş 3034575 kodlu məhsul göstərilir. Umico-nun açıq səhifəsi bütün mağaza məhsullarının siyahısını təqdim etmədiyindən, tam avtomatik sinxronizasiya bu üsulla hələ təsdiqlənməyib.';
