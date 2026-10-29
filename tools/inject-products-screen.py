@@ -55,7 +55,7 @@ injection = r"""
  function show(){panel.style.display='block';}
  function hide(){panel.style.display='none';}
  open.addEventListener('click',show); close.addEventListener('click',hide);
- portal.addEventListener('click',()=>{ window.location.href='intent://business.umico.az/sign-in#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fbusiness.umico.az%2Fsign-in;end'; });
+ portal.addEventListener('click',()=>{ window.location.href='https://business.umico.az/sign-in'; });
  function render(){
    const q=search.value.trim().toLocaleLowerCase();
    list.replaceChildren();
