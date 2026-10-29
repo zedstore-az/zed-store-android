@@ -34,7 +34,7 @@ injection = r"""
 <section id="zed-ambar-products" aria-label="Ambar Məhsullarım">
   <div class="zap-head"><div><div class="zap-title">📦 Ambar / Məhsullarım</div><div class="zap-muted">Birmarket mağazanızdakı məhsulların siyahısı</div></div><button id="zed-ambar-close" class="zap-btn" type="button">Bağla ✕</button></div>
   <input id="zed-ambar-search" class="zap-search" type="search" placeholder="Məhsul adı və ya ID ilə axtar..." autocomplete="off">
-  <div class="zap-actions"><button id="zed-ambar-refresh" class="zap-btn" type="button">↻ Yenilə</button></div>
+  <div class="zap-actions"><button id="zed-ambar-refresh" class="zap-btn" type="button">↻ Yenilə</button><button id="zed-ambar-portal" class="zap-btn" type="button">🔐 Birmarket satıcı portalı</button></div>
   <div id="zed-ambar-status" class="zap-status">Məhsul siyahısı üçün Birmarket satıcı API bağlantısı konfiqurasiya edilməlidir. Bu ekran hələ canlı məhsul məlumatı göstərmir.</div>
   <div id="zed-ambar-list"></div>
 </section>
@@ -47,10 +47,12 @@ injection = r"""
  const search=document.getElementById('zed-ambar-search');
  const list=document.getElementById('zed-ambar-list');
  const refresh=document.getElementById('zed-ambar-refresh');
+ const portal=document.getElementById('zed-ambar-portal');
  let products=[];
  function show(){panel.style.display='block';}
  function hide(){panel.style.display='none';}
  open.addEventListener('click',show); close.addEventListener('click',hide);
+ portal.addEventListener('click',()=>{ window.location.href='https://business.umico.az/account/products/my'; });
  function render(){
    const q=search.value.trim().toLocaleLowerCase();
    list.replaceChildren();
@@ -71,7 +73,7 @@ injection = r"""
  }
  search.addEventListener('input',render);
  refresh.addEventListener('click',()=>{
-   status.textContent='Canlı sinxronizasiya hələ qoşulmayıb. Birmarket-in təsdiqlənmiş satıcı API ünvanı və giriş icazəsi tələb olunur; məhsullar uydurma məlumatla doldurulmur.';
+   status.textContent='Birmarket satıcı portalını açmaq üçün yuxarıdakı düymədən istifadə edin. Bu mərhələdə portal səhifəsi açılır, lakin məhsulların avtomatik oxunması və siyahıya köçürülməsi hələ qoşulmayıb.';
  });
 })();
 </script>
