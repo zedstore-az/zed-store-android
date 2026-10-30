@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1180">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#05c4ef"/><stop offset=".48" stop-color="#0756f5"/><stop offset="1" stop-color="#087de9"/></linearGradient><linearGradient id="t" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#08c5ed"/><stop offset="1" stop-color="#064ce8"/></linearGradient></defs>
+<path fill="url(#g)" fill-rule="evenodd" d="M500 35 885 260 885 430 492 655 585 710 885 540 885 790 500 1015 115 790 115 600 500 380 405 325 115 495 115 260Z M500 205 270 340 500 210 730 345 500 480 270 620 500 755 500 850 115 630 115 600 500 380 595 435 500 490 270 625 500 760 500 850 730 715 500 580 885 360 885 260Z" />
+<path fill="#05080d" d="M500 205 730 340 500 475 270 610 500 745 500 840 115 620 500 395 405 340 115 510 115 495 405 325 500 380 730 245Z" opacity="0"/>
+<text x="70" y="1135" font-family="Arial,Helvetica,sans-serif" font-size="150" font-weight="900" letter-spacing="-8" fill="url(#t)">ZED</text><text x="480" y="1135" font-family="Arial,Helvetica,sans-serif" font-size="142" font-weight="900" letter-spacing="2" fill="#f4f7fc">STORE</text>
+</svg>
