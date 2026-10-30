@@ -3,13 +3,28 @@ import BIRM_CATEGORIES from './data/birmarketCategories.json';
 
 const RATE_BY_MONTH={3:1.5,6:4,9:5,12:6,18:8.2,24:10.2};
 const fmt=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).format(Number(n||0));
+const normalize=s=>String(s||'').toLocaleLowerCase('az').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 
 export default function CalculatorPanel(){
  const [f,F]=useState({cost:'',price:'',category:'',qty:1,weight:'',length:'',width:'',height:'',payment:'card',months:3});
  const [query,Q]=useState('');
+ const [open,Open]=useState(false);
+ const [active,A]=useState(0);
  const set=(key,value)=>F(old=>({...old,[key]:value}));
- const matches=useMemo(()=>BIRM_CATEGORIES.map((x,i)=>({...x,index:i})).filter(x=>!query||(x.name+' '+x.group+' '+x.vertical).toLocaleLowerCase('az').includes(query.toLocaleLowerCase('az'))),[query]);
+ const matches=useMemo(()=>{
+  const q=normalize(query);
+  if(!q)return [];
+  const words=q.split(/\s+/).filter(Boolean);
+  return BIRM_CATEGORIES.map((x,i)=>{
+   const name=normalize(x.name),group=normalize(x.group),vertical=normalize(x.vertical);
+   const hay=name+' '+group+' '+vertical;
+   if(!words.every(w=>hay.includes(w)))return null;
+   const score=(name.startsWith(q)?100:name.includes(q)?60:0)+(group.startsWith(q)?20:0)+(vertical.startsWith(q)?10:0);
+   return {...x,index:i,score};
+  }).filter(Boolean).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'az')).slice(0,9);
+ },[query]);
  const category=f.category===''?null:BIRM_CATEGORIES[Number(f.category)];
+ const choose=x=>{set('category',String(x.index));Q('');Open(false);A(0)};
  const qty=Math.max(1,Math.floor(Number(f.qty)||1));
  const total=Math.max(0,Number(f.price)||0)*qty;
  const cost=Math.max(0,Number(f.cost)||0)*qty;
@@ -34,16 +49,24 @@ export default function CalculatorPanel(){
   <section className="panel">
    <h3>1. Məhsul və Birmarket tarifi</h3>
    <div className="calcfields">
-    <label>Kateqoriyanı axtar
-     <input type="search" placeholder="Məsələn: qulaqlıq, ütü, telefon..." value={query} onChange={e=>Q(e.target.value)}/>
-    </label>
-    <label>Kateqoriya — komissiya faizi
-     <select value={f.category} onChange={e=>set('category',e.target.value)}>
-      <option value="">Kateqoriya seçin...</option>
-      {matches.map(x=><option key={x.index} value={x.index}>{x.name} — {x.rate}%</option>)}
-     </select>
-     <small>{query?matches.length+' uyğun kateqoriya':'Tarif bazasında '+BIRM_CATEGORIES.length.toLocaleString('az-AZ')+' kateqoriya var.'}</small>
-    </label>
+    <div className="category-picker">
+     <label htmlFor="category-search">Kateqoriyanı axtar</label>
+     <div className="category-searchbox">
+      <input id="category-search" type="search" autoComplete="off" placeholder="Məsələn: qulaq..., ütü, telefon..." value={query} aria-expanded={open&&matches.length>0} aria-controls="category-suggestions" onFocus={()=>Open(true)} onChange={e=>{Q(e.target.value);Open(true);A(0)}} onKeyDown={e=>{
+       if(e.key==='ArrowDown'&&matches.length){e.preventDefault();Open(true);A(v=>Math.min(v+1,matches.length-1))}
+       else if(e.key==='ArrowUp'&&matches.length){e.preventDefault();A(v=>Math.max(v-1,0))}
+       else if(e.key==='Enter'&&open&&matches[active]){e.preventDefault();choose(matches[active])}
+       else if(e.key==='Escape')Open(false);
+      }}/>
+      {query&&<button type="button" className="category-clear" aria-label="Axtarışı təmizlə" onClick={()=>{Q('');Open(true)}}>×</button>}
+     </div>
+     {open&&query&&<div className="category-suggestions" id="category-suggestions" role="listbox">
+      {matches.length?matches.map((x,i)=><button type="button" role="option" aria-selected={active===i} className={'category-option '+(active===i?'active':'')} key={x.index} onMouseEnter={()=>A(i)} onMouseDown={e=>e.preventDefault()} onClick={()=>choose(x)}>
+       <span><b>{x.name}</b><small>{x.group||x.vertical||'Birmarket kateqoriyası'}</small></span><strong>{x.rate}%</strong>
+      </button>):<div className="category-noresults">Uyğun kateqoriya tapılmadı. Axtarış sözünü qısaldın.</div>}
+     </div>}
+     {category?<div className="selected-category"><span><small>SEÇİLMİŞ KATEQORİYA</small><b>{category.name}</b><em>{category.rate}% komissiya</em></span><button type="button" onClick={()=>{set('category','');Q('');Open(true)}} aria-label="Kateqoriyanı sil">×</button></div>:<small className="category-hint">Axtarış zamanı uyğun adlar dərhal burada görünəcək. {BIRM_CATEGORIES.length.toLocaleString('az-AZ')} tarif mövcuddur.</small>}
+    </div>
     <label>Maya qiyməti (1 ədəd, ₼)<input type="number" min="0" step="0.01" value={f.cost} onChange={e=>set('cost',e.target.value)}/></label>
     <label>Birmarket satış qiyməti (1 ədəd, ₼)<input type="number" min="0" step="0.01" value={f.price} onChange={e=>set('price',e.target.value)}/></label>
     <label>Sifarişdə say<input type="number" min="1" step="1" value={f.qty} onChange={e=>set('qty',e.target.value)}/></label>
@@ -65,7 +88,7 @@ export default function CalculatorPanel(){
      {[3,6,9,12,18,24].map(n=><option key={n} value={n}>{n} ay — {RATE_BY_MONTH[n]}%</option>)}
     </select></label>}
    </div>
-   <button type="button" className="outline calcreset" onClick={()=>{F({cost:'',price:'',category:'',qty:1,weight:'',length:'',width:'',height:'',payment:'card',months:3});Q('')}}>Sıfırla</button>
+   <button type="button" className="outline calcreset" onClick={()=>{F({cost:'',price:'',category:'',qty:1,weight:'',length:'',width:'',height:'',payment:'card',months:3});Q('');Open(false)}}>Sıfırla</button>
   </section>
   <section className="calcresult">
    <small>HESABLAMA NƏTİCƏSİ</small><span>Hesaba köçəcək məbləğ</span><strong>{fmt(payout)}</strong>
