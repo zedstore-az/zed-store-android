@@ -80,13 +80,12 @@ export default function CalculatorPanel(){
     <label>Hündürlük (sm)<input type="number" min="0" step="0.1" value={f.height} onChange={e=>set('height',e.target.value)}/></label>
    </div>
    <h3 className="subhead">3. Bank və ödəniş komissiyası</h3>
-   <div className="calcfields">
-    <label>Ödəniş növü<select value={f.payment} onChange={e=>set('payment',e.target.value)}>
-     <option value="card">Kart — 1.5%</option><option value="credit">Kredit müraciəti — 1.5%</option><option value="installment">Taksit</option>
-    </select></label>
-    {f.payment==='installment'&&<label>Taksit müddəti<select value={f.months} onChange={e=>set('months',Number(e.target.value))}>
-     {[3,6,9,12,18,24].map(n=><option key={n} value={n}>{n} ay — {RATE_BY_MONTH[n]}%</option>)}
-    </select></label>}
+   <div className="payment-selector">
+    <label>Ödəniş növü</label>
+    <div className="choice-buttons" role="group" aria-label="Ödəniş növü">
+     {[['card','Kart'],['credit','Kredit'],['installment','Taksit']].map(([value,label])=><button type="button" key={value} className={f.payment===value?'choice active':'choice'} aria-pressed={f.payment===value} onClick={()=>set('payment',value)}>{label}</button>)}
+    </div>
+    {f.payment==='installment'&&<div className="installment-picker"><label>Taksit müddətini seç</label><div className="choice-buttons months">{[3,6,9,12,18,24].map(n=><button type="button" key={n} className={Number(f.months)===n?'choice active':'choice'} aria-pressed={Number(f.months)===n} onClick={()=>set('months',n)}><b>{n} ay</b><small>{RATE_BY_MONTH[n]}%</small></button>)}</div></div>}
    </div>
    <button type="button" className="outline calcreset" onClick={()=>{F({cost:'',price:'',category:'',qty:1,weight:'',length:'',width:'',height:'',payment:'card',months:3});Q('');Open(false)}}>Sıfırla</button>
   </section>
