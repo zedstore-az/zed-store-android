@@ -290,3 +290,21 @@
 .order-edit-note svg{flex:none;color:#2563eb}
 .payment-cell small{font-size:9px;color:#7b8ba0;line-height:1.35}
 @media(max-width:720px){.order-edit-summary{padding:11px}.order-edit-note{font-size:9px}}
+
+
+/* Repeat-cancellation customer cards with focused detail view */
+.repeat-customer-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.repeat-customer-card{display:flex;align-items:center;gap:10px;min-width:0;width:100%;padding:13px;text-align:left;border:1px solid #e3eaf2;border-radius:12px;background:#fff;color:inherit;cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}
+.repeat-customer-card:hover,.repeat-customer-card.active{border-color:#8bb9fa;background:#f4f8ff;box-shadow:0 3px 12px #1b4d8a0d}
+.repeat-customer-card-info{display:grid;gap:4px;min-width:0;flex:1}
+.repeat-customer-card-info b{font:700 12px Manrope;color:#203047;overflow-wrap:anywhere}
+.repeat-customer-card-info small{font-size:9px;color:#8190a3;line-height:1.45}
+.repeat-card-action{font-size:9px;color:#1764c8;font-weight:800;white-space:nowrap}
+.repeat-customer-detail{margin-top:14px;border:1px solid #dce8f7;border-radius:13px;background:#fbfdff;overflow:hidden}
+.repeat-detail-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px;border-bottom:1px solid #e6edf6}
+.repeat-detail-head h4{margin:4px 0;font:800 15px Manrope;color:#1d2c43}
+.repeat-detail-head p{margin:0;color:#8795a7;font-size:10px}
+.repeat-customer-detail .repeat-events{padding:5px 15px 12px}
+.order-number-cell{min-width:110px;font-weight:800;color:#1764c8;white-space:nowrap}
+.order-number-cell small{display:block;margin-top:4px;font-size:9px;color:#91a0b0;font-weight:500}
+@media(max-width:720px){.repeat-customer-list{grid-template-columns:1fr}.repeat-customer-card{padding:11px}.repeat-detail-head{align-items:flex-start}.repeat-detail-head .outline{padding:7px 10px;font-size:10px}}
