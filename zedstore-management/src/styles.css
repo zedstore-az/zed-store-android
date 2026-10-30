@@ -15,3 +15,47 @@
 .reportpanel{margin-top:16px}
 .reportpanel h3{margin-bottom:14px}
 @media(max-width:720px){.calcfields{grid-template-columns:1fr}.monthpicker{width:100%}}
+
+/* Professional category autocomplete */
+.category-picker{position:relative;display:flex;flex-direction:column;gap:7px;min-width:0}
+.category-picker>label,.month-add>label{color:#66758a;font-size:11px;font-weight:600}
+.category-searchbox{position:relative;display:flex;align-items:center}
+.category-searchbox input{width:100%;min-width:0;border:1px solid #dce5eb;border-radius:9px;padding:11px 38px 11px 12px;background:#fff;color:#25334a;outline:0}
+.category-searchbox input:focus{border-color:#16ad8b;box-shadow:0 0 0 3px #10a98718}
+.category-clear{position:absolute;right:8px;width:25px;height:25px;border:0;border-radius:7px;background:#f0f4f6;color:#718197;font-size:18px;line-height:1}
+.category-suggestions{position:absolute;z-index:30;top:68px;left:0;right:0;max-height:290px;overflow:auto;background:#fff;border:1px solid #e2e9ee;border-radius:11px;padding:5px;box-shadow:0 14px 35px #182b401f}
+.category-option{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;padding:10px;border:0;border-radius:8px;background:#fff;text-align:left;color:#25334a}
+.category-option:hover,.category-option.active{background:#eef9f5}
+.category-option span{min-width:0}
+.category-option b{display:block;font-size:11px;white-space:normal}
+.category-option small{display:block;margin-top:3px;color:#94a1b1;font-size:9px}
+.category-option strong{flex:none;color:#0b9c7c;background:#e7f8f2;border-radius:7px;padding:5px 7px;font-size:10px}
+.category-noresults{padding:15px 10px;color:#8794a5;font-size:11px;line-height:1.5}
+.category-hint{color:#94a1b1;font-size:10px;font-weight:400;line-height:1.45}
+.selected-category{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;background:#eef9f5;border:1px solid #d7f0e7;border-radius:9px}
+.selected-category span{display:grid;gap:3px;min-width:0}
+.selected-category small{font-size:8px;letter-spacing:1px;color:#0b9c7c}
+.selected-category b{font-size:10px;color:#26384b;white-space:normal}
+.selected-category em{font-size:10px;color:#0b9c7c;font-style:normal}
+.selected-category button{flex:none;border:0;background:#dff3eb;color:#168d72;border-radius:7px;width:25px;height:25px;font-size:17px}
+/* Multi-month report filter */
+.report-toolbar{align-items:flex-end}
+.month-add{display:grid;gap:7px;min-width:270px}
+.month-add>div{display:flex;gap:8px}
+.month-add input{flex:1;min-width:0;border:1px solid #dce5eb!important;border-radius:9px!important;padding:10px 11px!important;background:#fff}
+.month-add .primary{white-space:nowrap}
+.month-filter{margin-bottom:18px;padding:17px 19px}
+.month-filter-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:13px}
+.month-filter-head>div{display:grid;gap:4px}
+.month-filter-head b{font:700 13px Manrope;color:#26364a}
+.month-filter-head small{font-size:10px;color:#94a1b1}
+.month-filter-head>span{font-size:10px;color:#0b9c7c;background:#eaf8f3;border-radius:20px;padding:6px 9px;white-space:nowrap}
+.month-chips{display:flex;flex-wrap:wrap;gap:8px}
+.month-chip{display:inline-flex;align-items:center;gap:8px;background:#eaf8f3;border:1px solid #d2eee3;color:#087f68;border-radius:9px;padding:8px 9px 8px 12px;font-size:11px;font-weight:700;text-transform:capitalize}
+.month-chip button{display:grid;place-items:center;border:0;border-radius:5px;background:#d5eee5;color:#0b8b70;width:18px;height:18px;padding:0;font-size:14px;line-height:1}
+.month-chip button:hover{background:#c3e6d9}
+.month-empty{color:#97a3b1;font-size:11px;padding:4px}
+.report-empty{text-align:center;padding:30px 15px;color:#526176}
+.report-empty b{font:700 14px Manrope}
+.report-empty p{font-size:11px;color:#94a1b1}
+@media(max-width:720px){.report-toolbar{align-items:stretch}.month-add{width:100%;min-width:0}.month-add>div{flex-wrap:wrap}.month-add input{width:100%;flex-basis:100%}.month-add .primary{width:100%}.month-filter{padding:14px}.month-filter-head{align-items:flex-start}.category-suggestions{max-height:250px}}
