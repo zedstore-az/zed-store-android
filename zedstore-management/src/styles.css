@@ -197,3 +197,14 @@
 .order-transfer-preview small{font-size:9px;font-weight:400;color:#8391a3}
 .order-transfer-preview>b{font-size:19px;color:#1764c8;white-space:nowrap}
 @media(max-width:600px){.order-product-grid{grid-template-columns:1fr;max-height:250px}.order-product-thumb{width:64px;height:64px;flex-basis:64px}.order-months{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+
+/* Editable delivery status and compact product thumbnails in order list */
+.order-product-line{display:flex;align-items:center;gap:6px;min-width:0;margin:3px 0;font-size:11px;color:#33445a}
+.order-line-thumb{width:23px;height:23px;flex:0 0 23px;display:grid;place-items:center;overflow:hidden;border:1px solid #e7edf4;border-radius:6px;background:#f7f9fc;color:#8b98a9}
+.order-line-thumb img{width:100%;height:100%;object-fit:contain}
+.order-status-select{min-width:155px;max-width:190px;border:1px solid #dce5ed;border-radius:8px;padding:8px 26px 8px 9px;background:#f3f8ff;color:#155fc4;font-size:10px;font-weight:800;outline:0;cursor:pointer}
+.order-status-select:focus{border-color:#0865f5;box-shadow:0 0 0 3px #0865f51a}
+.order-status-select.is-delivered{background:#eaf8f1;border-color:#ccebdc;color:#128052}
+.order-status-select.is-cancelled{background:#fff0f0;border-color:#f2d4d4;color:#b34444}
+@media(max-width:720px){.order-status-select{min-width:145px;max-width:165px}.order-product-line{font-size:10px}}
