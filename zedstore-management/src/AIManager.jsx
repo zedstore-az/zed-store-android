@@ -72,9 +72,9 @@ export default function AIManager({ inventory = [], orders = [], sales = [], onS
       const oldQty = Number(result?.old_stock_qty ?? product.stock_qty ?? 0);
       const savedQty = Number(result?.new_stock_qty ?? newQty);
       const delta = savedQty - oldQty;
-      return successLead + '\\n' + product.name + '\\nƏvvəlki qalıq: ' + oldQty +
-        ' ədəd\\nDəyişiklik: ' + (delta > 0 ? '+' : '') + delta +
-        ' ədəd\\nYeni anbar qalığı: ' + savedQty + ' ədəd.';
+      return successLead + '\n' + product.name + '\nƏvvəlki qalıq: ' + oldQty +
+        ' ədəd\nDəyişiklik: ' + (delta > 0 ? '+' : '') + delta +
+        ' ədəd\nYeni anbar qalığı: ' + savedQty + ' ədəd.';
     } catch (error) {
       return 'Dəyişiklik yadda saxlanmadı: ' + (error?.message || 'Naməlum xəta');
     } finally {
@@ -137,15 +137,15 @@ export default function AIManager({ inventory = [], orders = [], sales = [], onS
     if (q.includes('azalan') || q.includes('az qalan') || q.includes('az stok') || q.includes('stokda olmayan')) {
       const low = products.filter(item => Number(item.stock_qty || 0) <= Number(item.low_stock_threshold || 0));
       if (!low.length) return 'Hazırda az stok həddinə düşən aktiv məhsul yoxdur.';
-      return 'Azalan və ya bitmiş stok məhsulları (' + low.length + '):\\n' +
-        low.slice(0, 30).map((item, index) => (index + 1) + '. ' + item.name + ' — ' + Number(item.stock_qty || 0) + ' ədəd qalıb (hədd: ' + Number(item.low_stock_threshold || 0) + ')').join('\\n') +
-        (low.length > 30 ? '\\n... və daha ' + (low.length - 30) + ' məhsul.' : '');
+      return 'Azalan və ya bitmiş stok məhsulları (' + low.length + '):\n' +
+        low.slice(0, 30).map((item, index) => (index + 1) + '. ' + item.name + ' — ' + Number(item.stock_qty || 0) + ' ədəd qalıb (hədd: ' + Number(item.low_stock_threshold || 0) + ')').join('\n') +
+        (low.length > 30 ? '\n... və daha ' + (low.length - 30) + ' məhsul.' : '');
     }
 
     if (matched) {
-      return matched.name + '\\nAnbar qalığı: ' + Number(matched.stock_qty || 0) + ' ədəd\\nAz stok həddi: ' + Number(matched.low_stock_threshold || 0) +
-        '\\nMaya qiyməti: ' + money(matched.cost_price) + '\\nSatış qiyməti: ' + money(matched.sale_price) +
-        (matched.sku ? '\\nSKU: ' + matched.sku : '') + (matched.category ? '\\nKateqoriya: ' + matched.category : '');
+      return matched.name + '\nAnbar qalığı: ' + Number(matched.stock_qty || 0) + ' ədəd\nAz stok həddi: ' + Number(matched.low_stock_threshold || 0) +
+        '\nMaya qiyməti: ' + money(matched.cost_price) + '\nSatış qiyməti: ' + money(matched.sale_price) +
+        (matched.sku ? '\nSKU: ' + matched.sku : '') + (matched.category ? '\nKateqoriya: ' + matched.category : '');
     }
 
     if (q.includes('ən çox sat') || q.includes('cox sat') || q.includes('top məhsul') || q.includes('top mehsul')) {
@@ -155,7 +155,7 @@ export default function AIManager({ inventory = [], orders = [], sales = [], onS
         totals.set(key, (totals.get(key) || 0) + Number(item.quantity || 0));
       });
       const top = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
-      return top.length ? 'Ən çox satılan məhsullar:\\n' + top.map((item, index) => (index + 1) + '. ' + item[0] + ' — ' + item[1] + ' ədəd').join('\\n') : 'Hələ satış qeydi yoxdur.';
+      return top.length ? 'Ən çox satılan məhsullar:\n' + top.map((item, index) => (index + 1) + '. ' + item[0] + ' — ' + item[1] + ' ədəd').join('\n') : 'Hələ satış qeydi yoxdur.';
     }
 
     if (q.includes('bu ay') || q.includes('satış') || q.includes('satis') || q.includes('mənfəət') || q.includes('menfeet') || q.includes('dövriyyə') || q.includes('dovriyye')) {
@@ -164,9 +164,9 @@ export default function AIManager({ inventory = [], orders = [], sales = [], onS
       const units = rows.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
       const turnover = rows.reduce((sum, item) => sum + Number(item.transferred_amount || 0) * Number(item.quantity || 0), 0);
       const profit = rows.reduce((sum, item) => sum + Number(item.net_profit || 0), 0);
-      return 'Bu ayın ödənişi təsdiqlənmiş satışları:\\nSatış qeydi: ' + rows.length +
-        '\\nSatılan məhsul sayı: ' + units + ' ədəd\\nKöçən məbləğ: ' + money(turnover) +
-        '\\nXalis mənfəət: ' + money(profit);
+      return 'Bu ayın ödənişi təsdiqlənmiş satışları:\nSatış qeydi: ' + rows.length +
+        '\nSatılan məhsul sayı: ' + units + ' ədəd\nKöçən məbləğ: ' + money(turnover) +
+        '\nXalis mənfəət: ' + money(profit);
     }
 
     if (q.includes('sifariş') || q.includes('sifaris')) {
@@ -174,8 +174,8 @@ export default function AIManager({ inventory = [], orders = [], sales = [], onS
       const counts = {};
       orders.forEach(item => { const key = item.delivery_status || 'naməlum'; counts[key] = (counts[key] || 0) + 1; });
       const pending = orders.filter(item => !['delivered', 'cancelled'].includes(item.delivery_status)).length;
-      return 'Sifarişlərin ümumi sayı: ' + orders.length + '\\nProsesdə olan sifarişlər: ' + pending + '\\n' +
-        (Object.entries(counts).map(([key, count]) => (labels[key] || key) + ': ' + count).join('\\n') || 'Sifariş yoxdur.');
+      return 'Sifarişlərin ümumi sayı: ' + orders.length + '\nProsesdə olan sifarişlər: ' + pending + '\n' +
+        (Object.entries(counts).map(([key, count]) => (labels[key] || key) + ': ' + count).join('\n') || 'Sifariş yoxdur.');
     }
 
     if (q.includes('anbar') || q.includes('stok') || q.includes('qalıq') || q.includes('qaliq') || q.includes('xülasə') || q.includes('xulase')) {
@@ -184,15 +184,15 @@ export default function AIManager({ inventory = [], orders = [], sales = [], onS
       const low = products.filter(item => Number(item.stock_qty || 0) <= Number(item.low_stock_threshold || 0)).length;
       const costValue = products.reduce((sum, item) => sum + Number(item.stock_qty || 0) * Number(item.cost_price || 0), 0);
       const saleValue = products.reduce((sum, item) => sum + Number(item.stock_qty || 0) * Number(item.sale_price || 0), 0);
-      return 'ZED STORE anbar xülasəsi:\\nAktiv məhsul sayı: ' + products.length +
-        '\\nÜmumi stok: ' + units + ' ədəd\\nAzalan stok: ' + low +
-        '\\nStokda olmayan məhsul: ' + empty +
-        '\\nAnbarın maya dəyəri: ' + money(costValue) +
-        '\\nSatış qiyməti ilə ümumi dəyər: ' + money(saleValue);
+      return 'ZED STORE anbar xülasəsi:\nAktiv məhsul sayı: ' + products.length +
+        '\nÜmumi stok: ' + units + ' ədəd\nAzalan stok: ' + low +
+        '\nStokda olmayan məhsul: ' + empty +
+        '\nAnbarın maya dəyəri: ' + money(costValue) +
+        '\nSatış qiyməti ilə ümumi dəyər: ' + money(saleValue);
     }
 
     if (q.includes('kömək') || q.includes('komək') || q.includes('nə edə') || q.includes('ne ede')) {
-      return 'Bunları edə bilərəm:\\n• Məhsulun adını yazıb qalığını öyrən\\n• “Məhsul adı satışdan çıxart” — qalığı sıfırla\\n• “Məhsul adı satışa çıxart” — əlavə ediləcək miqdarı soruş\\n• “Məhsul adı miqdarını 5 ədəd et” — qalığı 5 et\\n• “Məhsul adı 2 ədəd çıx” — qalıqdan 2 çıx\\n• Azalan stokları, anbar xülasəsini, satışları və sifarişləri göstər';
+      return 'Bunları edə bilərəm:\n• Məhsulun adını yazıb qalığını öyrən\n• “Məhsul adı satışdan çıxart” — qalığı sıfırla\n• “Məhsul adı satışa çıxart” — əlavə ediləcək miqdarı soruş\n• “Məhsul adı miqdarını 5 ədəd et” — qalığı 5 et\n• “Məhsul adı 2 ədəd çıx” — qalıqdan 2 çıx\n• Azalan stokları, anbar xülasəsini, satışları və sifarişləri göstər';
     }
 
     return 'Bu əmri hələ tanımadım. Anbar əmrləri üçün məhsulun adını və istədiyin dəyişikliyi yaz. Məsələn: “Lenovo LS105 miqdarını 5 ədəd et”.';
