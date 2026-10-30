@@ -14,7 +14,8 @@ function Modal({title,close,children}){return <div className="shade" onClick={e=
 function App(){
  const [user,U]=useState(null),[ready,R]=useState(false),[splashDone,SD]=useState(false),[tab,T]=useState('home'),[mobile,M]=useState(false),[data,D]=useState({products:[],orders:[],sales:[],cancel:[],settings:null}),[toast,Q]=useState(''),[busy,B]=useState(false);
  const [storeEmail,SEmail]=useState(()=>localStorage.getItem('zed_store_contact_email')||''),[storePhone,SPhone]=useState(()=>localStorage.getItem('zed_store_contact_phone')||'');
- const [newPassword,NP]=useState(''),[confirmPassword,CP]=useState(''),[passwordBusy,PB]=useState(false);\n const [apiKeyText,AKT]=useState(''),[apiKeyBusy,AKB]=useState(false);
+ const [newPassword,NP]=useState(''),[confirmPassword,CP]=useState(''),[passwordBusy,PB]=useState(false);
+ const [apiKeyText,AKT]=useState(''),[apiKeyBusy,AKB]=useState(false);
  const [modal,MO]=useState(''),[editing,ED]=useState(null),[search,SE]=useState(''),[filter,F]=useState('all'),[selectedMonths,SM]=useState([monthKey(new Date())]),[monthDraft,MD]=useState(monthKey(new Date()));
  const [p,SP]=useState({name:'',sku:'',category:'',brand:'',cost_price:0,sale_price:0,birmarket_price:0,weight_kg:0,stock_qty:0,low_stock_threshold:1,notes:''});const [productImages,PI]=useState([]),[newImages,NI]=useState([]),[categoryOpen,CO]=useState(false);
  const [o,SO]=useState({customer_name:'',customer_phone:'',product_id:'',quantity:1,source:'Birmarket',commission:8,logistics:0,bank:0,transferred:''});
@@ -38,7 +39,8 @@ function App(){
  async function revokeChatGPTKey(){if(!data.apiKey)return;const r=await sb.from('chatgpt_api_keys').update({revoked_at:new Date().toISOString()}).eq('id',data.apiKey.id);if(r.error)say(r.error.message);else{AKT('');D(old=>({...old,apiKey:null}));say('ChatGPT bağlantısı ləğv edildi')}} 
  async function saveSettings(e){e.preventDefault();const payload=data.settings?{store_name:sett.store_name}:sett;const r=data.settings?await sb.from('store_settings').update(payload).eq('id',data.settings.id):await sb.from('store_settings').insert(payload);if(r.error){say(r.error.message);return}localStorage.setItem('zed_store_contact_email',storeEmail.trim());localStorage.setItem('zed_store_contact_phone',storePhone.trim());say('Mağaza məlumatları saxlandı');load()}
  async function changePassword(e){e.preventDefault();if(newPassword.length<8){say('Yeni şifrə ən azı 8 simvol olmalıdır');return}if(newPassword!==confirmPassword){say('Şifrələr uyğun gəlmir');return}PB(true);const r=await sb.auth.updateUser({password:newPassword});if(r.error)say(r.error.message);else{NP('');CP('');say('Şifrə uğurla dəyişdirildi')}PB(false)}
- function csv(rows,name){if(!rows.length)return say('Məlumat yoxdur');const s='\ufeff'+[Object.keys(rows[0]).join(';'),...rows.map(x=>Object.values(x).join(';'))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/csv;charset=utf-8'}));a.download=name+'.csv';a.click()}
+ function csv(rows,name){if(!rows.length)return say('Məlumat yoxdur');const s='\ufeff'+[Object.keys(rows[0]).join(';'),...rows.map(x=>Object.values(x).join(';'))].join('
+');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/csv;charset=utf-8'}));a.download=name+'.csv';a.click()}
  if(!ready||!splashDone)return <div className="splash"><img src="/Picsart_26-10-14_20-57-41-838.png" alt="ZED STORE"/><span>MANAGEMENT SYSTEM</span><i/></div>;if(!user)return <Login/>;
  const heading=menu.find(x=>x[0]===tab)?.[1];
 
