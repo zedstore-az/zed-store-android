@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Any
 
@@ -19,7 +20,9 @@ INCLUDE_FIELDS = (
     "deactivated_at,l_length,l_width,l_height,l_brutto_weight"
 )
 
-app = FastAPI(title="ZED STORE Backend", version="0.2.1")
+logger = logging.getLogger("zed_store")
+
+app = FastAPI(title="ZED STORE Backend", version="0.2.2")
 bearer_scheme = HTTPBearer(auto_error=False)
 origins = [x.strip() for x in os.getenv("CORS_ORIGINS", "").split(",") if x.strip()]
 app.add_middleware(
@@ -95,11 +98,19 @@ def _refresh_access_token(client: httpx.Client) -> str:
         )
         response.raise_for_status()
         payload = response.json()
-    except (httpx.HTTPError, ValueError):
+    except httpx.HTTPStatusError as exc:
+        logger.error("Birmarket token refresh rejected: HTTP %s", exc.response.status_code)
+        raise HTTPException(status_code=502, detail="Birmarket token refresh failed")
+    except httpx.RequestError as exc:
+        logger.error("Birmarket token refresh network error: %s", type(exc).__name__)
+        raise HTTPException(status_code=502, detail="Birmarket token refresh failed")
+    except ValueError:
+        logger.error("Birmarket token refresh returned invalid JSON")
         raise HTTPException(status_code=502, detail="Birmarket token refresh failed")
 
     access_token = _find_value(payload, "access_token")
     if not isinstance(access_token, str) or not access_token:
+        logger.error("Birmarket token refresh response did not contain access_token")
         raise HTTPException(status_code=502, detail="Birmarket did not return an access token")
     return access_token
 
