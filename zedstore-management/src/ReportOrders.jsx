@@ -1,0 +1,4 @@
+import React from 'react';
+const dt=d=>d?new Date(d).toLocaleString('az-AZ'):'—';
+const status={new:'Yeni',ready:'Təhvilə hazır',courier:'Kuryerə verilib',pickup_point:'Paylama məntəqəsində',delivered:'Təhvil verilib',cancelled:'Ləğv edilib'};
+export default function ReportOrders({rows}){return <div className="tablewrap"><table><thead><tr><th>Sifariş tarixi</th><th>Müştəri</th><th>Məhsullar</th><th>Çatdırılma</th><th>Ödəniş</th></tr></thead><tbody>{rows.map(x=><tr key={x.id}><td>{dt(x.ordered_at)}</td><td><b>{x.customer_name}</b><small>{x.customer_phone||'—'}</small></td><td>{(x.order_items||[]).map(i=><div key={i.id}>{i.product_name} × {i.quantity}</div>)}</td><td>{status[x.delivery_status]||x.delivery_status}</td><td><span className={'badge '+(x.payment_status==='paid'?'green':'yellow')}>{x.payment_status==='paid'?'Köçüb':'Gözlənilir'}</span></td></tr>)}</tbody></table>{!rows.length&&<p className="empty">Seçilmiş ayda daxil olan sifariş yoxdur.</p>}</div>}
