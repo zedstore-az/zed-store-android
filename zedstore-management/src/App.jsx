@@ -13,7 +13,7 @@ function calculateProductPayout(product={}){
  const category=BIRM_CATEGORIES.find(x=>x.name===String(product.category||'').trim());
  if(!category||price<=0)return {ready:false};
  const weight=Math.max(0,Number(product.weight_kg)||0);
- const dm=String(product.notes||'').match(/(?:ölçülər|olculer|dimensions)\\s*[:\\-]?\\s*(\\d+(?:[.,]\\d+)?)\\s*(?:x|×|\\*)\\s*(\\d+(?:[.,]\\d+)?)\\s*(?:x|×|\\*)\\s*(\\d+(?:[.,]\\d+)?)/i);
+ const dm=String(product.notes||'').match(/(?:ölçülər|olculer|dimensions)\s*[:\-]?\s*(\d+(?:[.,]\d+)?)\s*(?:x|×|\*)\s*(\d+(?:[.,]\d+)?)\s*(?:x|×|\*)\s*(\d+(?:[.,]\d+)?)/i);
  const dims=dm?dm.slice(1).map(v=>Number(v.replace(',','.'))):null;
  const hasDims=!!dims&&dims.every(v=>Number.isFinite(v)&&v>0);
  const volume=hasDims?dims[0]*dims[1]*dims[2]/1000000:null;
