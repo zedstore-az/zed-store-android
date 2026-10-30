@@ -2,7 +2,8 @@ import os
 from typing import Any
 
 import httpx
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.middleware.cors import CORSMiddleware
 
 BIRM_MARKET_REFRESH_URL = "https://bbu.umico.az/api/v1/auth/refresh-token"
@@ -18,7 +19,8 @@ INCLUDE_FIELDS = (
     "deactivated_at,l_length,l_width,l_height,l_brutto_weight"
 )
 
-app = FastAPI(title="ZED STORE Backend", version="0.2.0")
+app = FastAPI(title="ZED STORE Backend", version="0.2.1")
+bearer_scheme = HTTPBearer(auto_error=False)
 origins = [x.strip() for x in os.getenv("CORS_ORIGINS", "").split(",") if x.strip()]
 app.add_middleware(
     CORSMiddleware,
@@ -172,7 +174,8 @@ def _normalize_product(record: dict):
 
 
 @app.get("/api/products")
-def products(authorization: str | None = Header(default=None)):
+def products(credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme)):
+    authorization = f"Bearer {credentials.credentials}" if credentials else None
     require_app_key(authorization)
     if not integration_configured():
         raise HTTPException(status_code=503, detail="Birmarket connection is not configured")
