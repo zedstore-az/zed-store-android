@@ -308,3 +308,17 @@
 .order-number-cell{min-width:110px;font-weight:800;color:#1764c8;white-space:nowrap}
 .order-number-cell small{display:block;margin-top:4px;font-size:9px;color:#91a0b0;font-weight:500}
 @media(max-width:720px){.repeat-customer-list{grid-template-columns:1fr}.repeat-customer-card{padding:11px}.repeat-detail-head{align-items:flex-start}.repeat-detail-head .outline{padding:7px 10px;font-size:10px}}
+
+
+/* Cancellation archive date filters: scoped only to the all-cancellations list */
+.cancel-date-filter{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:12px;margin:14px 0 10px}
+.cancel-date-add{display:grid;gap:6px}
+.cancel-date-add>label{font-size:10px;font-weight:800;color:#63748b}
+.cancel-date-add>div{display:flex;align-items:center;gap:7px;min-width:0}
+.cancel-date-add input{min-width:0;flex:1;height:38px;padding:0 10px;border:1px solid #dce4ee;border-radius:9px;background:#fff;color:#25364d;font:600 11px Manrope}
+.cancel-date-add button{height:38px;display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;padding:0 10px;font-size:10px}
+.cancel-month-filter{margin:0 0 13px;padding:11px 12px;background:#f8fafd;border:1px solid #e8edf4;border-radius:11px}
+.cancel-filter-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:10px}
+.cancel-filter-actions button{padding:6px 10px;font-size:9px}
+.cancel-day-chip{background:#edf5ff;border-color:#d4e5fa;color:#235b99}
+@media(max-width:680px){.cancel-date-filter{grid-template-columns:1fr}.cancel-date-add>div{flex-wrap:wrap}.cancel-date-add input{flex-basis:130px}.cancel-date-add button{flex-shrink:0}.cancel-filter-actions{justify-content:flex-start}}
