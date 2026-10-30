@@ -276,3 +276,17 @@
 .cancellation-archive{margin-top:0}
 .cancellation-archive-head>span{font-size:10px;color:#607086;background:#f1f4f8;border-radius:20px;padding:6px 9px;white-space:nowrap}
 @media(max-width:720px){.repeat-section{padding:14px}.repeat-section-head{align-items:flex-start}.repeat-section-head h3{font-size:14px}.repeat-total{font-size:9px;padding:7px 8px}.repeat-customer-head{padding:12px}.repeat-events{padding:3px 11px 9px}.repeat-order-meta{gap:7px 11px}.repeat-event-top{align-items:flex-start}.repeat-event-top span{text-align:right;font-size:9px}}
+
+
+/* Order payment-term editor */
+.order-edit-button{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid #dce6f1;border-radius:9px;background:#f7faff;color:#2563eb}
+.order-edit-button:hover{background:#eaf2ff;border-color:#bfd5ff}
+.order-edit-form{gap:15px}
+.order-edit-summary{display:grid;gap:6px;padding:13px 14px;border:1px solid #e4ebf3;border-radius:11px;background:#f8fafd}
+.order-edit-summary b{font:700 13px Manrope;color:#203047}
+.order-edit-summary span{font-size:11px;line-height:1.5;color:#5d6d82}
+.order-edit-summary small{font-size:10px;color:#8b98a8}
+.order-edit-note{display:flex;align-items:flex-start;gap:9px;padding:11px 12px;border-radius:10px;background:#eff6ff;color:#52647c;font-size:10px;line-height:1.55}
+.order-edit-note svg{flex:none;color:#2563eb}
+.payment-cell small{font-size:9px;color:#7b8ba0;line-height:1.35}
+@media(max-width:720px){.order-edit-summary{padding:11px}.order-edit-note{font-size:9px}}
