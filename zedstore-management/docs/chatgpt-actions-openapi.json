@@ -1,0 +1,14 @@
+{
+ "openapi":"3.1.0",
+ "info":{"title":"ZED STORE Assistant API","version":"1.0.0","description":"ZED STORE məhsul, sifariş, çatdırılma və ödəniş idarəetməsi."},
+ "servers":[{"url":"https://xisqlegehabwjjrjvimj.supabase.co/functions/v1/zed-chatgpt"}],
+ "security":[{"ZedApiKey":[]}],
+ "paths":{
+  "/products":{"get":{"operationId":"searchProducts","summary":"Məhsulları axtar və stok qalığını yoxla","parameters":[{"name":"query","in":"query","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Məhsul nəticələri"}}}},
+  "/orders":{"get":{"operationId":"listOrders","summary":"Sifarişləri və çatdırılma/ödəniş statuslarını göstər","parameters":[{"name":"status","in":"query","required":false,"schema":{"type":"string"}}],"responses":{"200":{"description":"Sifarişlər"}}},"post":{"operationId":"createOrder","summary":"Sifariş yarat; stok avtomatik azaldılır və status Təhvilə hazır olur","requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","required":["product_query","sale_price"],"properties":{"product_query":{"type":"string"},"sale_price":{"type":"number","minimum":0.01},"quantity":{"type":"integer","minimum":1,"default":1},"customer_name":{"type":"string"},"customer_phone":{"type":"string"},"source":{"type":"string","default":"ChatGPT"},"note":{"type":"string"}}}}}},"responses":{"200":{"description":"Yaradılmış sifariş"}}}},
+  "/orders/{id}/status":{"patch":{"operationId":"updateOrderStatus","summary":"Sifarişin çatdırılma statusunu dəyiş","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","required":["status"],"properties":{"status":{"type":"string","enum":["courier","pickup_point","delivered","cancelled"]}}}}}},"responses":{"200":{"description":"Status yeniləndi"}}}},
+  "/orders/{id}/paid":{"post":{"operationId":"confirmPayment","summary":"Pul faktiki köçəndə ödənişi təsdiqlə; yalnız bundan sonra hesabatda gəlir sayılır","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"Ödəniş təsdiqləndi"}}}},
+  "/summary":{"get":{"operationId":"getStoreSummary","summary":"Satış, gözləyən ödəniş və sifariş xülasəsi","responses":{"200":{"description":"Mağaza xülasəsi"}}}}
+ },
+ "components":{"securitySchemes":{"ZedApiKey":{"type":"apiKey","in":"header","name":"x-zed-api-key"}}}
+}
