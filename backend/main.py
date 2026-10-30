@@ -22,7 +22,7 @@ INCLUDE_FIELDS = (
 
 logger = logging.getLogger("zed_store")
 
-app = FastAPI(title="ZED STORE Backend", version="0.2.2")
+app = FastAPI(title="ZED STORE Backend", version="0.2.3")
 bearer_scheme = HTTPBearer(auto_error=False)
 origins = [x.strip() for x in os.getenv("CORS_ORIGINS", "").split(",") if x.strip()]
 app.add_middleware(
@@ -66,6 +66,12 @@ def health():
         "ok": True,
         "service": "zed-store-backend",
         "integration": "configured" if integration_configured() else "not_configured",
+        "checks": {
+            "app_key_configured": bool(os.getenv("ZED_APP_API_KEY")),
+            "refresh_token_configured": bool(os.getenv("BIRM_MARKET_REFRESH_TOKEN")),
+            "source_code": os.getenv("BIRM_MARKET_SOURCE_CODE", "CUSTOMER"),
+            "merchant_uuid_configured": bool(MERCHANT_UUID),
+        },
     }
 
 
@@ -99,8 +105,17 @@ def _refresh_access_token(client: httpx.Client) -> str:
         response.raise_for_status()
         payload = response.json()
     except httpx.HTTPStatusError as exc:
-        logger.error("Birmarket token refresh rejected: HTTP %s", exc.response.status_code)
-        raise HTTPException(status_code=502, detail="Birmarket token refresh failed")
+        status = exc.response.status_code
+        logger.error("Birmarket token refresh rejected: HTTP %s", status)
+        if status in (401, 403):
+            detail = f"Birmarket rejected the refresh token (HTTP {status}); update BIRM_MARKET_REFRESH_TOKEN in Render Environment."
+        elif status == 400:
+            detail = "Birmarket rejected the refresh request (HTTP 400); verify BIRM_MARKET_SOURCE_CODE is CUSTOMER."
+        elif status == 429:
+            detail = "Birmarket rate limit reached while refreshing the token (HTTP 429); retry later."
+        else:
+            detail = f"Birmarket token refresh failed (HTTP {status})."
+        raise HTTPException(status_code=502, detail=detail)
     except httpx.RequestError as exc:
         logger.error("Birmarket token refresh network error: %s", type(exc).__name__)
         raise HTTPException(status_code=502, detail="Birmarket token refresh failed")
@@ -146,7 +161,16 @@ def _fetch_products_page(client: httpx.Client, access_token: str, page: int):
 def _normalize_product(record: dict):
     attributes = record.get("attributes") or {}
     offer_list = attributes.get("product_offers") or []
-    offer = offer_list[0] if offer_list and isinstance(offer_list[0], dict) else {}
+    offer = next(
+        (
+            item for item in offer_list
+            if isinstance(item, dict)
+            and item.get("merchant_uuid") == MERCHANT_UUID
+            and item.get("active") is not False
+            and item.get("deleted") is not True
+        ),
+        {},
+    )
     photos = attributes.get("photos") or {}
     images = []
 
@@ -156,6 +180,10 @@ def _normalize_product(record: dict):
             images.append(url)
 
     for url in photos.get("img_urls_secondary") or []:
+        if isinstance(url, str) and url not in images:
+            images.append(url)
+
+    for url in attributes.get("image_urls") or []:
         if isinstance(url, str) and url not in images:
             images.append(url)
 
