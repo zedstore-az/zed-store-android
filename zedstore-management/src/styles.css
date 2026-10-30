@@ -156,3 +156,44 @@
 .formmodal input[readonly]{background:#f1f6ff!important;border-color:#d6e6fb!important;color:#075fe8!important;font-weight:800;cursor:default}
 .formmodal label>small{font-size:9px;color:#8a98a9;line-height:1.45;font-weight:400}
 @media(max-width:600px){.pricing-preview-details{grid-template-columns:1fr}.pricing-preview-head strong{font-size:20px}}
+
+
+/* Product catalog and automatic fee breakdown in the new-order modal */
+.order-form{gap:15px}
+.order-product-picker{border:1px solid var(--line,#e7ebf0);border-radius:13px;padding:12px;background:#fbfcfe}
+.order-picker-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.order-picker-heading b{font-size:13px;color:#1f2b3b}
+.order-picker-heading small{font-size:10px;color:#8a96a6}
+.order-product-search{margin-bottom:10px;min-height:38px}
+.order-product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:290px;overflow:auto;padding:2px}
+.order-product-card{position:relative;display:flex;align-items:center;gap:9px;text-align:left;padding:8px;border:1px solid #e5eaf1;border-radius:10px;background:#fff;min-width:0;cursor:pointer;color:inherit}
+.order-product-card.selected{border-color:#2674e8;background:#f1f7ff;box-shadow:0 0 0 1px #2674e8}
+.order-product-thumb{width:58px;height:58px;flex:0 0 58px;display:grid;place-items:center;border-radius:8px;background:#f3f5f8;overflow:hidden;color:#9aa6b5}
+.order-product-thumb img{width:100%;height:100%;object-fit:contain}
+.order-product-info{display:grid;gap:4px;min-width:0}
+.order-product-info b{font-size:10px;line-height:1.35;color:#26364a;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.order-product-info small{font-size:9px;color:#8995a4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.order-product-info em{font-size:10px;font-style:normal;font-weight:800;color:#1764c8}
+.order-product-check{position:absolute;right:7px;top:6px;width:18px;height:18px;display:grid;place-items:center;border-radius:50%;background:#1764c8;color:white;font-size:11px;font-weight:800}
+.order-no-products{grid-column:1/-1;padding:20px;text-align:center;color:#8b97a7;font-size:11px}
+.order-selected-product{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #d9e8fa;border-radius:10px;background:#f5f9ff}
+.order-selected-thumb{width:48px;height:48px;flex:0 0 48px;display:grid;place-items:center;overflow:hidden;border-radius:8px;background:white;color:#94a1b1}
+.order-selected-thumb img{width:100%;height:100%;object-fit:contain}
+.order-selected-product>div{display:grid;gap:4px;min-width:0}
+.order-selected-product b{font-size:12px;color:#26364a}
+.order-selected-product small{font-size:10px;color:#8290a1}
+.order-fee-fields input[readonly]{background:#f2f6fc!important;border-color:#e0e8f2!important;color:#304a68!important;font-weight:800;cursor:default}
+.order-payment{display:grid;gap:10px;padding:12px;border:1px solid #e4eaf1;border-radius:11px;background:#fbfcfe}
+.order-payment>b{font-size:12px;color:#26364a}
+.order-payment>label{display:grid;gap:6px;font-size:11px;font-weight:700;color:#56677b}
+.order-payment select{width:100%;min-height:38px;border:1px solid #dce3ec;border-radius:8px;padding:8px;background:white;color:#25354a}
+.order-months{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.order-months button{border:1px solid #dce3ec;border-radius:8px;background:white;padding:9px 4px;font-size:10px;font-weight:700;color:#56677b}
+.order-months button.active{border-color:#2674e8;background:#edf5ff;color:#1764c8}
+.order-bank-line{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #e7ebf0;font-size:11px;color:#718096}
+.order-bank-line b{font-size:13px;color:#26364a}
+.order-transfer-preview{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.order-transfer-preview>span{display:grid;gap:4px}
+.order-transfer-preview small{font-size:9px;font-weight:400;color:#8391a3}
+.order-transfer-preview>b{font-size:19px;color:#1764c8;white-space:nowrap}
+@media(max-width:600px){.order-product-grid{grid-template-columns:1fr;max-height:250px}.order-product-thumb{width:64px;height:64px;flex-basis:64px}.order-months{grid-template-columns:repeat(3,minmax(0,1fr))}}
