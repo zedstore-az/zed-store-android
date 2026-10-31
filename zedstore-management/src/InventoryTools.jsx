@@ -60,7 +60,7 @@ export function BarcodePanel({products}){
    <div className="barcode-actions">
     <button className="primary" type="button" onClick={streaming?stop:start}>{streaming?<><CameraOff size={17}/> Kameranı bağla</>:<><Camera size={17}/> Kamera ilə oxut</>}</button>
    </div>
-   {streaming&&<video ref={video} className="barcode-video" playsInline muted autoPlay/>}
+   <video ref={video} className="barcode-video" playsInline muted autoPlay hidden={!streaming}/>
    {cameraError&&<div className="barcode-warning"><AlertTriangle size={17}/>{cameraError}</div>}
    <label className="barcode-input-label">Fiziki skaner / Barkod / SKU<input autoComplete="off" value={code} onChange={e=>{setCode(e.target.value);setSelected(null);setCameraError('')}} onKeyDown={handleScannerKeyDown} placeholder="Skaner ilə oxutmaq üçün bura kliklə, sonra barkodu oxut"/></label>
    <div className="barcode-results">{matches.map(p=><button type="button" key={p.id} className={'barcode-result '+(selected?.id===p.id?'active':'')} onClick={()=>setSelected(p)}><span>{p.image_url?<img src={p.image_url} alt=""/>:<ScanBarcode/>}</span><span><b>{p.name}</b><small>{p.barcode||'Barkod yoxdur'} · SKU: {p.sku||'—'}</small></span><strong>{p.stock_qty} ədəd</strong></button>)}{code.trim()&&!matches.length&&<p className="empty">Bu barkod və ya SKU ilə məhsul tapılmadı. Məhsul kartına barkod əlavə et.</p>}</div>
