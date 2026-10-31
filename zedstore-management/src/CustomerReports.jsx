@@ -118,6 +118,18 @@ export function MonthlyReportsPanel({orders=[],adjustedSales=[],products=[]}){
  const [toDate,setToDate]=useState(today);
  const inSelected=value=>{if(!value)return false;const key=dayKey(value);return !!key&&(!fromDate||key>=fromDate)&&(!toDate||key<=toDate)};
  const rangeLabel=(fromDate||'Başlanğıcdan')+' — '+(toDate||'bu günə qədər');
+ // Sifariş dinamikası sifarişin yaradıldığı tarixə əsaslanır; status və məbləğ nəzərə alınmır.
+ const orderDailyMap=new Map();
+ const weekdayNames=['Bazar','Bazar ertəsi','Çərşənbə axşamı','Çərşənbə','Cümə axşamı','Cümə','Şənbə'];
+ const orderDateRows=orders.map(o=>({order:o,createdAt:o.ordered_at||o.created_at||o.createdAt})).filter(x=>inSelected(x.createdAt));
+ for(const item of orderDateRows){const key=dayKey(item.createdAt);if(!key)continue;const row=orderDailyMap.get(key)||{key,count:0};row.count++;orderDailyMap.set(key,row)}
+ const orderDaily=[...orderDailyMap.values()].sort((a,b)=>a.key.localeCompare(b.key));
+ const busiestDay=[...orderDaily].sort((a,b)=>b.count-a.count||a.key.localeCompare(b.key))[0];
+ const weekdayCounts=weekdayNames.map((name,index)=>({name,index,count:orderDateRows.filter(x=>new Date(x.createdAt).getDay()===index).length}));
+ const busiestWeekday=[...weekdayCounts].sort((a,b)=>b.count-a.count)[0];
+ const orderCount=orderDateRows.length;
+ const averagePerDay=orderCount&&fromDate&&toDate?orderCount/(Math.round((new Date(toDate+'T12:00:00')-new Date(fromDate+'T12:00:00'))/86400000)+1):0;
+ const chartMax=Math.max(1,...orderDaily.map(x=>x.count));
  const orderMap=new Map(orders.map(o=>[o.id,o]));
  const productMap=new Map(products.map(p=>[p.id,p]));
  const paidOrderIds=new Set(orders.filter(o=>o.delivery_status==='delivered'&&o.payment_status==='paid'&&!!o.paid_at).map(o=>o.id));
@@ -145,6 +157,12 @@ export function MonthlyReportsPanel({orders=[],adjustedSales=[],products=[]}){
  return <div className="cr-page monthly-report-page sales-ledger-page">
   <div className="toolbar"><div><h2>Hesabatlar</h2><p>Yalnız təhvil verilmiş və ödənişi təsdiqlənmiş sifarişlər üzrə satış hesabatı.</p></div><div className="monthly-report-actions"><button className="outline" onClick={exportCsv} disabled={!validRange}><Download size={16}/> Excel / CSV yüklə</button><button className="primary" onClick={()=>window.print()} disabled={!validRange}><Printer size={16}/> PDF / Çap</button></div></div>
   <section className="panel monthly-selector"><div className="monthly-selector-head"><div><b>Hesabat dövrü</b><small>Tarix aralığını seçərək uğurlu sifarişlərin siyahısını süzgəcdən keçir.</small></div><span>{rangeLabel}</span></div><div className="monthly-add-row"><label>Başlanğıc tarix<input type="date" value={fromDate} max={toDate||undefined} onChange={e=>setFromDate(e.target.value)}/></label><label>Son tarix<input type="date" value={toDate} min={fromDate||undefined} onChange={e=>setToDate(e.target.value)}/></label><button className="outline" type="button" onClick={()=>{setFromDate(currentMonth+'-01');setToDate(today)}}>Bu ay</button><button className="outline" type="button" onClick={()=>{setFromDate(today);setToDate(today)}}>Bu gün</button><button className="outline" type="button" onClick={()=>{const d=new Date();setFromDate(dayKey(new Date(d.getFullYear(),d.getMonth(),d.getDate()-29)));setToDate(today)}}>Son 30 gün</button></div><small className="cr-range-note">Hesabat dövrü: {rangeLabel}</small></section>
+  {validRange&&<section className="panel cr-panel order-dynamics-panel">
+   <div className="sales-ledger-heading"><div><span className="sales-ledger-kicker">ZED STORE · SİFARİŞ ANALİTİKASI</span><h3>Satış dinamikası — yeni sifariş sayı</h3><p>Sifarişin yaradıldığı günə görə hesablanır. Məbləğ, ödəniş və çatdırılma statusu nəzərə alınmır.</p></div><span className="sales-ledger-period">{rangeLabel}</span></div>
+   <div className="order-dynamics-kpis"><div><small>Yeni yaradılan sifarişlər</small><b>{orderCount}</b><span>Seçilmiş tarix aralığında</span></div><div><small>Ən aktiv gün</small><b>{busiestDay?date(busiestDay.key):'—'}</b><span>{busiestDay?busiestDay.count+' sifariş':'Sifariş yoxdur'}</span></div><div><small>Ən aktiv həftə günü</small><b>{orderCount?busiestWeekday.name:'—'}</b><span>{orderCount?busiestWeekday.count+' sifariş':'Sifariş yoxdur'}</span></div><div><small>Gündəlik orta</small><b>{averagePerDay.toFixed(1)}</b><span>Sifariş / təqvim günü</span></div></div>
+   <div className="order-dynamics-chart"><div className="order-dynamics-title"><b>Günlər üzrə sifariş sayı</b><small>Hər sütun həmin gün yaradılan sifarişlərin sayıdır</small></div>{orderDaily.length?orderDaily.map(row=><div className="order-day-row" key={row.key}><span>{date(row.key)}</span><div className="order-day-track"><i style={{width:(row.count/chartMax*100)+'%'}}/></div><b>{row.count}</b></div>):<div className="sales-ledger-empty"><ShoppingCart size={24}/><b>Bu tarix aralığında yeni sifariş yoxdur</b><span>Tarix aralığını dəyişərək başqa dövrə baxa bilərsən.</span></div>}</div>
+   <div className="order-weekday-grid">{weekdayCounts.map(day=><div key={day.index}><small>{day.name}</small><b>{day.count}</b><span>sifariş</span></div>)}</div>
+  </section>}
   {validRange?<section className="panel cr-panel sales-ledger-panel">
    <div className="sales-ledger-heading"><div><span className="sales-ledger-kicker">ZED STORE · SATIŞ REYESTRİ</span><h3>Uğurlu sifarişlər</h3><p>Təhvil verilib və ödənişi təsdiqlənib · {rows.length} məhsul sətri · {totals.quantity} ədəd</p></div><span className="sales-ledger-period">{rangeLabel}</span></div>
    <div className="sales-ledger-summary">
