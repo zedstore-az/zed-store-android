@@ -9,7 +9,7 @@ const dateLabel=d=>d?new Date(d).toLocaleDateString("az-AZ"):"—";
 const todayKey=dateKey(new Date());
 const currentMonth=monthKey(new Date());
 
-export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[],purchases=[],returns=[],navigate=()=>{}}){
+export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[],purchases=[],returns=[],navigate=()=>{},load=()=>{}}){
  const [period,setPeriod]=useState("14");
  const currentSales=sales.filter(x=>monthKey(x.sold_at||x.created_at)===currentMonth);
  const previousMonth=monthKey(new Date(new Date().getFullYear(),new Date().getMonth()-1,1));
@@ -32,7 +32,7 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
  const low=products.filter(x=>Number(x.stock_qty||0)<=Number(x.low_stock_threshold||0));
  const activeOrders=orders.filter(x=>!["delivered","cancelled"].includes(x.delivery_status));
  return <div className="owner-dashboard">
-  <div className="owner-welcome"><div><span className="owner-kicker">SAHİBKAR PANELİ</span><h2>ZED STORE — Biznes icmalı</h2><p>Satış, mənfəət, anbar və pul axınını bir ekranda izlə.</p></div><button className="owner-refresh" onClick={()=>window.dispatchEvent(new Event("zedstore:refresh"))}><RefreshCw size={16}/> Yenilə</button></div>
+  <div className="owner-welcome"><div><span className="owner-kicker">SAHİBKAR PANELİ</span><h2>ZED STORE — Biznes icmalı</h2><p>Satış, mənfəət, anbar və pul axınını bir ekranda izlə.</p></div><button className="owner-refresh" onClick={load}><RefreshCw size={16}/> Yenilə</button></div>
   <div className="owner-metrics">
    <article className="owner-metric accent"><span>Bu gün satış</span><b>{money(todayTurnover)}</b><small>{todaySales.length} satış qeydi</small></article>
    <article className="owner-metric"><span>Bu ay dövriyyə</span><b>{money(monthTurnover)}</b><small className={change>=0?"positive":"negative"}>{change>=0?"↑":"↓"} {Math.abs(change).toFixed(1)}% · əvvəlki ayla müqayisə</small></article>
@@ -72,7 +72,7 @@ export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],sa
  const selected=products.find(x=>x.id===productId);
  const total=Math.max(0,Number(quantity)||0)*Math.max(0,Number(unitCost)||0);
  const paid=paymentStatus==="paid"?total:paymentStatus==="pending"?0:Math.min(total,Math.max(0,Number(paidAmount)||0));
- async function addSupplier(e){e.preventDefault();if(!supplierName.trim())return;const r=await sb.from("suppliers").insert({owner_id:user.id,name:supplierName.trim(),phone:supplierPhone.trim()||null}).select().single();if(r.error){say("Təchizatçı əlavə edilmədi: "+r.error.message);return}setSupplierId(r.data.id);setSupplierName("");setSupplierPhone("");say("Təchizatçı əlavə edildi");await load()}
+ async function addSupplier(){if(!supplierName.trim())return;const r=await sb.from("suppliers").insert({owner_id:user.id,name:supplierName.trim(),phone:supplierPhone.trim()||null}).select().single();if(r.error){say("Təchizatçı əlavə edilmədi: "+r.error.message);return}setSupplierId(r.data.id);setSupplierName("");setSupplierPhone("");say("Təchizatçı əlavə edildi");await load()}
  async function save(e){e.preventDefault();if(!productId||!(Number(quantity)>0)||!(Number(unitCost)>=0)){say("Məhsul, miqdar və alış qiymətini düzgün daxil et.");return}if(paymentStatus==="partial"&&!(paid>0&&paid<total)){say("Qismən ödəniş üçün ödənilmiş məbləğ ümumi alışdan az və sıfırdan böyük olmalıdır.");return}setSaving(true);const payload={owner_id:user.id,product_id:productId,supplier_id:supplierId||null,quantity:Number(quantity),unit_cost:Number(unitCost),total_amount:total,paid_amount:paid,payment_status:paymentStatus,payment_account:account,purchased_at:new Date(purchasedAt+"T12:00:00").toISOString(),invoice_no:invoice.trim()||null,notes:notes.trim()||null,stock_applied:false};const r=await sb.from("purchases").insert(payload);if(r.error)say("Alış qeydi saxlanmadı: "+r.error.message);else{say("Alış qeydə alındı, anbar qalığı və maliyyə dəftəri yeniləndi.");setProductId("");setQuantity("1");setUnitCost("");setInvoice("");setNotes("");setPaymentStatus("paid");setPaidAmount("");await load()}setSaving(false)}
  const rows=[...purchases].sort((a,b)=>new Date(b.purchased_at||b.created_at)-new Date(a.purchased_at||a.created_at));
  return <div className="owner-purchases">
