@@ -161,3 +161,30 @@ export function SecurityPanel({sb,user,loginEvents=[],say,load}){
   <div className="owner-backup-note"><CheckCircle2 size={18}/><span><b>Platforma ehtiyat nüsxələri:</b> Supabase-in avtomatik verilənlər bazası backup və bərpa imkanları layihənin tarifindən asılıdır. Bu paneldəki düymə isə əlavə JSON nüsxəsi yaradır. Faylda sifariş və müştəri məlumatları ola bilər; onu təhlükəsiz yerdə saxla və mütəmadi yenilə.</span></div>
  </div>
 }
+
+
+export function SupplierManagerPanel({sb,user,suppliers=[],say,load}){
+ const [supplierName,setSupplierName]=useState("");
+ const [supplierPhone,setSupplierPhone]=useState("");
+ const [saving,setSaving]=useState(false);
+ async function addSupplier(){
+  const name=supplierName.trim();
+  if(!name||saving)return;
+  setSaving(true);
+  const r=await sb.from("suppliers").insert({owner_id:user.id,name,phone:supplierPhone.trim()||null}).select().single();
+  if(r.error){say("Təchizatçı əlavə edilmədi: "+r.error.message);setSaving(false);return}
+  setSupplierName("");
+  setSupplierPhone("");
+  say("Təchizatçı əlavə edildi");
+  await load();
+  setSaving(false);
+ }
+ return <section className="panel owner-supplier-panel">
+  <div className="finance-list-head"><h3>Təchizatçılar</h3><span>{suppliers.length}</span></div>
+  <div className="owner-inline-supplier">
+   <input value={supplierName} onChange={e=>setSupplierName(e.target.value)} placeholder="Yeni təchizatçı adı" aria-label="Yeni təchizatçı adı"/>
+   <input value={supplierPhone} onChange={e=>setSupplierPhone(e.target.value)} placeholder="Telefon (istəyə bağlı)" aria-label="Təchizatçı telefonu"/>
+   <button type="button" className="outline" onClick={addSupplier} disabled={!supplierName.trim()||saving}><Plus size={15}/> {saving?"Əlavə edilir...":"Əlavə et"}</button>
+  </div>
+ </section>
+}
