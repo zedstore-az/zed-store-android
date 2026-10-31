@@ -145,5 +145,5 @@
 
 /* Use the full A4 sheet: remove page margins for the monthly statement */
 @media print{
- @page{size:210mm 297mm;margin:0!important}
+ @page{size:190mm 260mm;margin:0!important}
 }
