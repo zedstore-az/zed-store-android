@@ -1,5 +1,6 @@
 import React,{useEffect,useMemo,useState} from "react";
-import {ArrowDownToLine,ArrowUpFromLine,Boxes,CalendarDays,CheckCircle2,Clock3,Download,LockKeyhole,Plus,RefreshCw,ShieldCheck,Store,Trash2,Upload,Wallet} from "lucide-react";
+import {ArrowDownToLine,ArrowUpFromLine,Boxes,CalendarDays,CheckCircle2,Clock3,Download,LockKeyhole,Plus,RefreshCw,ShieldCheck,Store,Trash2,Upload,Wallet,X} from "lucide-react";
+import BIRM_CATEGORIES from "./data/birmarketCategories.json";
 import "./OwnerTools.css";
 
 const money=n=>new Intl.NumberFormat("az-AZ",{style:"currency",currency:"AZN"}).format(Number(n||0));
