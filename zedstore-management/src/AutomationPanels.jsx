@@ -10,7 +10,7 @@ export function NotificationPanel({rows,onRead,onReadAll,busy}){
       <div><h2>Bildiriş mərkəzi</h2><p>{unread} oxunmamış bildiriş</p></div>
       <button className="outline" disabled={!unread||busy} onClick={onReadAll}><CheckCheck size={16}/> Hamısını oxunmuş et</button>
     </div>
-    {!rows.length?<p className="empty">Hələ bildiriş yoxdur.</p>:rows.map(x=><article key={x.id} className="alertrow" style={{alignItems:'flex-start',gap:12,opacity:x.read_at?.65:1}}>
+    {!rows.length?<p className="empty">Hələ bildiriş yoxdur.</p>:rows.map(x=><article key={x.id} className="alertrow" style={{alignItems:'flex-start',gap:12,opacity:x.read_at ? 0.65 : 1}}>
       <Bell size={17}/>
       <div style={{flex:1}}><b>{x.title}</b><p style={{margin:'5px 0'}}>{x.message}</p><small className="muted">{when(x.created_at)} · {x.severity==='critical'?'Təcili':x.severity==='warning'?'Diqqət':x.severity==='success'?'Uğurlu':'Məlumat'}</small></div>
       {!x.read_at&&<button className="tiny" title="Oxunmuş et" onClick={()=>onRead(x.id)}><CheckCheck size={16}/></button>}
