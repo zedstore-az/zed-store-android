@@ -1,4 +1,5 @@
 import React,{useEffect,useRef,useState} from 'react';
+import './InventoryTools.css';
 import {ScanBarcode,Camera,CameraOff,Search,PackageCheck,RotateCcw,ArrowLeftRight,AlertTriangle,CheckCircle2} from 'lucide-react';
 
 const money=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).format(Number(n||0));
