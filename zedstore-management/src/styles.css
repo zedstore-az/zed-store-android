@@ -356,3 +356,5 @@
 /* Mobile and desktop navigation: keep every menu item reachable by scrolling. */
 .sidebar{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#40516a #111d31}.sidebar>.sidebrand,.sidebar>.navtitle,.sidebar>.nav,.sidebar>.sidebottom{flex-shrink:0}.sidebottom{margin-top:16px}
 @media(max-width:720px){.sidebar{height:100dvh;padding-bottom:20px}.sidebar>.nav{flex:0 0 auto}.sidebar>.sidebottom{margin-top:16px}}
+
+.order-validation-note{margin:10px 0;padding:11px 13px;border:1px solid #e7b45b;border-radius:10px;background:#fff8e8;color:#80520b;font-size:13px;line-height:1.45}
