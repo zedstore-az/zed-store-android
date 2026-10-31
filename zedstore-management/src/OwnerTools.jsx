@@ -11,6 +11,7 @@ const currentMonth=monthKey(new Date());
 
 export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[],purchases=[],returns=[],navigate=()=>{},load=()=>{}}){
  const [period,setPeriod]=useState("14");
+ const todayKey=dateKey(new Date()),currentMonth=monthKey(new Date());
  const previousMonth=monthKey(new Date(new Date().getFullYear(),new Date().getMonth()-1,1));
  const orderPayout=order=>(order.order_items||[]).reduce((n,item)=>n+Number(item.transferred_amount||0)*Number(item.quantity||0),0);
  const paidOrderIds=new Set(orders.filter(x=>x.delivery_status==="delivered"&&x.payment_status==="paid"&&!!x.paid_at).map(x=>x.id));
