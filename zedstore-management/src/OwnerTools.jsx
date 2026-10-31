@@ -5,7 +5,7 @@ import "./OwnerTools.css";
 const money=n=>new Intl.NumberFormat("az-AZ",{style:"currency",currency:"AZN"}).format(Number(n||0));
 const dateKey=d=>{const x=new Date(d);return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0")};
 const monthKey=d=>{const x=new Date(d);return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")};
-const dateLabel=d=>d?new Date(d).toLocaleDateString("az-AZ"):"—";
+const dateLabel=d=>{if(!d)return "—";const x=new Date(d);return String(x.getDate()).padStart(2,"0")+"."+String(x.getMonth()+1).padStart(2,"0")+"."+x.getFullYear()};
 const todayKey=dateKey(new Date());
 const currentMonth=monthKey(new Date());
 
@@ -33,10 +33,10 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
  const payable=financeEntries.filter(x=>x.entry_type==="payable"&&x.status==="pending").reduce((n,x)=>n+Number(x.amount||0),0);
  const purchaseTotal=purchases.filter(x=>monthKey(x.purchased_at||x.created_at)===currentMonth).reduce((n,x)=>n+Number(x.total_amount||0),0);
  const change=previousTurnover?((monthTurnover-previousTurnover)/previousTurnover)*100:(monthTurnover?100:0);
- const chart=useMemo(()=>{const count=Number(period);return Array.from({length:count},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(count-1-i));const key=dateKey(d);const dayOrders=orders.filter(x=>dateKey(x.ordered_at||x.created_at)===key);return {key,label:d.toLocaleDateString("az-AZ",{day:"2-digit",month:"short"}),fullDate:d.toLocaleDateString("az-AZ"),count:dayOrders.length}})},[orders,period]);
+ const chart=useMemo(()=>{const count=Number(period);return Array.from({length:count},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(count-1-i));const key=dateKey(d);const dayOrders=orders.filter(x=>dateKey(x.ordered_at||x.created_at)===key);return {key,label:String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0"),fullDate:dateLabel(d),count:dayOrders.length}})},[orders,period]);
  const maxChart=Math.max(1,...chart.map(x=>x.count));
  const selectedDayOrders=orders.filter(x=>dateKey(x.ordered_at||x.created_at)===selectedDay);
- const selectedDayLabel=selectedDay?new Date(selectedDay+"T12:00:00").toLocaleDateString("az-AZ",{weekday:"long",day:"numeric",month:"long",year:"numeric"}):"—";
+ const selectedDayLabel=selectedDay?selectedDay.split("-").reverse().join("."):"—";
  const low=products.filter(x=>Number(x.stock_qty||0)<=Number(x.low_stock_threshold||0));
  const activeOrders=orders.filter(x=>!["delivered","cancelled"].includes(x.delivery_status));
  return <div className="owner-dashboard">
