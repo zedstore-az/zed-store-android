@@ -219,3 +219,8 @@
 
 
 .owner-mq-deleted-tag{display:block;margin-top:4px;color:#9a6b28;font-size:10px;font-weight:700}
+
+
+.owner-mq-deleted-row{background:#fffaf2;color:#87909b}
+.owner-mq-deleted-row td{border-top:1px dashed #eadfc9}
+.owner-mq-deleted-row .owner-mq-deleted-tag{color:#a0783c}
