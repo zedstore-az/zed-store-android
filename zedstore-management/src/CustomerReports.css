@@ -136,3 +136,8 @@
  #monthly-print-report .monthly-print-products th:nth-child(7),#monthly-print-report .monthly-print-products td:nth-child(7){width:12%}
  #monthly-print-report .monthly-print-products th:nth-child(8),#monthly-print-report .monthly-print-products td:nth-child(8){width:15%}
 }
+
+/* Reduce the complete monthly print document by about 10% while keeping the A4 sheet and margins unchanged */
+@media print{
+ #monthly-print-report{zoom:.90;width:111.111%!important;max-width:none!important}
+}
