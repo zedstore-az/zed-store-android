@@ -58,7 +58,7 @@ jobs:
 
       - name: Generate Android launcher icons
         run: |
-          python3 -m pip install --user cairosvg pillow
+          python3 -m pip install --user pillow
           python3 tools/generate-app-icons.py
 
       - name: Route Birmarket seller portal to external browser
