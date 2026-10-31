@@ -6,6 +6,12 @@ on:
       - 'android-app/**'
       - 'tools/generate-app-icons.py'
       - '.github/workflows/build-apk.yml'
+  pull_request:
+    branches: [zedstore-management]
+    paths:
+      - 'android-app/**'
+      - 'tools/generate-app-icons.py'
+      - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 jobs:
   build:
