@@ -28,7 +28,12 @@ Deno.serve(async (request: Request) => {
   const privateKey = Deno.env.get("VAPID_PRIVATE_KEY") || "";
   const subject = Deno.env.get("VAPID_SUBJECT") || "";
   const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  let serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  const secretKeysJson = Deno.env.get("SUPABASE_SECRET_KEYS") || "";
+  if (secretKeysJson) {
+    try { serviceRoleKey = JSON.parse(secretKeysJson)["default"] || serviceRoleKey; }
+    catch { console.error("SUPABASE_SECRET_KEYS is not valid JSON."); }
+  }
   if (!publicKey || !privateKey || !subject || !supabaseUrl || !serviceRoleKey) {
     console.error("Push function is missing one or more required secrets.");
     return json({ error: "Push service is not configured" }, 503);
