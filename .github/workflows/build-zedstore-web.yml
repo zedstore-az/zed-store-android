@@ -1,0 +1,28 @@
+name: Build ZED STORE Web
+
+on:
+  push:
+    branches:
+      - feature/ai-manager-live
+      - zedstore-management
+  pull_request:
+    branches:
+      - zedstore-management
+
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: zedstore-management
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build web app
+        run: npm run build
