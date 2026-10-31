@@ -81,3 +81,21 @@
 .owner-order-day>small{font-size:9px;color:#8291a3;text-align:right}
 .owner-order-empty{margin:0;padding:12px 0;color:#8a98a9;font-size:10px}
 @media(max-width:620px){.owner-order-day{grid-template-columns:1fr auto;gap:5px}.owner-order-day>strong{grid-column:2;grid-row:1}.owner-order-day>small{grid-column:1/-1;text-align:left}}
+
+/* Clickable order-count-only overview chart */
+.owner-chart-day{appearance:none;border:0;background:transparent;padding:0 2px 2px;cursor:pointer;color:inherit}
+.owner-chart-day:focus-visible{outline:2px solid #2686dc;outline-offset:3px;border-radius:8px}
+.owner-chart-day .owner-chart-count{font:800 10px Manrope;color:#718196;min-height:14px}
+.owner-chart-day .owner-chart-bar-wrap{height:135px}
+.owner-chart-day .owner-chart-bar-wrap i{background:linear-gradient(180deg,#52a4f5,#216fc6);transition:height .2s ease,background .2s ease}
+.owner-chart-day.selected .owner-chart-count{color:#087f78}
+.owner-chart-day.selected .owner-chart-bar-wrap i{background:linear-gradient(180deg,#22b99a,#087f78)}
+.owner-chart-day.selected small{color:#087f78;font-weight:900}
+.owner-selected-day{display:flex;align-items:center;gap:9px;margin-top:18px;padding:14px 16px;border:1px solid #dcece8;border-radius:11px;background:#f2faf7}
+.owner-selected-day>div{display:grid;gap:4px;margin-right:auto}
+.owner-selected-day small{font-size:9px;color:#82969a}
+.owner-selected-day b{font:800 12px Manrope;color:#30485a;text-transform:capitalize}
+.owner-selected-day strong{font:900 24px Manrope;color:#087f78}
+.owner-selected-day>span{font-size:10px;color:#66817b}
+.owner-chart-refresh-note{margin-top:9px;font-size:9px;color:#8a98a9}
+@media(max-width:620px){.owner-chart-day .owner-chart-bar-wrap{height:125px}.owner-selected-day{padding:12px}.owner-selected-day b{font-size:10px}}
