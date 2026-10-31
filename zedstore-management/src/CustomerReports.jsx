@@ -163,16 +163,17 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
    const unitMarketplace=Number(s.marketplace_commission||0);
    const unitLogistics=Number(s.logistics_fee||0);
    const unitBank=Number(s.bank_fee||0);
-   const unitSale=unitBirmarket;
+   const feesPerUnit=unitMarketplace+unitLogistics+unitBank;
+   const unitSale=unitBirmarket-feesPerUnit;
    const cost=unitCost*quantity;
    const sale=unitBirmarket*quantity;
-   const saleAfterCommission=sale;
    const marketplace=unitMarketplace*quantity;
    const logistics=unitLogistics*quantity;
    const bank=unitBank*quantity;
-   const finalSale=sale;
    const fees=marketplace+logistics+bank;
-   const profit=sale-cost;
+   const saleAfterCommission=sale-fees;
+   const finalSale=saleAfterCommission;
+   const profit=finalSale-cost;
    const orderNumber=orders.find(o=>o.id===s.order_id)?.order_number||String(s.order_id||'').slice(0,8).toUpperCase();
    return {id:s.id,date:s.paid_at,order:orderNumber,product:s.product_name||'Məhsul',quantity,unitCost,unitSale,unitBirmarket,cost,sale,saleAfterCommission,finalSale,marketplace,logistics,bank,fees,profit};
   }).filter(x=>x.quantity>0);
@@ -222,11 +223,11 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
     <div className="monthly-print-month-head"><h2>{monthLabel(report.month)}</h2><span>Hesabat dövrü: {report.month}</span></div>
     <div className="monthly-print-summary"><div><small>Satılan məhsul sayı</small><b>{report.units} ədəd</b></div><div><small>Ümumi satış məbləği (Birmarket)</small><b>{moneyValue(report.sale)}</b></div><div><small>Ümumi maya dəyəri</small><b>{moneyValue(report.cost)}</b></div><div><small>Komissiya və xidmət haqları</small><b>{moneyValue(report.fees)}</b></div><div><small>Xalis mənfəət</small><b>{moneyValue(report.profit)}</b></div></div>
     <div className="monthly-print-table-title">SATILMIŞ MƏHSULLARIN SİYAHISI</div>
-    <table className="monthly-print-table monthly-print-products"><thead><tr><th>Sifariş №</th><th>Məhsulun adı</th><th>Miqdar</th><th>Maya qiyməti</th><th>Satış qiyməti (komissiyasız)</th><th>Mənfəət</th><th>Yekun satış qiyməti (komissiyasız)</th></tr></thead><tbody>{report.rows.map(row=><tr key={row.id}><td>{String(row.order||'—').slice(0,14)}</td><td>{row.product}</td><td>{row.quantity}</td><td>{moneyValue(row.unitCost)}</td><td>{moneyValue(row.unitSale)}</td><td>{moneyValue(row.profit)}</td><td>{moneyValue(row.finalSale)}</td></tr>)}</tbody><tfoot><tr><th colSpan="2">CƏMİ</th><th>{report.units}</th><th>{moneyValue(report.cost)}</th><th>—</th><th>{moneyValue(report.profit)}</th><th>{moneyValue(report.finalSale)}</th></tr></tfoot></table>
+    <table className="monthly-print-table monthly-print-products"><thead><tr><th>Sifariş №</th><th>Məhsulun adı</th><th>Miqdar</th><th>Maya qiyməti</th><th>Satış qiyməti (komissiyalar çıxıldıqdan sonra)</th><th>Mənfəət</th><th>Yekun satış məbləği (komissiyalar çıxıldıqdan sonra)</th></tr></thead><tbody>{report.rows.map(row=><tr key={row.id}><td>{String(row.order||'—').slice(0,14)}</td><td>{row.product}</td><td>{row.quantity}</td><td>{moneyValue(row.unitCost)}</td><td>{moneyValue(row.unitSale)}</td><td>{moneyValue(row.profit)}</td><td>{moneyValue(row.finalSale)}</td></tr>)}</tbody><tfoot><tr><th colSpan="2">CƏMİ</th><th>{report.units}</th><th>{moneyValue(report.cost)}</th><th>—</th><th>{moneyValue(report.profit)}</th><th>{moneyValue(report.finalSale)}</th></tr></tfoot></table>
     {!report.rows.length&&<p className="monthly-print-empty">Bu ayda təhvil verilmiş və ödənişi təsdiqlənmiş satış yoxdur.</p>}
     <div className="monthly-print-total"><span>AYLIQ XALİS MƏNFƏƏT</span><b>{moneyValue(report.profit)}</b></div>
    </section>)}
-   <footer className="monthly-print-footer">Hesabat yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışlardan hazırlanır. Satış qiyməti (komissiyasız) = Birmarket satış qiyməti. Yekun satış qiyməti (komissiyasız) = vahid satış qiyməti × miqdar. Mənfəət = yekun satış qiyməti − ümumi maya dəyəri. <span>ZED STORE · {new Date().toLocaleDateString('az-AZ')}</span></footer>
+   <footer className="monthly-print-footer">Hesabat yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışlardan hazırlanır. Komissiyalar çıxıldıqdan sonra vahid satış məbləği = Birmarket satış qiyməti − marketplace komissiyası − logistika haqqı − bank haqqı. Yekun satış məbləği = komissiyalar çıxıldıqdan sonrakı vahid məbləğ × miqdar. Mənfəət = yekun satış məbləği − ümumi maya dəyəri. <span>ZED STORE · {new Date().toLocaleDateString('az-AZ')}</span></footer>
   </div>
  </div>;
 }
