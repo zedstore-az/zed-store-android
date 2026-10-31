@@ -159,21 +159,25 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
    const returnedQty=relatedReturns.reduce((n,r)=>n+Number(r.quantity||0),0);
    const quantity=Math.max(0,Number(s.quantity||0)-returnedQty);
    const unitCost=Number(s.unit_cost||0);
-   const unitSale=Number(s.birmarket_sale_price??s.unit_sale_price??0);
+   const unitBirmarket=Number(s.birmarket_sale_price??s.unit_sale_price??0);
    const unitMarketplace=Number(s.marketplace_commission||0);
    const unitLogistics=Number(s.logistics_fee||0);
    const unitBank=Number(s.bank_fee||0);
+   const unitSale=Math.max(0,unitBirmarket-unitMarketplace);
+   const unitFinal=Math.max(0,unitBirmarket-unitMarketplace-unitLogistics-unitBank);
    const cost=unitCost*quantity;
-   const sale=unitSale*quantity;
+   const sale=unitBirmarket*quantity;
+   const saleAfterCommission=unitSale*quantity;
    const marketplace=unitMarketplace*quantity;
    const logistics=unitLogistics*quantity;
    const bank=unitBank*quantity;
+   const finalSale=unitFinal*quantity;
    const fees=marketplace+logistics+bank;
-   const profit=sale-cost-fees;
+   const profit=finalSale-cost;
    const orderNumber=orders.find(o=>o.id===s.order_id)?.order_number||String(s.order_id||'').slice(0,8).toUpperCase();
-   return {id:s.id,date:s.paid_at,order:orderNumber,product:s.product_name||'Məhsul',quantity,unitCost,unitSale,cost,sale,marketplace,logistics,bank,fees,profit};
+   return {id:s.id,date:s.paid_at,order:orderNumber,product:s.product_name||'Məhsul',quantity,unitCost,unitSale,unitBirmarket,unitFinal,cost,sale,saleAfterCommission,finalSale,marketplace,logistics,bank,fees,profit};
   }).filter(x=>x.quantity>0);
-  return {month,rows,units:rows.reduce((n,x)=>n+x.quantity,0),cost:rows.reduce((n,x)=>n+x.cost,0),sale:rows.reduce((n,x)=>n+x.sale,0),fees:rows.reduce((n,x)=>n+x.fees,0),profit:rows.reduce((n,x)=>n+x.profit,0)};
+  return {month,rows,units:rows.reduce((n,x)=>n+x.quantity,0),cost:rows.reduce((n,x)=>n+x.cost,0),sale:rows.reduce((n,x)=>n+x.sale,0),saleAfterCommission:rows.reduce((n,x)=>n+x.saleAfterCommission,0),marketplace:rows.reduce((n,x)=>n+x.marketplace,0),logistics:rows.reduce((n,x)=>n+x.logistics,0),bank:rows.reduce((n,x)=>n+x.bank,0),finalSale:rows.reduce((n,x)=>n+x.finalSale,0),fees:rows.reduce((n,x)=>n+x.fees,0),profit:rows.reduce((n,x)=>n+x.profit,0)};
  });
  const paymentRows=[
   ...paidSales.map(s=>({id:'sale-'+s.id,type:'Ödəniş',date:s.paid_at,orderId:s.order_id,product:s.product_name,quantity:Number(s.quantity||0),cash:Number(s.transferred_amount||0)*Number(s.quantity||0),profit:Number(s.net_profit||0)})),
@@ -214,15 +218,15 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
   <section className="monthly-report-note"><b>Hesablama qaydası</b><p>“Daxil olunan sifarişlər” sifarişin yaradıldığı aya, “Təhvil verilmişlər” təhvil tarixinə, “Köçən pul” ödənişin təsdiq edildiyi aya görə hesablanır və qaytarılmaların geri ödənişi çıxılır. Xalis mənfəət satış mənfəətinə qaytarılma düzəlişləri əlavə edilməklə, həmin ay ödənilmiş əməliyyat xərcləri çıxılaraq göstərilir. Məhsul alışları stok investisiyasıdır və ikinci dəfə xərc kimi çıxılmır.</p></section>
   </>:<section className="panel report-empty"><b>Hesabat dövrü seçilməyib</b><p>Yuxarıdan ən azı bir ay əlavə et.</p></section>}
   <div id="monthly-print-report" aria-hidden="true">
-   <header className="monthly-print-header"><div className="monthly-print-brand">ZED STORE</div><div className="monthly-print-title">AYLIQ SATIŞ HESABATI</div><div className="monthly-print-subtitle">Yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışlar</div></header>
+   <header className="monthly-print-header"><div className="monthly-print-brand">ZED STORE</div><div className="monthly-print-title">AYLIQ SATIŞ HESABATI</div><div className="monthly-print-subtitle">Yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışlar · Hazırlanma tarixi: {new Date().toLocaleDateString('az-AZ')}</div></header>
    {printReports.map(report=><section className="monthly-print-month" key={'print-'+report.month}>
     <div className="monthly-print-month-head"><h2>{monthLabel(report.month)}</h2><span>Hesabat dövrü: {report.month}</span></div>
-    <div className="monthly-print-summary"><div><small>Satılan məhsul sayı</small><b>{report.units} ədəd</b></div><div><small>Satış məbləği</small><b>{moneyValue(report.sale)}</b></div><div><small>Maya dəyəri</small><b>{moneyValue(report.cost)}</b></div><div><small>Komissiya və xidmət haqları</small><b>{moneyValue(report.fees)}</b></div><div><small>Xalis mənfəət</small><b>{moneyValue(report.profit)}</b></div></div>
-    <table className="monthly-print-table"><thead><tr><th>Tarix</th><th>Sifariş №</th><th>Məhsul</th><th>Say</th><th>Maya / ədəd</th><th>Satış / ədəd</th><th>Maya cəmi</th><th>Satış cəmi</th><th>Komissiya</th><th>Logistika</th><th>Bank</th><th>Xalis mənfəət</th></tr></thead><tbody>{report.rows.map(row=><tr key={row.id}><td>{date(row.date)}</td><td>{String(row.order||'—').slice(0,14)}</td><td>{row.product}</td><td>{row.quantity}</td><td>{moneyValue(row.unitCost)}</td><td>{moneyValue(row.unitSale)}</td><td>{moneyValue(row.cost)}</td><td>{moneyValue(row.sale)}</td><td>{moneyValue(row.marketplace)}</td><td>{moneyValue(row.logistics)}</td><td>{moneyValue(row.bank)}</td><td className={row.profit>=0?'good':'bad'}>{moneyValue(row.profit)}</td></tr>)}</tbody></table>
+    <div className="monthly-print-summary"><div><small>Satılan məhsul sayı</small><b>{report.units} ədəd</b></div><div><small>Ümumi satış məbləği (Birmarket)</small><b>{moneyValue(report.sale)}</b></div><div><small>Ümumi maya dəyəri</small><b>{moneyValue(report.cost)}</b></div><div><small>Komissiya və xidmət haqları</small><b>{moneyValue(report.fees)}</b></div><div><small>Xalis mənfəət</small><b>{moneyValue(report.profit)}</b></div></div>
+    <table className="monthly-print-table"><thead><tr><th>Tarix</th><th>Sifariş №</th><th>Məhsulun adı</th><th>Miqdar</th><th>Maya</th><th>Satış qiyməti (komissiyadan sonra)</th><th>Birmarket qiyməti</th><th>Komissiya</th><th>Logistika</th><th>Bank</th><th>Yekun satış qiyməti (bütün haqlardan sonra)</th></tr></thead><tbody>{report.rows.map(row=><tr key={row.id}><td>{date(row.date)}</td><td>{String(row.order||'—').slice(0,14)}</td><td>{row.product}</td><td>{row.quantity}</td><td>{moneyValue(row.unitCost)}</td><td>{moneyValue(row.unitSale)}</td><td>{moneyValue(row.unitBirmarket)}</td><td>{moneyValue(row.marketplace)}</td><td>{moneyValue(row.logistics)}</td><td>{moneyValue(row.bank)}</td><td>{moneyValue(row.finalSale)}</td></tr>)}</tbody><tfoot><tr><th colSpan="3">CƏMİ</th><th>{report.units}</th><th>{moneyValue(report.cost)}</th><th>{moneyValue(report.saleAfterCommission)}</th><th>{moneyValue(report.sale)}</th><th>{moneyValue(report.marketplace)}</th><th>{moneyValue(report.logistics)}</th><th>{moneyValue(report.bank)}</th><th>{moneyValue(report.finalSale)}</th></tr></tfoot></table>
     {!report.rows.length&&<p className="monthly-print-empty">Bu ayda təhvil verilmiş və ödənişi təsdiqlənmiş satış yoxdur.</p>}
     <div className="monthly-print-total"><span>AYLIQ XALİS MƏNFƏƏT</span><b>{moneyValue(report.profit)}</b></div>
    </section>)}
-   <footer className="monthly-print-footer">Hesabat yalnız təhvil statusu və ödəniş təsdiqi olan satış qeydlərindən hazırlanıb. Xalis mənfəət = satış qiyməti − maya dəyəri − marketplace komissiyası − logistika − bank komissiyası. Əməliyyat xərcləri bu sənədə daxil deyil.<span>Hazırlanma tarixi: {new Date().toLocaleDateString('az-AZ')}</span></footer>
+   <footer className="monthly-print-footer">Hesabat yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışlardan hazırlanır. Satış qiyməti = Birmarket qiyməti − komissiya. Yekun satış qiyməti = Birmarket qiyməti − komissiya − logistika − bank. Xalis mənfəət = yekun satış qiyməti − maya dəyəri. <span>ZED STORE · {new Date().toLocaleDateString('az-AZ')}</span></footer>
   </div>
  </div>;
 }
