@@ -358,3 +358,13 @@
 @media(max-width:720px){.sidebar{height:100dvh;padding-bottom:20px}.sidebar>.nav{flex:0 0 auto}.sidebar>.sidebottom{margin-top:16px}}
 
 .order-validation-note{margin:10px 0;padding:11px 13px;border:1px solid #e7b45b;border-radius:10px;background:#fff8e8;color:#80520b;font-size:13px;line-height:1.45}
+
+/* Professional grouped navigation */
+.sidebar{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#354761 transparent}
+.nav-group{margin:0 0 7px}
+.nav-group-title{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 6px;border:0;background:transparent;color:#8293ab;font-size:9px;font-weight:800;letter-spacing:1.25px;text-align:left;cursor:pointer}
+.nav-group-title:hover{color:#dce5f3}
+.nav-group-toggle{font-size:16px;line-height:1;color:#6f829d}
+.nav-group .nav{margin:1px 0;padding-top:10px;padding-bottom:10px}
+.sidebottom{position:sticky;bottom:0;background:#111d31;padding-bottom:2px}
+@media(max-width:720px){.sidebar{padding-bottom:12px}.sidebottom{position:sticky}}
