@@ -7,6 +7,10 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.content.Context;
+import android.print.PrintAttributes;
+import android.print.PrintManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.*;
 import android.view.View;
 
@@ -55,6 +59,8 @@ public class MainActivity extends Activity {
             }
         });
 
+        webView.addJavascriptInterface(new AndroidPrintBridge(), "AndroidPrintBridge");
+
         webView.setWebChromeClient(new WebChromeClient() {
             @Override public void onPermissionRequest(PermissionRequest request) {
                 runOnUiThread(() -> handleWebPermissionRequest(request));
@@ -74,6 +80,26 @@ public class MainActivity extends Activity {
 
         // Android 13+ requires an explicit runtime grant before the app can post notifications.
         requestNotificationPermissionIfNeeded();
+    }
+
+    /** Native Android print bridge for the reports screen. */
+    private final class AndroidPrintBridge {
+        @JavascriptInterface
+        public void print() {
+            runOnUiThread(() -> {
+                Uri current = Uri.parse(webView.getUrl() == null ? "" : webView.getUrl());
+                if (!APP_HOST.equals(current.getHost())) return;
+                PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+                if (printManager == null || webView == null) return;
+                String jobName = "ZED STORE - Hesabat";
+                PrintAttributes attributes = new PrintAttributes.Builder()
+                        .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                        .setResolution(new PrintAttributes.Resolution("zedstore", "ZED STORE", 300, 300))
+                        .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
+                        .build();
+                printManager.print(jobName, webView.createPrintDocumentAdapter(jobName), attributes);
+            });
+        }
     }
 
     private void requestNotificationPermissionIfNeeded() {
