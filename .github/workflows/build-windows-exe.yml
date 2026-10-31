@@ -1,5 +1,7 @@
 name: Build ZED STORE Windows installer
 on:
+  push:
+    branches: [zedstore-management]
   workflow_dispatch:
 permissions:
   contents: read
