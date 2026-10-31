@@ -197,3 +197,9 @@
 .owner-mq-footer{position:sticky;bottom:0;z-index:4;padding:14px 22px;background:#fff;border-top:1px solid #e9edf1}
 .owner-mq-confirm{position:fixed}
 @media(max-width:600px){.owner-mq-window-host{inset:0;padding:5px}.owner-mq-modal{width:100%;max-width:none;max-height:100%;border-radius:14px}.owner-mq-titlebar{min-height:54px;padding:0 16px}.owner-mq-titlebar b{font-size:16px}.owner-mq-form.owner-mq-product-form{padding:16px}.owner-mq-fields{grid-template-columns:1fr;gap:12px}.owner-mq-category-field{grid-column:auto}.owner-mq-pricing-head{align-items:flex-start;flex-direction:column}.owner-mq-pricing-head strong{font-size:24px}.owner-mq-list{margin:6px 16px 16px}.owner-mq-footer{padding:12px 16px}}
+
+
+.owner-mq-own-price{display:grid;gap:7px;color:#667487;font-size:12px;font-weight:700}
+.owner-mq-own-price input{width:100%;min-height:50px;box-sizing:border-box;padding:12px 15px;border:1px solid #d8e5f3;border-radius:11px;background:#f0f6ff;color:#1766d6;font-size:17px;font-weight:800}
+.owner-mq-own-price input::placeholder{font-size:12px;font-weight:500;color:#98a5b2}
+.owner-mq-own-price small{font-size:11px;font-weight:400;color:#98a5b2;line-height:1.5}
