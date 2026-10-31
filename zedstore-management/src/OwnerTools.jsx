@@ -72,7 +72,7 @@ export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],sa
  function addImages(files){
   const valid=files.filter(f=>["image/jpeg","image/png","image/webp"].includes(f.type)&&f.size<=5*1024*1024);
   if(valid.length!==files.length)say("JPG, PNG və WebP şəkilləri qəbul olunur; hər biri maksimum 5 MB.");
-  const count=items.reduce((n,x)=>n+(x.images?.length||0),0)+draftImages.length;
+  const count=draftImages.length;
   const added=valid.slice(0,Math.max(0,12-count)).map(file=>({file,url:URL.createObjectURL(file)}));
   if(added.length<valid.length)say("Bir məhsul üçün maksimum 12 şəkil əlavə etmək olar.");
   setDraftImages(old=>[...old,...added]);
