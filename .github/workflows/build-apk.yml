@@ -1,135 +1,46 @@
 name: Build ZED STORE APK
-
-on: [push, workflow_dispatch]
-
+on:
+  push:
+    branches: [zedstore-management]
+    paths:
+      - 'android-app/**'
+      - 'tools/generate-app-icons.py'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-24.04
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-
       - name: Configure Android SDK
         run: |
           echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> "$GITHUB_ENV"
           echo "/usr/local/lib/android/sdk/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
           echo "/usr/local/lib/android/sdk/platform-tools" >> "$GITHUB_PATH"
-
       - name: Accept SDK licenses
         run: yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses
-
       - name: Install SDK packages
         run: sdkmanager --sdk_root="$ANDROID_HOME" "platforms;android-35" "build-tools;35.0.0"
-
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-
-      - name: Extract Android project
-        shell: bash
-        run: |
-          set -e
-          unzip -q ZED_STORE_Android_Studio_Project.zip -d project
-          SETTINGS_FILE="$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit)"
-          if [ -z "$SETTINGS_FILE" ]; then
-            echo "Android project not found"
-            exit 1
-          fi
-          PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Android project found: $PROJECT_DIR"
-          echo "=== ANDROID SOURCE CONTENT FOR WEBVIEW FIX ==="
-          while IFS= read -r SRC; do
-            echo "--- SOURCE: $SRC ---"
-            sed -n '1,260p' "$SRC"
-          done < <(find "$PROJECT_DIR" -type f \( -name '*.java' -o -name '*.kt' -o -name 'AndroidManifest.xml' \) -print)
-          echo "=== SOURCE FILE MAP ==="
-          find "$PROJECT_DIR" -type f \( -name 'index.html' -o -name '*.java' -o -name '*.kt' -o -name 'AndroidManifest.xml' -o -name '*.gradle' -o -name '*.gradle.kts' \) -print
-          echo "=== WEB ASSET FILES ==="
-          find "$PROJECT_DIR" -type f \( -name '*.html' -o -name '*.js' -o -name '*.css' \) -print
-
-      - name: Generate Android launcher icons
+      - name: Generate ZED STORE launcher icons
         run: |
           python3 -m pip install --user pillow
           python3 tools/generate-app-icons.py
-
-      - name: Route Birmarket seller portal to external browser
-        shell: bash
-        run: |
-          set -e
-          python3 - <<'PY'
-          from pathlib import Path
-          import os
-
-          root = Path(os.environ["PROJECT_DIR"])
-          path = next(iter(root.rglob("MainActivity.java")), None)
-          if path is None:
-              raise SystemExit("MainActivity.java not found")
-
-          source = path.read_text(encoding="utf-8")
-          if "External seller portal navigation" not in source:
-              if "import android.content.Intent;" not in source:
-                  anchor = "import android.app.Activity;"
-                  if anchor not in source:
-                      raise SystemExit("Android Activity import not found")
-                  source = source.replace(anchor, anchor + chr(10) + "import android.content.Intent;" + chr(10) + "import android.net.Uri;", 1)
-
-              marker = "new WebViewClient()"
-              pos = source.find(marker)
-              if pos < 0:
-                  raise SystemExit("new WebViewClient() not found")
-              brace = source.find("{", pos + len(marker))
-              if brace < 0:
-                  raise SystemExit("WebViewClient opening brace not found")
-
-              addition = '''
-                      // External seller portal navigation
-                      @Override
-                      public boolean shouldOverrideUrlLoading(WebView view, android.webkit.WebResourceRequest request) {
-                          Uri uri = request.getUrl();
-                          String host = uri.getHost();
-                          if (host != null && (host.equalsIgnoreCase("business.umico.az") || host.equalsIgnoreCase("business.birmarket.az"))) {
-                              try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); } catch (Exception ignored) {}
-                              return true;
-                          }
-                          return false;
-                      }
-
-                      @Override
-                      public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                          Uri uri = Uri.parse(url);
-                          String host = uri.getHost();
-                          if (host != null && (host.equalsIgnoreCase("business.umico.az") || host.equalsIgnoreCase("business.birmarket.az"))) {
-                              try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); } catch (Exception ignored) {}
-                              return true;
-                          }
-                          return false;
-                      }
-              '''
-              source = source[:brace + 1] + addition + source[brace + 1:]
-              path.write_text(source, encoding="utf-8")
-              print(f"Patched {path}")
-          else:
-              print("External portal navigation already patched")
-          PY
-
-      - name: Add Ambar products screen
-        run: python3 tools/inject-products-screen.py
-
-      - name: Build APK
-        run: gradle -p "$PROJECT_DIR" assembleDebug
-
+      - name: Build standalone ZED STORE Management APK
+        run: gradle -p android-app assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ZED-STORE-APK
-          path: project/**/app/build/outputs/apk/debug/*.apk
+          name: ZED-STORE-Management-APK
+          path: android-app/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+          retention-days: 14
