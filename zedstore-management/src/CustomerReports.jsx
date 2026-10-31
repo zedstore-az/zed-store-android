@@ -123,8 +123,9 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
  const incomingOrders=orders.filter(o=>inSelected(o.ordered_at));
  const deliveredOrders=orders.filter(o=>o.delivery_status==='delivered'&&inSelected(o.delivered_at||o.ordered_at));
  const paidOrderIds=new Set(orders.filter(o=>o.delivery_status==='delivered'&&o.payment_status==='paid'&&!!o.paid_at).map(o=>o.id));
- const paidSales=sales.filter(s=>!!s.paid_at&&paidOrderIds.has(s.order_id)&&inSelected(s.paid_at));
- const paidSalesByItem=new Map(paidSales.map(s=>[s.order_item_id,s]));
+ const allPaidSales=sales.filter(s=>!!s.paid_at&&paidOrderIds.has(s.order_id));
+ const paidSales=allPaidSales.filter(s=>inSelected(s.paid_at));
+ const paidSalesByItem=new Map(allPaidSales.map(s=>[s.order_item_id,s]));
  const paidExpenses=financeEntries.filter(e=>e.entry_type==='expense'&&e.status==='paid'&&inSelected(e.paid_at||e.created_at));
  const selectedReturns=returns.filter(r=>r.return_type==='return'&&inSelected(r.created_at)&&paidSalesByItem.has(r.order_item_id));
  const refundTotal=selectedReturns.reduce((n,r)=>n+Number(r.refund_amount||0),0);
@@ -137,11 +138,10 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
   const ordersInMonth=orders.filter(o=>monthKey(o.ordered_at)===month);
   const deliveredInMonth=orders.filter(o=>o.delivery_status==='delivered'&&monthKey(o.delivered_at||o.ordered_at)===month);
   const monthSales=sales.filter(s=>!!s.paid_at&&paidOrderIds.has(s.order_id)&&monthKey(s.paid_at)===month);
-  const monthSalesByItem=new Map(monthSales.map(s=>[s.order_item_id,s]));
-  const monthReturns=returns.filter(r=>r.return_type==='return'&&monthKey(r.created_at)===month&&monthSalesByItem.has(r.order_item_id));
+  const monthReturns=returns.filter(r=>r.return_type==='return'&&monthKey(r.created_at)===month&&paidSalesByItem.has(r.order_item_id));
   const monthExpenses=financeEntries.filter(e=>e.entry_type==='expense'&&e.status==='paid'&&monthKey(e.paid_at||e.created_at)===month);
   const refunds=monthReturns.reduce((n,r)=>n+Number(r.refund_amount||0),0);
-  const returnAdjustment=monthReturns.reduce((n,r)=>{const sale=monthSalesByItem.get(r.order_item_id);return n-Number(r.refund_amount||0)+(r.item_condition==='restock'?Number(sale?.unit_cost||0)*Number(r.quantity||0):0)},0);
+  const returnAdjustment=monthReturns.reduce((n,r)=>{const sale=paidSalesByItem.get(r.order_item_id);return n-Number(r.refund_amount||0)+(r.item_condition==='restock'?Number(sale?.unit_cost||0)*Number(r.quantity||0):0)},0);
   const cash=monthSales.reduce((n,s)=>n+Number(s.transferred_amount||0)*Number(s.quantity||0),0)-refunds;
   const profit=monthSales.reduce((n,s)=>n+Number(s.net_profit||0),0)+returnAdjustment-monthExpenses.reduce((n,e)=>n+Number(e.amount||0),0);
   return {month,incoming:ordersInMonth.length,delivered:deliveredInMonth.length,cash,profit,paidCount:new Set(monthSales.map(s=>s.order_id)).size,expenses:monthExpenses.reduce((n,e)=>n+Number(e.amount||0),0)};
