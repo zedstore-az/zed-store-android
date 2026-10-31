@@ -86,7 +86,7 @@ export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],sa
     <div className="owner-purchase-total-line"><span>Alışın ümumi məbləği</span><b>{money(total)}</b></div>
     <div className="owner-form-two"><label>Alış tarixi<input type="date" required value={purchasedAt} onChange={e=>setPurchasedAt(e.target.value)}/></label><label>Ödəniş statusu<select value={paymentStatus} onChange={e=>setPaymentStatus(e.target.value)}><option value="paid">Tam ödənilib</option><option value="partial">Qismən ödənilib</option><option value="pending">Ödənilməyib</option></select></label></div>
     {paymentStatus==="partial"&&<label>İndiyə qədər ödənilən (₼)<input type="number" min="0.01" max={Math.max(0,total-0.01)} step="0.01" required value={paidAmount} onChange={e=>setPaidAmount(e.target.value)}/></label>}
-    {paymentStatus!=="pending"&&<label>Ödəniş hesabı<select value={account} onChange={e=>setAccount(e.target.value)}><option value="cash">Kassa</option><option value="bank">Bank</option><option value="marketplace">Marketplace</option></select></label>}
+    <label>Ödəniş hesabı<select value={account} onChange={e=>setAccount(e.target.value)}><option value="cash">Kassa</option><option value="bank">Bank</option><option value="marketplace">Marketplace</option></select></label>
     <label>Qaimə / faktura nömrəsi<input value={invoice} onChange={e=>setInvoice(e.target.value)} placeholder="İstəyə bağlı"/></label>
     <label>Qeyd<textarea rows="2" value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Əlavə məlumat..."/></label>
     <button className="primary" disabled={saving||!selected}><Plus size={16}/>{saving?"Saxlanır...":"Alışı qeydə al"}</button>
