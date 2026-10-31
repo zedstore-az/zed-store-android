@@ -1,11 +1,8 @@
 name: Build ZED STORE Windows installer
-
 on:
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -14,20 +11,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: zedstore-management
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
+      - name: Generate application icon
+        shell: pwsh
+        run: |
+          py -m pip install --upgrade pip
+          py -m pip install cairosvg pillow
+          py tools/generate-app-icons.py
       - name: Install dependencies
         working-directory: zedstore-management
         run: npm install
-
       - name: Build Windows installer
         working-directory: zedstore-management
         run: npm run desktop:dist
-
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
