@@ -111,124 +111,67 @@ export function BusinessReportsPanel({sales=[],orders=[],products=[],purchases=[
 }
 
 
-export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntries=[],sb,user,say,load}){
+export function MonthlyReportsPanel({orders=[],sales=[],returns=[],products=[],financeEntries=[]}){
  const today=dayKey(new Date());
  const currentMonth=monthKey(new Date());
  const [fromDate,setFromDate]=useState(currentMonth+'-01');
  const [toDate,setToDate]=useState(today);
- const [detail,setDetail]=useState('orders');
- const [expenseTitle,setExpenseTitle]=useState('');
- const [expenseAmount,setExpenseAmount]=useState('');
- const [expenseDate,setExpenseDate]=useState(new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10));
- const [expenseNotes,setExpenseNotes]=useState('');
- const [expenseAccount,setExpenseAccount]=useState('cash');
- const [expenseSaving,setExpenseSaving]=useState(false);
- const monthLabel=m=>new Date(Number(m.slice(0,4)),Number(m.slice(5,7))-1,1).toLocaleDateString('az-AZ',{month:'long',year:'numeric'});
- const moneyValue=n=>money(n);
  const inSelected=value=>{if(!value)return false;const key=dayKey(value);return !!key&&(!fromDate||key>=fromDate)&&(!toDate||key<=toDate)};
  const rangeLabel=(fromDate||'Başlanğıcdan')+' — '+(toDate||'bu günə qədər');
- const rangeMonths=useMemo(()=>{if(!fromDate||!toDate||fromDate>toDate)return [];const out=[];const a=new Date(fromDate+'T12:00:00'),b=new Date(toDate+'T12:00:00');const x=new Date(a.getFullYear(),a.getMonth(),1);while(x<=b){out.push(x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0'));x.setMonth(x.getMonth()+1)}return out},[fromDate,toDate]);
- const incomingOrders=orders.filter(o=>inSelected(o.ordered_at));
- const deliveredOrders=orders.filter(o=>o.delivery_status==='delivered'&&inSelected(o.delivered_at||o.ordered_at));
+ const orderMap=new Map(orders.map(o=>[o.id,o]));
+ const productMap=new Map(products.map(p=>[p.id,p]));
  const paidOrderIds=new Set(orders.filter(o=>o.delivery_status==='delivered'&&o.payment_status==='paid'&&!!o.paid_at).map(o=>o.id));
- const allPaidSales=sales.filter(s=>!!s.paid_at&&paidOrderIds.has(s.order_id));
- const paidSales=allPaidSales.filter(s=>inSelected(s.paid_at));
- const paidSalesByItem=new Map(allPaidSales.map(s=>[s.order_item_id,s]));
- const paidExpenses=financeEntries.filter(e=>e.entry_type==='expense'&&e.status==='paid'&&inSelected(e.paid_at||e.created_at));
- const selectedReturns=returns.filter(r=>r.return_type==='return'&&inSelected(r.created_at)&&paidSalesByItem.has(r.order_item_id));
- const refundTotal=selectedReturns.reduce((n,r)=>n+Number(r.refund_amount||0),0);
- const returnProfitAdjustment=selectedReturns.reduce((n,r)=>{const sale=paidSalesByItem.get(r.order_item_id);return n-Number(r.refund_amount||0)+(r.item_condition==='restock'?Number(sale?.unit_cost||0)*Number(r.quantity||0):0)},0);
- const collected=paidSales.reduce((n,s)=>n+Number(s.transferred_amount||0)*Number(s.quantity||0),0)-refundTotal;
- const salesProfit=paidSales.reduce((n,s)=>n+Number(s.net_profit||0),0)+returnProfitAdjustment;
- const expenseTotal=paidExpenses.reduce((n,e)=>n+Number(e.amount||0),0);
- const netProfit=salesProfit-expenseTotal;
- const monthly=rangeMonths.map(month=>{
-  const ordersInMonth=orders.filter(o=>inSelected(o.ordered_at)&&monthKey(o.ordered_at)===month);
-  const deliveredInMonth=orders.filter(o=>o.delivery_status==='delivered'&&inSelected(o.delivered_at||o.ordered_at)&&monthKey(o.delivered_at||o.ordered_at)===month);
-  const monthSales=sales.filter(s=>!!s.paid_at&&paidOrderIds.has(s.order_id)&&inSelected(s.paid_at)&&monthKey(s.paid_at)===month);
-  const monthReturns=returns.filter(r=>r.return_type==='return'&&inSelected(r.created_at)&&monthKey(r.created_at)===month&&paidSalesByItem.has(r.order_item_id));
-  const monthExpenses=financeEntries.filter(e=>e.entry_type==='expense'&&e.status==='paid'&&inSelected(e.paid_at||e.created_at)&&monthKey(e.paid_at||e.created_at)===month);
-  const refunds=monthReturns.reduce((n,r)=>n+Number(r.refund_amount||0),0);
-  const returnAdjustment=monthReturns.reduce((n,r)=>{const sale=paidSalesByItem.get(r.order_item_id);return n-Number(r.refund_amount||0)+(r.item_condition==='restock'?Number(sale?.unit_cost||0)*Number(r.quantity||0):0)},0);
-  const cash=monthSales.reduce((n,s)=>n+Number(s.transferred_amount||0)*Number(s.quantity||0),0)-refunds;
-  const profit=monthSales.reduce((n,s)=>n+Number(s.net_profit||0),0)+returnAdjustment-monthExpenses.reduce((n,e)=>n+Number(e.amount||0),0);
-  return {month,incoming:ordersInMonth.length,delivered:deliveredInMonth.length,cash,profit,paidCount:new Set(monthSales.map(s=>s.order_id)).size,expenses:monthExpenses.reduce((n,e)=>n+Number(e.amount||0),0)};
- });
- const visibleOrders=detail==='orders'?incomingOrders:deliveredOrders;
- const printReports=(()=>{
-  const rows=allPaidSales.filter(s=>inSelected(s.paid_at)).map(s=>{
-   const relatedReturns=returns.filter(r=>r.return_type==='return'&&r.order_item_id===s.order_item_id&&inSelected(r.created_at));
-   const returnedQty=relatedReturns.reduce((n,r)=>n+Number(r.quantity||0),0);
-   const quantity=Math.max(0,Number(s.quantity||0)-returnedQty);
-   const unitCost=Number(s.unit_cost||0);
-   const unitBirmarket=Number(s.birmarket_sale_price??s.unit_sale_price??0);
-   const unitMarketplace=Number(s.marketplace_commission||0);
-   const unitLogistics=Number(s.logistics_fee||0);
-   const unitBank=Number(s.bank_fee||0);
-   const feesPerUnit=unitMarketplace+unitLogistics+unitBank;
-   const unitSale=unitBirmarket-feesPerUnit;
-   const cost=unitCost*quantity;
-   const sale=unitBirmarket*quantity;
-   const marketplace=unitMarketplace*quantity;
-   const logistics=unitLogistics*quantity;
-   const bank=unitBank*quantity;
-   const fees=marketplace+logistics+bank;
-   const saleAfterCommission=sale-fees;
-   const finalSale=saleAfterCommission;
-   const profit=finalSale-cost;
-   const orderNumber=orders.find(o=>o.id===s.order_id)?.order_number||String(s.order_id||'').slice(0,8).toUpperCase();
-   return {id:s.id,date:s.paid_at,order:orderNumber,product:s.product_name||'Məhsul',quantity,unitCost,unitSale,unitBirmarket,cost,sale,saleAfterCommission,finalSale,marketplace,logistics,bank,fees,profit};
-  }).filter(x=>x.quantity>0);
-  return {rows,units:rows.reduce((n,x)=>n+x.quantity,0),cost:rows.reduce((n,x)=>n+x.cost,0),sale:rows.reduce((n,x)=>n+x.sale,0),saleAfterCommission:rows.reduce((n,x)=>n+x.saleAfterCommission,0),marketplace:rows.reduce((n,x)=>n+x.marketplace,0),logistics:rows.reduce((n,x)=>n+x.logistics,0),bank:rows.reduce((n,x)=>n+x.bank,0),finalSale:rows.reduce((n,x)=>n+x.finalSale,0),fees:rows.reduce((n,x)=>n+x.fees,0),profit:rows.reduce((n,x)=>n+x.profit,0)};
- })();
- const paymentRows=[
-  ...paidSales.map(s=>({id:'sale-'+s.id,type:'Ödəniş',date:s.paid_at,orderId:s.order_id,product:s.product_name,quantity:Number(s.quantity||0),cash:Number(s.transferred_amount||0)*Number(s.quantity||0),profit:Number(s.net_profit||0)})),
-  ...selectedReturns.map(r=>{const sale=paidSalesByItem.get(r.order_item_id);return {id:'return-'+r.id,type:'Qaytarılma',date:r.created_at,orderId:sale?.order_id,product:r.product_name||sale?.product_name,quantity:Number(r.quantity||0),cash:-Number(r.refund_amount||0),profit:-Number(r.refund_amount||0)+(r.item_condition==='restock'?Number(sale?.unit_cost||0)*Number(r.quantity||0):0)}})
- ].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
- async function addExpense(e){
-  e.preventDefault();
-  const amount=Number(expenseAmount);
-  if(!expenseTitle.trim()||!Number.isFinite(amount)||amount<=0||!expenseDate)return say?.('Xərc adı, tarix və müsbət məbləğ daxil et.');
-  if(!user?.id||!sb)return say?.('Xərc əlavə etmək üçün admin sessiyası tapılmadı.');
-  setExpenseSaving(true);
-  const paidAt=new Date(expenseDate+'T12:00:00').toISOString();
-  const result=await sb.from('finance_entries').insert({owner_id:user.id,entry_type:'expense',amount,status:'paid',title:expenseTitle.trim(),notes:expenseNotes.trim()||null,payment_account:expenseAccount,source_type:'manual',paid_at:paidAt});
-  if(result.error)say?.('Xərc saxlanmadı: '+result.error.message);
-  else{say?.('Xərc hesabat üçün qeydə alındı.');setExpenseTitle('');setExpenseAmount('');setExpenseNotes('');await load?.()}
-  setExpenseSaving(false);
- }
+ const rows=sales.filter(s=>!!s.paid_at&&paidOrderIds.has(s.order_id)&&inSelected(s.paid_at)).map(s=>{
+  const relatedReturns=returns.filter(r=>r.return_type==='return'&&r.order_item_id===s.order_item_id&&inSelected(r.created_at));
+  const originalQty=Math.max(0,Number(s.quantity||0));
+  const returnedQty=Math.min(originalQty,relatedReturns.reduce((n,r)=>n+Number(r.quantity||0),0));
+  const quantity=Math.max(0,originalQty-returnedQty);
+  const refund=relatedReturns.reduce((n,r)=>n+Number(r.refund_amount||0),0);
+  const unitCost=Number(s.unit_cost||0);
+  const grossUnit=Number(s.birmarket_sale_price??s.unit_sale_price??0);
+  const feesUnit=Number(s.marketplace_commission||0)+Number(s.logistics_fee||0)+Number(s.bank_fee||0);
+  const computedPayout=Math.max(0,grossUnit-feesUnit);
+  const payoutUnit=Number.isFinite(Number(s.transferred_amount))&&s.transferred_amount!==null?Number(s.transferred_amount):computedPayout;
+  const totalSale=Math.max(0,payoutUnit*quantity-refund);
+  const totalCost=unitCost*quantity;
+  const totalProfit=totalSale-totalCost;
+  const product=productMap.get(s.product_id)||{};
+  const order=orderMap.get(s.order_id)||{};
+  const orderNumber=order.order_number||String(s.order_id||'').slice(0,8).toUpperCase();
+  const image=product.image_urls?.[0]||product.image_url||s.product_image_url||'';
+  return {id:s.id,orderNumber,product:s.product_name||product.name||'Məhsul',image,sku:product.sku||s.sku||'',quantity,unitCost,unitSale:quantity?totalSale/quantity:0,unitProfit:quantity?totalProfit/quantity:0,totalCost,totalSale,totalProfit,refund};
+ }).filter(x=>x.quantity>0);
+ const totals=rows.reduce((a,x)=>({quantity:a.quantity+x.quantity,cost:a.cost+x.totalCost,sale:a.sale+x.totalSale,profit:a.profit+x.totalProfit}),{quantity:0,cost:0,sale:0,profit:0});
+ const validRange=!!fromDate&&!!toDate&&fromDate<=toDate;
  function exportCsv(){
-  const rows=[['Ay','Daxil olan sifarişlər','Təhvil verilmiş sifarişlər','Ödənişi təsdiqlənmiş sifarişlər','Köçən pul (AZN)','Xalis mənfəət (AZN)','Əməliyyat xərcləri (AZN)'],...monthly.map(x=>[monthLabel(x.month),x.incoming,x.delivered,x.paidCount,x.cash.toFixed(2),x.profit.toFixed(2),x.expenses.toFixed(2)])];
-  const csv='\\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\\r\\n');
-  downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),'zed-store-tarix-araligi-hesabati.csv');
+  const data=[['Sifariş №','Məhsul','SKU','Miqdar','Vahid maya (AZN)','Vahid xalis satış (AZN)','Vahid mənfəət (AZN)','Ümumi maya (AZN)','Ümumi satış (AZN)','Ümumi mənfəət (AZN)'],...rows.map(x=>[x.orderNumber,x.product,x.sku,x.quantity,x.unitCost.toFixed(2),x.unitSale.toFixed(2),x.unitProfit.toFixed(2),x.totalCost.toFixed(2),x.totalSale.toFixed(2),x.totalProfit.toFixed(2)])];
+  const csv='\\uFEFF'+data.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\\r\\n');
+  downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),'zed-store-satis-hesabati.csv');
  }
- return <div className="cr-page monthly-report-page">
-  <div className="toolbar"><div><h2>Hesabatlar</h2><p>İstədiyin tarix aralığı üzrə sifariş, ödəniş və mənfəət hesabatı.</p></div><div className="monthly-report-actions"><button className="outline" onClick={exportCsv} disabled={!fromDate||!toDate||fromDate>toDate}><Download size={16}/> CSV yüklə</button><button className="primary" onClick={()=>window.print()} disabled={!fromDate||!toDate||fromDate>toDate}><Printer size={16}/> Seçilmiş tarixi çap et</button></div></div>
-  <section className="panel monthly-selector"><div className="monthly-selector-head"><div><b>Hesabat dövrü</b><small>Başlanğıc və son günü seç. Seçilmiş tarix aralığı hesabat və çap üçün tətbiq olunur.</small></div><span>{rangeLabel}</span></div><div className="monthly-add-row"><label>Başlanğıc tarix<input type="date" value={fromDate} max={toDate||undefined} onChange={e=>setFromDate(e.target.value)}/></label><label>Son tarix<input type="date" value={toDate} min={fromDate||undefined} onChange={e=>setToDate(e.target.value)}/></label><button className="outline" type="button" onClick={()=>{setFromDate(currentMonth+'-01');setToDate(today)}}>Bu ay</button><button className="outline" type="button" onClick={()=>{setFromDate(today);setToDate(today)}}>Bu gün</button><button className="outline" type="button" onClick={()=>{const d=new Date();const first=new Date(d.getFullYear(),d.getMonth(),d.getDate()-29);setFromDate(dayKey(first));setToDate(today)}}>Son 30 gün</button></div><small className="cr-range-note">Hesabat dövrü: {rangeLabel}</small></section>
-  {fromDate&&toDate&&fromDate<=toDate?<><div className="cr-stats monthly-kpis">
-   <div className="cr-stat"><ShoppingCart/><small>Daxil olunan sifarişlər</small><b>{incomingOrders.length}</b><span>Seçilmiş tarix aralığında yaradılan bütün sifarişlər</span></div>
-   <div className="cr-stat"><PackageCheck/><small>Təhvil verilmiş sifarişlər</small><b>{deliveredOrders.length}</b><span>Çatdırılma statusu təsdiqlənən sifarişlər</span></div>
-   <div className="cr-stat"><Wallet/><small>Köçən pul</small><b>{moneyValue(collected)}</b><span>Ödənişi təsdiqlənmiş sifarişlərdən, qaytarılmalar çıxılmaqla</span></div>
-   <div className="cr-stat"><TrendingUp/><small>Xalis mənfəət</small><b className={netProfit>=0?'good':'bad'}>{moneyValue(netProfit)}</b><span>Satış mənfəəti + qaytarılma düzəlişi − ödənilmiş xərclər</span></div>
-  </div>
-  <section className="panel cr-panel"><SectionTitle title="Aylıq müqayisə" description="Hər ayın göstəriciləri ayrıca göstərilir. Sifariş, təhvil və ödəniş tarixləri öz hadisə tarixinə görə hesablanır."/><div className="tablewrap"><table><thead><tr><th>Ay</th><th>Daxil olan sifarişlər</th><th>Təhvil verilmiş</th><th>Ödənişi təsdiqlənmiş</th><th>Köçən pul</th><th>Xalis mənfəət</th></tr></thead><tbody>{monthly.map(x=><tr key={x.month}><td><b>{monthLabel(x.month)}</b></td><td>{x.incoming}</td><td>{x.delivered}</td><td>{x.paidCount}</td><td>{moneyValue(x.cash)}</td><td className={x.profit>=0?'good':'bad'}><b>{moneyValue(x.profit)}</b></td></tr>)}</tbody><tfoot><tr><th>YEKUN</th><th>{incomingOrders.length}</th><th>{deliveredOrders.length}</th><th>{new Set(paidSales.map(s=>s.order_id)).size}</th><th>{moneyValue(collected)}</th><th className={netProfit>=0?'good':'bad'}>{moneyValue(netProfit)}</th></tr></tfoot></table></div></section>
-  <section className="panel cr-panel monthly-detail-panel"><div className="monthly-detail-head"><div><h3>Ətraflı məlumat</h3><p>Seçilmiş dövr üzrə sifariş və ödəniş qeydləri.</p></div><div className="monthly-detail-tabs"><button type="button" className={detail==='orders'?'active':''} onClick={()=>setDetail('orders')}>Daxil olanlar ({incomingOrders.length})</button><button type="button" className={detail==='delivered'?'active':''} onClick={()=>setDetail('delivered')}>Təhvil verilənlər ({deliveredOrders.length})</button><button type="button" className={detail==='payments'?'active':''} onClick={()=>setDetail('payments')}>Ödənişlər / qaytarılmalar ({new Set(paidSales.map(s=>s.order_id)).size})</button></div></div>
-   {detail==='payments'?<div className="tablewrap"><table><thead><tr><th>Tarix</th><th>Əməliyyat</th><th>Sifariş</th><th>Məhsul</th><th>Miqdar</th><th>Köçən pul</th><th>Mənfəət düzəlişi</th></tr></thead><tbody>{paymentRows.map(row=><tr key={row.id}><td>{date(row.date)}</td><td>{row.type}</td><td>#{String(row.orderId||'').slice(0,8).toUpperCase()||'—'}</td><td>{row.product||'—'}</td><td>{row.quantity}</td><td className={row.cash>=0?'good':'bad'}>{moneyValue(row.cash)}</td><td className={row.profit>=0?'good':'bad'}>{moneyValue(row.profit)}</td></tr>)}</tbody></table>{!paymentRows.length&&<p className="empty">Seçilmiş aylarda təsdiqlənmiş ödəniş və ya qaytarılma yoxdur.</p>}</div>:<div className="tablewrap"><table><thead><tr><th>Sifariş</th><th>Müştəri</th><th>Sifariş tarixi</th><th>Təhvil tarixi</th><th>Status</th><th>Ödəniş</th></tr></thead><tbody>{visibleOrders.map(o=><tr key={o.id}><td><b>#{o.order_number||String(o.id).slice(0,8).toUpperCase()}</b><small>{(o.order_items||[]).map(i=>(i.product_name||'Məhsul')+' × '+i.quantity).join(', ')}</small></td><td>{o.customer_name||'—'}<small>{o.customer_phone||''}</small></td><td>{date(o.ordered_at)}</td><td>{date(o.delivered_at)}</td><td><span className={'badge '+(o.delivery_status==='delivered'?'green':o.delivery_status==='cancelled'?'red':'yellow')}>{o.delivery_status==='delivered'?'Təhvil verilib':o.delivery_status==='cancelled'?'Ləğv edilib':'Prosesdə'}</span></td><td>{o.payment_status==='paid'?'Təsdiqlənib':'Gözləyir'}</td></tr>)}</tbody></table>{!visibleOrders.length&&<p className="empty">Bu bölmə üzrə seçilmiş aylarda qeyd yoxdur.</p>}</div>}
-  </section>
-  <section className="panel cr-panel monthly-expense-panel"><SectionTitle title="Əməliyyat xərcləri" description="Bu xərclər seçilmiş ayın xalis mənfəətindən çıxılır. Məhsul alışları burada təkrar xərc kimi daxil edilmir."/><form className="monthly-expense-form" onSubmit={addExpense}><label>Xərcin adı<input required value={expenseTitle} onChange={e=>setExpenseTitle(e.target.value)} placeholder="Məs: çatdırılma, reklam, qablaşdırma"/></label><label>Məbləğ (₼)<input type="number" min="0.01" step="0.01" required value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} placeholder="0.00"/></label><label>Tarix<input type="date" required value={expenseDate} onChange={e=>setExpenseDate(e.target.value)}/></label><label>Hesab<select value={expenseAccount} onChange={e=>setExpenseAccount(e.target.value)}><option value="cash">Kassa</option><option value="bank">Bank</option><option value="marketplace">Marketplace</option></select></label><label className="monthly-expense-notes">Qeyd<input value={expenseNotes} onChange={e=>setExpenseNotes(e.target.value)} placeholder="İstəyə bağlı qeyd"/></label><button className="primary" disabled={expenseSaving}>{expenseSaving?'Saxlanır...':'Xərci əlavə et'}</button></form><div className="monthly-expense-list"><div className="monthly-expense-list-head"><b>Seçilmiş dövr üzrə qeydə alınmış xərclər</b><strong>{moneyValue(expenseTotal)}</strong></div><div className="tablewrap"><table><thead><tr><th>Tarix</th><th>Xərc</th><th>Hesab</th><th>Qeyd</th><th>Məbləğ</th></tr></thead><tbody>{paidExpenses.map(e=><tr key={e.id}><td>{date(e.paid_at||e.created_at)}</td><td>{e.title||'Xərc'}</td><td>{{cash:'Kassa',bank:'Bank',marketplace:'Marketplace'}[e.payment_account||'cash']}</td><td>{e.notes||'—'}</td><td>{moneyValue(e.amount)}</td></tr>)}</tbody></table>{!paidExpenses.length&&<p className="empty">Seçilmiş aylarda ödənilmiş əməliyyat xərci yoxdur.</p>}</div></div></section>
-  <section className="monthly-report-note"><b>Hesablama qaydası</b><p>“Daxil olunan sifarişlər” sifarişin yaradıldığı aya, “Təhvil verilmişlər” təhvil tarixinə, “Köçən pul” ödənişin təsdiq edildiyi aya görə hesablanır və qaytarılmaların geri ödənişi çıxılır. Xalis mənfəət satış mənfəətinə qaytarılma düzəlişləri əlavə edilməklə, həmin ay ödənilmiş əməliyyat xərcləri çıxılaraq göstərilir. Məhsul alışları stok investisiyasıdır və ikinci dəfə xərc kimi çıxılmır.</p></section>
-  </>:<section className="panel report-empty"><b>Tarix aralığı düzgün seçilməyib</b><p>Başlanğıc tarix son tarixdən gec ola bilməz.</p></section>}
+ const printMoney=n=>money(n);
+ return <div className="cr-page monthly-report-page sales-ledger-page">
+  <div className="toolbar"><div><h2>Hesabatlar</h2><p>Yalnız təhvil verilmiş və ödənişi təsdiqlənmiş sifarişlər üzrə satış hesabatı.</p></div><div className="monthly-report-actions"><button className="outline" onClick={exportCsv} disabled={!validRange}><Download size={16}/> Excel / CSV yüklə</button><button className="primary" onClick={()=>window.print()} disabled={!validRange}><Printer size={16}/> PDF / Çap</button></div></div>
+  <section className="panel monthly-selector"><div className="monthly-selector-head"><div><b>Hesabat dövrü</b><small>Tarix aralığını seçərək uğurlu sifarişlərin siyahısını süzgəcdən keçir.</small></div><span>{rangeLabel}</span></div><div className="monthly-add-row"><label>Başlanğıc tarix<input type="date" value={fromDate} max={toDate||undefined} onChange={e=>setFromDate(e.target.value)}/></label><label>Son tarix<input type="date" value={toDate} min={fromDate||undefined} onChange={e=>setToDate(e.target.value)}/></label><button className="outline" type="button" onClick={()=>{setFromDate(currentMonth+'-01');setToDate(today)}}>Bu ay</button><button className="outline" type="button" onClick={()=>{setFromDate(today);setToDate(today)}}>Bu gün</button><button className="outline" type="button" onClick={()=>{const d=new Date();setFromDate(dayKey(new Date(d.getFullYear(),d.getMonth(),d.getDate()-29)));setToDate(today)}}>Son 30 gün</button></div><small className="cr-range-note">Hesabat dövrü: {rangeLabel}</small></section>
+  {validRange?<section className="panel cr-panel sales-ledger-panel">
+   <div className="sales-ledger-heading"><div><span className="sales-ledger-kicker">ZED STORE · SATIŞ REYESTRİ</span><h3>Uğurlu sifarişlər</h3><p>Təhvil verilib və ödənişi təsdiqlənib · {rows.length} məhsul sətri · {totals.quantity} ədəd</p></div><span className="sales-ledger-period">{rangeLabel}</span></div>
+   <div className="sales-ledger-summary">
+    <div className="sales-ledger-metric"><small>Ümumi maya dəyəri</small><b>{money(totals.cost)}</b><span>Maya × miqdar</span></div>
+    <div className="sales-ledger-metric"><small>Xalis satış dövriyyəsi</small><b>{money(totals.sale)}</b><span>Komissiya, bank və logistika çıxıldıqdan sonra</span></div>
+    <div className="sales-ledger-metric"><small>Ümumi mənfəət</small><b className={totals.profit>=0?'good':'bad'}>{money(totals.profit)}</b><span>Xalis satış − ümumi maya</span></div>
+   </div>
+   <div className="tablewrap sales-ledger-table-wrap"><table className="sales-ledger-table"><thead><tr><th>Sifariş №</th><th>Məhsul</th><th>Miqdar</th><th>Maya</th><th>Satış</th><th>Mənfəət</th></tr></thead><tbody>{rows.map(row=><tr key={row.id}><td><b className="sales-ledger-order">#{row.orderNumber}</b></td><td><div className="sales-ledger-product">{row.image?<img src={row.image} alt="" loading="lazy"/>:<span className="sales-ledger-product-placeholder"><ShoppingCart size={16}/></span>}<span><b>{row.product}</b>{row.sku&&<small>SKU: {row.sku}</small>}</span></div></td><td>{row.quantity}</td><td><b>{money(row.unitCost)}</b></td><td><b>{money(row.unitSale)}</b></td><td className={row.unitProfit>=0?'good':'bad'}><b>{money(row.unitProfit)}</b></td></tr>)}</tbody><tfoot><tr><th colSpan="2">YEKUN</th><th>{totals.quantity}</th><th>{money(totals.cost)}</th><th>{money(totals.sale)}</th><th className={totals.profit>=0?'good':'bad'}>{money(totals.profit)}</th></tr></tfoot></table>{!rows.length&&<div className="sales-ledger-empty"><PackageCheck size={25}/><b>Bu tarix aralığında uğurlu sifariş yoxdur</b><span>Yalnız təhvil verilmiş və ödənişi təsdiqlənmiş sifarişlər burada görünəcək.</span></div>}</div>
+   <div className="sales-ledger-bottom"><div><small>Dövriyyə</small><b>{money(totals.sale)}</b><span>Komissiyalar çıxıldıqdan sonra</span></div><div><small>Maya</small><b>{money(totals.cost)}</b><span>Satılmış malların maya dəyəri</span></div><div><small>Mənfəət</small><b className={totals.profit>=0?'good':'bad'}>{money(totals.profit)}</b><span>Dövriyyə − maya</span></div></div>
+   <p className="sales-ledger-note">Hesabatda Birmarket komissiyası, bank faizi və logistika haqqı çıxıldıqdan sonra qalan satış məbləği göstərilir. Məhsulun maya dəyəri çıxıldıqdan sonra mənfəət hesablanır. Qaytarılmış məhsul miqdarı və geri ödənişlər nəzərə alınır.</p>
+  </section>:<section className="panel report-empty"><b>Tarix aralığı düzgün seçilməyib</b><p>Başlanğıc tarix son tarixdən gec ola bilməz.</p></section>}
   <div id="monthly-print-report" aria-hidden="true">
-   <header className="monthly-print-header"><div className="monthly-print-brand">ZED STORE</div><div className="monthly-print-title">SATIŞ HESABATI</div><div className="monthly-print-subtitle">Seçilmiş tarix aralığı: {rangeLabel} · Yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışlar · Hazırlanma tarixi: {new Date().toLocaleDateString('az-AZ')}</div></header>
+   <header className="monthly-print-header"><div className="monthly-print-brand">ZED STORE</div><div className="monthly-print-title">UĞURLU SİFARİŞLƏR ÜZRƏ SATIŞ HESABATI</div><div className="monthly-print-subtitle">Tarix aralığı: {rangeLabel} · Yalnız təhvil verilmiş və ödənişi təsdiqlənmiş sifarişlər · {new Date().toLocaleDateString('az-AZ')}</div></header>
    <section className="monthly-print-month">
-    <div className="monthly-print-month-head"><h2>Seçilmiş tarix aralığı</h2><span>{rangeLabel}</span></div>
-    <div className="monthly-print-summary"><div><small>Satılan məhsul sayı</small><b>{printReports.units} ədəd</b></div><div><small>Ümumi satış məbləği (Birmarket)</small><b>{moneyValue(printReports.sale)}</b></div><div><small>Ümumi maya dəyəri</small><b>{moneyValue(printReports.cost)}</b></div><div><small>Komissiya və xidmət haqları</small><b>{moneyValue(printReports.fees)}</b></div><div><small>Xalis mənfəət</small><b>{moneyValue(printReports.profit)}</b></div></div>
-    <div className="monthly-print-table-title">SATILMIŞ MƏHSULLARIN SİYAHISI</div>
-    <table className="monthly-print-table monthly-print-products"><thead><tr><th>Sifariş №</th><th>Məhsulun adı</th><th>Miqdar</th><th>Maya qiyməti</th><th>Satış qiyməti (komissiyalar çıxıldıqdan sonra)</th><th>Mənfəət</th><th>Yekun satış məbləği (komissiyalar çıxıldıqdan sonra)</th></tr></thead><tbody>{printReports.rows.map(row=><tr key={row.id}><td>{String(row.order||'—').slice(0,14)}</td><td>{row.product}</td><td>{row.quantity}</td><td>{moneyValue(row.unitCost)}</td><td>{moneyValue(row.unitSale)}</td><td>{moneyValue(row.profit)}</td><td>{moneyValue(row.finalSale)}</td></tr>)}</tbody><tfoot><tr><th colSpan="2">CƏMİ</th><th>{printReports.units}</th><th>{moneyValue(printReports.cost)}</th><th>—</th><th>{moneyValue(printReports.profit)}</th><th>{moneyValue(printReports.finalSale)}</th></tr></tfoot></table>
-    {!printReports.rows.length&&<p className="monthly-print-empty">Bu tarix aralığında təhvil verilmiş və ödənişi təsdiqlənmiş satış yoxdur.</p>}
-    <div className="monthly-print-total"><span>DÖVR ÜZRƏ XALİS MƏNFƏƏT</span><b>{moneyValue(printReports.profit)}</b></div>
+    <div className="monthly-print-summary"><div><small>Ümumi maya</small><b>{printMoney(totals.cost)}</b></div><div><small>Xalis satış dövriyyəsi</small><b>{printMoney(totals.sale)}</b></div><div><small>Ümumi mənfəət</small><b>{printMoney(totals.profit)}</b></div><div><small>Məhsul sayı</small><b>{totals.quantity} ədəd</b></div></div>
+    <table className="monthly-print-table monthly-print-products"><thead><tr><th>Sifariş №</th><th>Məhsul</th><th>Miqdar</th><th>Maya</th><th>Satış</th><th>Mənfəət</th></tr></thead><tbody>{rows.map(row=><tr key={row.id}><td>#{row.orderNumber}</td><td>{row.product}</td><td>{row.quantity}</td><td>{printMoney(row.unitCost)}</td><td>{printMoney(row.unitSale)}</td><td>{printMoney(row.unitProfit)}</td></tr>)}</tbody><tfoot><tr><th colSpan="2">YEKUN</th><th>{totals.quantity}</th><th>{printMoney(totals.cost)}</th><th>{printMoney(totals.sale)}</th><th>{printMoney(totals.profit)}</th></tr></tfoot></table>
+    {!rows.length&&<p className="monthly-print-empty">Bu tarix aralığında uğurlu sifariş yoxdur.</p>}
+    <div className="monthly-print-total"><span>DÖVR ÜZRƏ MƏNFƏƏT</span><b>{printMoney(totals.profit)}</b></div>
    </section>
-   <footer className="monthly-print-footer">Hesabat yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışlardan hazırlanır. Komissiyalar çıxıldıqdan sonra vahid satış məbləği = Birmarket satış qiyməti − marketplace komissiyası − logistika haqqı − bank haqqı. Yekun satış məbləği = komissiyalar çıxıldıqdan sonrakı vahid məbləğ × miqdar. Mənfəət = yekun satış məbləği − ümumi maya dəyəri. <span>ZED STORE · {new Date().toLocaleDateString('az-AZ')}</span></footer>
+   <footer className="monthly-print-footer">Satış məbləği = Birmarket qiyməti − kateqoriya komissiyası − bank faizi − logistika haqqı. Mənfəət = satış məbləği − maya dəyəri. <span>ZED STORE · {new Date().toLocaleDateString('az-AZ')}</span></footer>
   </div>
  </div>;
 }
