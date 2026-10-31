@@ -25,22 +25,11 @@
   "build": {
     "appId": "az.zedstore.management",
     "productName": "ZED STORE",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "electron/**/*",
-      "package.json"
-    ],
+    "directories": { "output": "release" },
+    "files": ["electron/**/*", "package.json"],
     "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
+      "icon": "electron/icon.ico",
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
       "artifactName": "ZED-STORE-Setup-${version}.${ext}"
     },
     "nsis": {
