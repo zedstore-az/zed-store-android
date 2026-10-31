@@ -61,87 +61,85 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
   <p className="owner-footnote">“Satış dinamikası” sifarişin yaradılma tarixinə əsaslanır, bütün yeni sifarişləri statusundan asılı olmayaraq sayır və məbləğ göstərmir. “Bu ay dövriyyə” yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışların komissiyalar çıxıldıqdan sonra köçən məbləğini göstərir. “Gözləmədə” yalnız təhvil verilmiş, lakin ödənişi təsdiqlənməmiş satışları göstərir.</p>
  </div>
 }
-export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],say,load}){
- const [open,setOpen]=useState(false);
- const [draft,setDraft]=useState({name:"",category:"",weight:"0",birmarket:"",quantity:"1",cost:"0"});
- const [items,setItems]=useState([]);
- const [confirm,setConfirm]=useState(false);
- const [saving,setSaving]=useState(false);
- const [expanded,setExpanded]=useState({});
- const [supplierName,setSupplierName]=useState("");
- const [supplierPhone,setSupplierPhone]=useState("");
- const [categorySearch,setCategorySearch]=useState("");
- const [categoryFocused,setCategoryFocused]=useState(false);
- const matchingCategories=BIRM_CATEGORIES.filter(x=>x.name.toLocaleLowerCase("az").includes(categorySearch.trim().toLocaleLowerCase("az"))).slice(0,12);
- const category=BIRM_CATEGORIES.find(x=>x.name===draft.category);
- const calc=(item)=>{
-  const price=Math.max(0,Number(item.birmarket)||0),weight=Math.max(0,Number(item.weight)||0);
-  const rate=Number(BIRM_CATEGORIES.find(x=>x.name===item.category)?.rate||0);
-  let cls=weight>60?3:weight>30?2:weight>1?1:0;
-  const logistics=price<10?0:([[1,2],[2,5],[7,11],[12,15]][cls][price>=50?1:0]);
-  const commission=price*rate/100,bank=price*1.5/100;
-  const payout=Math.max(0,Math.round((price-commission-bank-logistics+Number.EPSILON)*100)/100);
-  return {rate,commission,bank,logistics,payout};
- };
- const preview=calc(draft);
+export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],say,load,calculateProductPayout}){
+ const [open,setOpen]=useState(false),[items,setItems]=useState([]),[confirm,setConfirm]=useState(false),[saving,setSaving]=useState(false),[expanded,setExpanded]=useState({});
+ const [supplierName,setSupplierName]=useState(""),[supplierPhone,setSupplierPhone]=useState("");
+ const emptyDraft={name:"",sku:"",barcode:"",brand:"",category:"",weight_kg:"0",birmarket_price:"",quantity:"1",cost_price:"0",low_stock_threshold:"1",notes:""};
+ const [draft,setDraft]=useState(emptyDraft),[draftImages,setDraftImages]=useState([]),[categoryFocused,setCategoryFocused]=useState(false);
+ const matchingCategories=BIRM_CATEGORIES.filter(x=>(x.name+" "+(x.group||"")+" "+(x.vertical||"")).toLocaleLowerCase("az").includes(draft.category.trim().toLocaleLowerCase("az"))).slice(0,12);
+ const pricing=calculateProductPayout({...draft,category:draft.category,birmarket_price:Number(draft.birmarket_price),weight_kg:Number(draft.weight_kg)});
+ const totalQty=items.reduce((n,x)=>n+Number(x.quantity||0),0);
+ function addImages(files){
+  const valid=files.filter(f=>["image/jpeg","image/png","image/webp"].includes(f.type)&&f.size<=5*1024*1024);
+  if(valid.length!==files.length)say("JPG, PNG və WebP şəkilləri qəbul olunur; hər biri maksimum 5 MB.");
+  const count=items.reduce((n,x)=>n+(x.images?.length||0),0)+draftImages.length;
+  const added=valid.slice(0,Math.max(0,12-count)).map(file=>({file,url:URL.createObjectURL(file)}));
+  if(added.length<valid.length)say("Bir məhsul üçün maksimum 12 şəkil əlavə etmək olar.");
+  setDraftImages(old=>[...old,...added]);
+ }
  function addItem(e){
   e.preventDefault();
-  if(!draft.name.trim()||!draft.category||!(Number(draft.birmarket)>0)||!(Number(draft.quantity)>0)||!(Number(draft.weight)>=0)||!(Number(draft.cost)>=0)){say("Məhsulun adını, kateqoriyasını, çəkisini, miqdarını və Birmarket qiymətini düzgün daxil et.");return}
-  setItems(old=>[...old,{...draft,id:crypto.randomUUID(),name:draft.name.trim()}]);
-  setDraft({name:"",category:"",weight:"0",birmarket:"",quantity:"1",cost:"0"});setCategorySearch("");setCategoryFocused(false);
+  if(!draft.name.trim()||!draft.category||!pricing.ready||!(Number(draft.birmarket_price)>0)||!(Number(draft.quantity)>0)||!(Number(draft.weight_kg)>=0)||!(Number(draft.cost_price)>=0)){say("Məhsulun adını, tarif kateqoriyasını, qiymətini, çəkisini və miqdarını yoxla.");return}
+  setItems(old=>[...old,{...draft,id:crypto.randomUUID(),name:draft.name.trim(),images:draftImages}]);
+  setDraft(emptyDraft);setDraftImages([]);setCategoryFocused(false);
  }
- function removeItem(id){setItems(old=>old.filter(x=>x.id!==id))}
+ function removeItem(id){setItems(old=>{const item=old.find(x=>x.id===id);(item?.images||[]).forEach(im=>URL.revokeObjectURL(im.url));return old.filter(x=>x.id!==id)})}
  async function addSupplier(){if(!supplierName.trim())return;const r=await sb.from("suppliers").insert({owner_id:user.id,name:supplierName.trim(),phone:supplierPhone.trim()||null}).select().single();if(r.error){say("Təchizatçı əlavə edilmədi: "+r.error.message);return}setSupplierName("");setSupplierPhone("");say("Təchizatçı əlavə edildi");await load()}
  async function registerReceipt(){
   if(!items.length||saving)return;
   setSaving(true);
-  const receiptNo="MQ-"+new Date().toISOString().replace(/[-:T.Z]/g,"").slice(0,14);
-  const created=[];
+  const receiptNo="MQ-"+new Date().toISOString().replace(/[-:T.Z]/g,"").slice(0,14),created=[],uploaded=[];
   try{
-   const productRows=items.map(item=>{const c=calc(item);return {owner_id:user.id,name:item.name,category:item.category,weight_kg:Number(item.weight),birmarket_price:Number(item.birmarket),sale_price:c.payout,cost_price:Number(item.cost),stock_qty:0,low_stock_threshold:1,is_active:true,notes:"MQ mal qəbulu · Komissiya "+c.rate+"%"}});
-   const inserted=await sb.from("products").insert(productRows).select("id,name");
-   if(inserted.error)throw new Error("Məhsullar yaradıla bilmədi: "+inserted.error.message);
-   created.push(...(inserted.data||[]));
-   const purchaseRows=items.map((item,index)=>({owner_id:user.id,product_id:created[index]?.id,quantity:Number(item.quantity),unit_cost:Number(item.cost),total_amount:Number(item.quantity)*Number(item.cost),paid_amount:Number(item.quantity)*Number(item.cost),payment_status:"paid",payment_account:"marketplace",purchased_at:new Date().toISOString(),invoice_no:receiptNo,notes:"MQ mal qəbulu · "+item.name,stock_applied:false}));
+   for(const item of items){
+    const paths=[];
+    for(const image of item.images||[]){
+     const file=image.file,path=user.id+"/"+crypto.randomUUID()+"."+file.name.split(".").pop().toLowerCase();
+     const up=await sb.storage.from("zedstore-products").upload(path,file);
+     if(up.error)throw new Error("Şəkil yüklənmədi: "+up.error.message);
+     paths.push(path);uploaded.push(path);
+    }
+    const urls=paths.map(path=>sb.storage.from("zedstore-products").getPublicUrl(path).data.publicUrl);
+    const row={owner_id:user.id,name:item.name,sku:item.sku||null,barcode:item.barcode||null,brand:item.brand||null,category:item.category,weight_kg:Number(item.weight_kg),birmarket_price:Number(item.birmarket_price),sale_price:Number(calculateProductPayout(item).payout),cost_price:Number(item.cost_price),stock_qty:0,low_stock_threshold:Number(item.low_stock_threshold)||1,is_active:true,notes:item.notes||("MQ mal qəbulu · "+receiptNo),image_paths:paths,image_urls:urls,image_path:paths[0]||null,image_url:urls[0]||null};
+    const inserted=await sb.from("products").insert(row).select("id,name").single();
+    if(inserted.error)throw new Error("Məhsul yaradıla bilmədi: "+inserted.error.message);
+    created.push({id:inserted.data.id,item});
+   }
+   const purchaseRows=created.map(({id,item})=>({owner_id:user.id,product_id:id,quantity:Number(item.quantity),unit_cost:Number(item.cost_price),total_amount:Number(item.quantity)*Number(item.cost_price),paid_amount:Number(item.quantity)*Number(item.cost_price),payment_status:"paid",payment_account:"marketplace",purchased_at:new Date().toISOString(),invoice_no:receiptNo,notes:"MQ mal qəbulu · "+item.name,stock_applied:false}));
    const purchasesResult=await sb.from("purchases").insert(purchaseRows);
-   if(purchasesResult.error)throw new Error("Mal qəbulu stoka köçürülmədi: "+purchasesResult.error.message);
+   if(purchasesResult.error)throw new Error("Mal qəbulu jurnala yazılmadı: "+purchasesResult.error.message);
+   (items.flatMap(x=>x.images||[])).forEach(im=>URL.revokeObjectURL(im.url));
    say("MQ "+items.length+" çeşid üzrə qeydiyyata alındı və mallar anbara əlavə edildi.");
-   setItems([]);setConfirm(false);setOpen(false);setExpanded(old=>({...old,[receiptNo]:true}));
-   await load();
+   setItems([]);setConfirm(false);setOpen(false);setExpanded(old=>({...old,[receiptNo]:true}));await load();
   }catch(error){
-   if(created.length){const ids=created.map(x=>x.id);await sb.from("products").delete().in("id",ids)}
+   if(created.length)await sb.from("products").delete().in("id",created.map(x=>x.id));
+   if(uploaded.length)await sb.storage.from("zedstore-products").remove(uploaded);
    say("Mal qəbulu tamamlanmadı: "+error.message);
-  }
-  setSaving(false);
+  }finally{setSaving(false)}
  }
  const rows=[...purchases].sort((a,b)=>new Date(b.purchased_at||b.created_at)-new Date(a.purchased_at||a.created_at));
  const groups=Object.values(rows.reduce((acc,row)=>{const key=row.invoice_no||("single-"+row.id);if(!acc[key])acc[key]={key,rows:[],date:row.purchased_at||row.created_at};acc[key].rows.push(row);return acc},{}));
- const totalQty=items.reduce((n,x)=>n+Number(x.quantity||0),0);
  return <div className="owner-purchases">
-  <div className="toolbar"><div><h2>Mal qəbulu qeyd et</h2><p>MQ — yeni malları siyahıya əlavə et, qeydiyyatdan keçir və avtomatik anbara köçür.</p></div><div className="owner-mq-head-actions"><div className="owner-purchase-total"><small>Qəbul jurnalı</small><b>{groups.length}</b></div><button className="primary" onClick={()=>setOpen(true)}><Plus size={16}/> MQ · Mal qəbulu</button></div></div>
+  <div className="toolbar"><div><h2>Mal qəbulu qeyd et</h2><p>MQ — malları əlavə et, qeydiyyatdan keçir və anbara köçür.</p></div><div className="owner-mq-head-actions"><div className="owner-purchase-total"><small>Qəbul jurnalı</small><b>{groups.length}</b></div><button className="primary" onClick={()=>setOpen(true)}><Plus size={16}/> MQ · Mal qəbulu</button></div></div>
   {open&&<div className="owner-mq-window-host" onClick={e=>e.stopPropagation()}><section className="owner-mq-modal"><header className="owner-mq-titlebar"><b>MQ · Mal qəbulu</b><button type="button" onClick={()=>{setOpen(false);setConfirm(false)}} title="Pəncərəni bağla"><X/></button></header>
-   <div className="owner-mq-content">
-    <form className="owner-mq-form" onSubmit={addItem}>
-     <label>Məhsulun adı<input value={draft.name} onChange={e=>setDraft(x=>({...x,name:e.target.value}))} placeholder="Məsələn: Maus T5" required/></label>
-     <label className="owner-mq-category-field">Kateqoriya
-      <input type="text" value={categorySearch} placeholder="Kateqoriya adını yaz..." autoComplete="off" required={!draft.category} onFocus={()=>setCategoryFocused(true)} onBlur={()=>setTimeout(()=>setCategoryFocused(false),150)} onChange={e=>{const value=e.target.value;setCategorySearch(value);const exact=BIRM_CATEGORIES.find(x=>x.name.toLocaleLowerCase("az")===value.trim().toLocaleLowerCase("az"));setDraft(x=>({...x,category:exact?.name||""}));setCategoryFocused(true)}}/>
-      {categoryFocused&&categorySearch.trim()&&<div className="owner-mq-category-options">{matchingCategories.map(x=><button type="button" key={x.name} onMouseDown={e=>e.preventDefault()} onClick={()=>{setDraft(v=>({...v,category:x.name}));setCategorySearch(x.name);setCategoryFocused(false)}}><span>{x.name}</span><b>{x.rate}%</b></button>)}{!matchingCategories.length&&<small>Uyğun kateqoriya tapılmadı.</small>}</div>}
-      {draft.category&&<small className="owner-mq-category-selected">Seçildi: {draft.category} · Komissiya {category?.rate??0}%</small>}
+   <form className="owner-mq-form owner-mq-product-form" onSubmit={addItem}>
+    <div className="owner-mq-fields">
+     { [["Məhsul adı","name","text"],["SKU","sku","text"],["Barkod","barcode","text"],["Brend","brand","text"],["Maya qiyməti","cost_price","number"],["Birmarket qiyməti","birmarket_price","number"],["Çəki (kq)","weight_kg","number"],["Miqdar (ədəd)","quantity","number"],["Az stok həddi","low_stock_threshold","number"]].map(([label,key,type])=><label key={key}>{label}<input type={type} step="any" min={type==="number"?"0":undefined} required={key==="name"||key==="birmarket_price"} value={draft[key]} onChange={e=>setDraft(x=>({...x,[key]:e.target.value}))}/></label>)}
+     <label className="owner-mq-category-field">Birmarket tarif kateqoriyası
+      <div className="owner-mq-category-wrap"><input value={draft.category} placeholder="Məs: Qulaqlıqlar və qarnituralar" autoComplete="off" onFocus={()=>setCategoryFocused(true)} onBlur={()=>setTimeout(()=>setCategoryFocused(false),160)} onChange={e=>{setDraft(x=>({...x,category:e.target.value}));setCategoryFocused(true)}}/>{draft.category&&<button type="button" onClick={()=>setDraft(x=>({...x,category:""}))}>×</button>}
+      {categoryFocused&&<div className="owner-mq-category-options">{matchingCategories.map(x=><button type="button" key={x.name} onMouseDown={e=>e.preventDefault()} onClick={()=>{setDraft(v=>({...v,category:x.name}));setCategoryFocused(false)}}><span><b>{x.name}</b><small>{x.group||""} · {x.vertical||""}</small></span><strong>{x.rate}%</strong></button>)}{!matchingCategories.length&&<small>Uyğun kateqoriya tapılmadı.</small>}</div>}</div>
+      <small>Tarif faylındakı {BIRM_CATEGORIES.length.toLocaleString("az-AZ")} kateqoriyadan axtar. Seçim zamanı komissiya avtomatik götürülür.</small>
      </label>
-     <div className="owner-form-two"><label>Çəki (kq)<input type="number" min="0" step="0.001" value={draft.weight} onChange={e=>setDraft(x=>({...x,weight:e.target.value}))} required/></label><label>Miqdar (ədəd)<input type="number" min="1" step="1" value={draft.quantity} onChange={e=>setDraft(x=>({...x,quantity:e.target.value}))} required/></label></div>
-     <div className="owner-form-two"><label>Birmarket satış qiyməti (₼)<input type="number" min="0.01" step="0.01" value={draft.birmarket} onChange={e=>setDraft(x=>({...x,birmarket:e.target.value}))} required/></label><label>1 ədədin maya dəyəri (₼)<input type="number" min="0" step="0.01" value={draft.cost} onChange={e=>setDraft(x=>({...x,cost:e.target.value}))} required/></label></div>
-     <div className="owner-mq-calculation"><div><span>Komissiya</span><b>{preview.rate.toFixed(2)}%</b></div><div><span>Komissiya məbləği</span><b>{money(preview.commission)}</b></div><div><span>Bank + logistika</span><b>{money(preview.bank+preview.logistics)}</b></div><div className="owner-mq-payout"><span>Sizə köçən məbləğ / satış qiyməti</span><b>{money(preview.payout)}</b></div></div>
-     <button className="primary" type="submit"><Plus size={16}/> Siyahıya əlavə et</button>
-    </form>
-    <section className="owner-mq-list"><div className="finance-list-head"><h3>Qəbul siyahısı</h3><span>{items.length} çeşid · {totalQty} ədəd</span></div>
-     {items.map((item,index)=>{const c=calc(item);return <article className="owner-mq-item" key={item.id}><div><b>{index+1}. {item.name}</b><small>{item.category} · {item.weight} kq · {item.quantity} ədəd</small><small>Birmarket: {money(item.birmarket)} · Komissiya: {c.rate}% · Sizə köçən: {money(c.payout)}</small></div><button type="button" className="tiny bad" onClick={()=>removeItem(item.id)} aria-label="Siyahıdan sil"><Trash2 size={15}/></button></article>})}
-     {!items.length&&<p className="empty">Hələ mal əlavə edilməyib. Soldakı formanı doldur və “Siyahıya əlavə et” düyməsinə bas.</p>}
-    </section>
-   </div>
-   <footer className="owner-mq-footer"><span>{items.length} çeşid / {totalQty} ədəd</span><button type="button" className="primary" disabled={!items.length} onClick={()=>setConfirm(true)}>Registrasiya et</button></footer>
-   {confirm&&<div className="owner-mq-confirm"><div className="owner-mq-confirm-box"><h3>Mal qəbulunu təsdiqlə</h3><p>{items.length} çeşid, ümumilikdə {totalQty} ədəd məhsul bu günün tarixi ilə MQ jurnalına yazılacaq və anbar stokuna əlavə olunacaq.</p><div><button type="button" className="outline" onClick={()=>setConfirm(false)}>Geri</button><button type="button" className="primary" disabled={saving} onClick={registerReceipt}>{saving?"Qeydiyyat aparılır...":"OK · Qeydiyyatı tamamla"}</button></div></div></div>}
+    </div>
+    <div className="owner-mq-pricing-preview">{pricing.ready?<><div className="owner-mq-pricing-head"><span>1 ədəd üçün hesablanmış öz satış qiyməti</span><strong>{money(pricing.payout)}</strong></div><div className="owner-mq-pricing-lines"><div><span>Kateqoriya komissiyası ({pricing.rate}%)</span><b>{money(pricing.categoryFee)}</b></div><div><span>Kart komissiyası (1,5%)</span><b>{money(pricing.bankFee)}</b></div><div><span>Logistika — {pricing.parcelName}</span><b>{money(pricing.logistics)}</b></div></div><small>Hesablama Birmarket qiymətindən komissiya, 1,5% kart haqqı və logistika çıxılaraq aparılır. Vergi daxil deyil.</small></>:<div className="empty">Öz satış qiymətini hesablamaq üçün Birmarket tarif kateqoriyasını seç və qiyməti daxil et.</div>}</div>
+    <div className="owner-mq-images"><div className="owner-mq-images-head"><div><b>Məhsul şəkilləri</b><small>{draftImages.length}/12 şəkil seçilib · JPG, PNG, WebP · maksimum 5 MB</small></div><label className="image-pick-button"><Plus size={17}/> Şəkil seç<input type="file" accept="image/png,image/jpeg,image/webp" multiple onChange={e=>{addImages(Array.from(e.target.files||[]));e.target.value=""}}/></label></div><div className="image-grid">{draftImages.map((im,i)=><div className="image-tile" key={im.url}><img src={im.url} alt={"Məhsul şəkli "+(i+1)}/><button type="button" className="image-remove" onClick={()=>{URL.revokeObjectURL(im.url);setDraftImages(old=>old.filter((_,j)=>j!==i))}}><X size={16}/></button><span className="image-index">{i+1}</span></div>)}</div>{!draftImages.length&&<div className="image-empty"><Boxes size={27}/><b>Hələ şəkil seçilməyib</b><span>Seçdiyin şəkillər burada görünəcək.</span></div>}</div>
+    <label className="owner-mq-notes">Qeyd<textarea value={draft.notes} onChange={e=>setDraft(x=>({...x,notes:e.target.value}))}/></label>
+    <div className="owner-mq-add-row"><button className="primary" type="submit"><Plus size={16}/> Siyahıya əlavə et</button></div>
+   </form>
+   <section className="owner-mq-list"><div className="finance-list-head"><h3>Qəbul siyahısı</h3><span>{items.length} çeşid · {totalQty} ədəd</span></div>{items.map((item,index)=>{const c=calculateProductPayout(item);return <article className="owner-mq-item" key={item.id}><div className="owner-mq-item-main">{item.images?.[0]&&<img src={item.images[0].url} alt=""/>}<div><b>{index+1}. {item.name}</b><small>{item.category} · {item.weight_kg} kq · {item.quantity} ədəd</small><small>Birmarket: {money(item.birmarket_price)} · Komissiya: {c.rate}% · Sizə köçən: {money(c.payout)}</small><small>{item.images?.length||0} şəkil · Maya: {money(item.cost_price)}</small></div></div><button type="button" className="tiny bad" onClick={()=>removeItem(item.id)} aria-label="Siyahıdan sil"><Trash2 size={15}/></button></article>})}{!items.length&&<p className="empty">Məhsul məlumatlarını doldur və “Siyahıya əlavə et” düyməsinə bas.</p>}</section>
+   <footer className="owner-mq-footer"><span>{items.length} çeşid / {totalQty} ədəd</span><button type="button" className="primary" disabled={!items.length||saving} onClick={()=>setConfirm(true)}>Registrasiya et</button></footer>
+   {confirm&&<div className="owner-mq-confirm"><div className="owner-mq-confirm-box"><h3>Mal qəbulunu təsdiqlə</h3><p>{items.length} çeşid, ümumilikdə {totalQty} ədəd məhsul MQ jurnalına yazılacaq və anbara əlavə olunacaq.</p><div><button type="button" className="outline" onClick={()=>setConfirm(false)}>Geri</button><button type="button" className="primary" disabled={saving} onClick={registerReceipt}>{saving?"Qeydiyyat aparılır...":"OK · Qeydiyyatı tamamla"}</button></div></div></div>}
   </section></div>}
-  <section className="panel owner-mq-journal"><div className="finance-list-head"><h3>Mal qəbulu jurnalı</h3><span>{groups.length} qəbul</span></div><div className="tablewrap"><table><thead><tr><th>Tarix</th><th>MQ nömrəsi</th><th>Çeşid sayı</th><th>Ümumi miqdar</th><th>Məhsullar</th></tr></thead><tbody>{groups.map(group=><React.Fragment key={group.key}><tr><td>{dateLabel(group.date)}</td><td><b>{group.key.startsWith("single-")?"Alış":group.key}</b></td><td>{group.rows.length}</td><td>{group.rows.reduce((n,x)=>n+Number(x.quantity||0),0)} ədəd</td><td><button type="button" className="owner-mq-expand" onClick={()=>setExpanded(old=>({...old,[group.key]:!old[group.key]}))}>{expanded[group.key]?"Gizlət":"Ətraflı bax"}</button></td></tr>{expanded[group.key]&&group.rows.map(row=>{const p=products.find(x=>x.id===row.product_id);return <tr className="owner-mq-detail" key={row.id}><td></td><td colSpan="2"><b>{p?.name||"Məhsul"}</b></td><td>{row.quantity} ədəd</td><td>Maya: {money(row.unit_cost)} · Cəmi: {money(row.total_amount)}</td></tr>})}</React.Fragment>)}</tbody></table>{!groups.length&&<p className="empty">Hələ mal qəbulu qeydə alınmayıb.</p>}</div></section>
+  <section className="panel owner-mq-journal"><div className="finance-list-head"><h3>Mal qəbulu jurnalı</h3><span>{groups.length} qəbul</span></div><div className="tablewrap"><table><thead><tr><th>Tarix</th><th>MQ nömrəsi</th><th>Çeşid sayı</th><th>Ümumi miqdar</th><th>Məhsullar</th></tr></thead><tbody>{groups.map(group=><React.Fragment key={group.key}><tr><td>{dateLabel(group.date)}</td><td><b>{group.key.startsWith("single-")?"Alış":group.key}</b></td><td>{group.rows.length}</td><td>{group.rows.reduce((n,x)=>n+Number(x.quantity||0),0)} ədəd</td><td><button type="button" className="owner-mq-expand" onClick={()=>setExpanded(old=>({...old,[group.key]:!old[group.key]}))}>{expanded[group.key]?"Gizlət":"Ətraflı bax"}</button></td></tr>{expanded[group.key]&&group.rows.map(row=>{const p=products.find(x=>x.id===row.product_id);return <tr className="owner-mq-detail" key={row.id}><td></td><td colSpan="2"><b>{p?.name||"Məhsul"}</b></td><td>{row.quantity} ədəd</td><td>Maya: {money(row.unit_cost)} · Cəmi: {money(row.total_amount)}</td></tr>})}</tbody></table>{!groups.length&&<p className="empty">Hələ mal qəbulu qeydə alınmayıb.</p>}</div></section>
   <section className="panel owner-supplier-panel"><div className="finance-list-head"><h3>Təchizatçılar</h3><span>{suppliers.length}</span></div><div className="owner-inline-supplier"><input value={supplierName} onChange={e=>setSupplierName(e.target.value)} placeholder="Yeni təchizatçı adı"/><input value={supplierPhone} onChange={e=>setSupplierPhone(e.target.value)} placeholder="Telefon (istəyə bağlı)"/><button type="button" className="outline" onClick={addSupplier} disabled={!supplierName.trim()}><Plus size={15}/> Əlavə et</button></div></section>
  </div>
 }
