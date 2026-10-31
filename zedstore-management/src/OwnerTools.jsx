@@ -70,6 +70,9 @@ export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],sa
  const [expanded,setExpanded]=useState({});
  const [supplierName,setSupplierName]=useState("");
  const [supplierPhone,setSupplierPhone]=useState("");
+ const [categorySearch,setCategorySearch]=useState("");
+ const [categoryFocused,setCategoryFocused]=useState(false);
+ const matchingCategories=BIRM_CATEGORIES.filter(x=>x.name.toLocaleLowerCase("az").includes(categorySearch.trim().toLocaleLowerCase("az"))).slice(0,12);
  const category=BIRM_CATEGORIES.find(x=>x.name===draft.category);
  const calc=(item)=>{
   const price=Math.max(0,Number(item.birmarket)||0),weight=Math.max(0,Number(item.weight)||0);
@@ -85,7 +88,7 @@ export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],sa
   e.preventDefault();
   if(!draft.name.trim()||!draft.category||!(Number(draft.birmarket)>0)||!(Number(draft.quantity)>0)||!(Number(draft.weight)>=0)||!(Number(draft.cost)>=0)){say("Məhsulun adını, kateqoriyasını, çəkisini, miqdarını və Birmarket qiymətini düzgün daxil et.");return}
   setItems(old=>[...old,{...draft,id:crypto.randomUUID(),name:draft.name.trim()}]);
-  setDraft({name:"",category:"",weight:"0",birmarket:"",quantity:"1",cost:"0"});
+  setDraft({name:"",category:"",weight:"0",birmarket:"",quantity:"1",cost:"0"});setCategorySearch("");setCategoryFocused(false);
  }
  function removeItem(id){setItems(old=>old.filter(x=>x.id!==id))}
  async function addSupplier(){if(!supplierName.trim())return;const r=await sb.from("suppliers").insert({owner_id:user.id,name:supplierName.trim(),phone:supplierPhone.trim()||null}).select().single();if(r.error){say("Təchizatçı əlavə edilmədi: "+r.error.message);return}setSupplierName("");setSupplierPhone("");say("Təchizatçı əlavə edildi");await load()}
@@ -120,7 +123,11 @@ export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],sa
    <div className="owner-mq-content">
     <form className="owner-mq-form" onSubmit={addItem}>
      <label>Məhsulun adı<input value={draft.name} onChange={e=>setDraft(x=>({...x,name:e.target.value}))} placeholder="Məsələn: Maus T5" required/></label>
-     <label>Kateqoriya<select value={draft.category} onChange={e=>setDraft(x=>({...x,category:e.target.value}))} required><option value="">Kateqoriya seç</option>{BIRM_CATEGORIES.map(x=><option key={x.name} value={x.name}>{x.name} · {x.rate}%</option>)}</select></label>
+     <label className="owner-mq-category-field">Kateqoriya
+      <input type="text" value={categorySearch} placeholder="Kateqoriya adını yaz..." autoComplete="off" required={!draft.category} onFocus={()=>setCategoryFocused(true)} onBlur={()=>setTimeout(()=>setCategoryFocused(false),150)} onChange={e=>{const value=e.target.value;setCategorySearch(value);const exact=BIRM_CATEGORIES.find(x=>x.name.toLocaleLowerCase("az")===value.trim().toLocaleLowerCase("az"));setDraft(x=>({...x,category:exact?.name||""}));setCategoryFocused(true)}}/>
+      {categoryFocused&&categorySearch.trim()&&<div className="owner-mq-category-options">{matchingCategories.map(x=><button type="button" key={x.name} onMouseDown={e=>e.preventDefault()} onClick={()=>{setDraft(v=>({...v,category:x.name}));setCategorySearch(x.name);setCategoryFocused(false)}}><span>{x.name}</span><b>{x.rate}%</b></button>)}{!matchingCategories.length&&<small>Uyğun kateqoriya tapılmadı.</small>}</div>}
+      {draft.category&&<small className="owner-mq-category-selected">Seçildi: {draft.category} · Komissiya {category?.rate??0}%</small>}
+     </label>
      <div className="owner-form-two"><label>Çəki (kq)<input type="number" min="0" step="0.001" value={draft.weight} onChange={e=>setDraft(x=>({...x,weight:e.target.value}))} required/></label><label>Miqdar (ədəd)<input type="number" min="1" step="1" value={draft.quantity} onChange={e=>setDraft(x=>({...x,quantity:e.target.value}))} required/></label></div>
      <div className="owner-form-two"><label>Birmarket satış qiyməti (₼)<input type="number" min="0.01" step="0.01" value={draft.birmarket} onChange={e=>setDraft(x=>({...x,birmarket:e.target.value}))} required/></label><label>1 ədədin maya dəyəri (₼)<input type="number" min="0" step="0.01" value={draft.cost} onChange={e=>setDraft(x=>({...x,cost:e.target.value}))} required/></label></div>
      <div className="owner-mq-calculation"><div><span>Komissiya</span><b>{preview.rate.toFixed(2)}%</b></div><div><span>Komissiya məbləği</span><b>{money(preview.commission)}</b></div><div><span>Bank + logistika</span><b>{money(preview.bank+preview.logistics)}</b></div><div className="owner-mq-payout"><span>Sizə köçən məbləğ / satış qiyməti</span><b>{money(preview.payout)}</b></div></div>
