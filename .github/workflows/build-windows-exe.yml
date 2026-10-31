@@ -1,0 +1,37 @@
+name: Build ZED STORE Windows installer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: zedstore-management
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: zedstore-management
+        run: npm install
+
+      - name: Build Windows installer
+        working-directory: zedstore-management
+        run: npm run desktop:dist
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZED-STORE-Windows-Installer
+          path: zedstore-management/release/*.exe
+          if-no-files-found: error
+          retention-days: 14
