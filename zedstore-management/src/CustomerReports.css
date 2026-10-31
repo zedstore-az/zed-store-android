@@ -182,10 +182,9 @@
 /* Narrow the entire monthly statement so its left and right edges fit A4 */
 @media print{
  #monthly-print-report{
-  width:86%!important;
-  max-width:86%!important;
-  margin-left:auto!important;
-  margin-right:auto!important;
+  width:90%!important;
+  max-width:90%!important;
+  margin:20mm auto 0!important;
   left:auto!important;
   right:auto!important;
   box-sizing:border-box!important;
