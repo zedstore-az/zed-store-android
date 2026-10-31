@@ -33,7 +33,7 @@ jobs:
           gradle-version: '8.9'
       - name: Generate ZED STORE launcher icons
         run: |
-          python3 -m pip install --user pillow
+          python3 -m pip install --user pillow numpy
           python3 tools/generate-app-icons.py
       - name: Build standalone ZED STORE Management APK
         run: gradle -p android-app assembleDebug
