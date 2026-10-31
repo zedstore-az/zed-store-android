@@ -11,50 +11,52 @@ const currentMonth=monthKey(new Date());
 
 export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[],purchases=[],returns=[],navigate=()=>{},load=()=>{}}){
  const [period,setPeriod]=useState("14");
- const currentSales=sales.filter(x=>monthKey(x.sold_at||x.created_at)===currentMonth);
  const previousMonth=monthKey(new Date(new Date().getFullYear(),new Date().getMonth()-1,1));
- const previousSales=sales.filter(x=>monthKey(x.sold_at||x.created_at)===previousMonth);
- const turnover=list=>list.reduce((n,x)=>n+Number(x.birmarket_sale_price||0)*Number(x.quantity||0),0);
- const todaySales=sales.filter(x=>dateKey(x.sold_at||x.created_at)===todayKey);
- const monthTurnover=turnover(currentSales),previousTurnover=turnover(previousSales),todayTurnover=turnover(todaySales);
+ const orderPayout=order=>(order.order_items||[]).reduce((n,item)=>n+Number(item.transferred_amount||0)*Number(item.quantity||0),0);
+ const paidOrderIds=new Set(orders.filter(x=>x.delivery_status==="delivered"&&x.payment_status==="paid"&&!!x.paid_at).map(x=>x.id));
+ const paidSales=sales.filter(x=>!!x.paid_at&&paidOrderIds.has(x.order_id));
+ const currentSales=paidSales.filter(x=>monthKey(x.paid_at)===currentMonth);
+ const previousSales=paidSales.filter(x=>monthKey(x.paid_at)===previousMonth);
+ const turnover=list=>list.reduce((n,x)=>n+Number(x.transferred_amount||0)*Number(x.quantity||0),0);
+ const todayOrders=orders.filter(x=>x.delivery_status!=="cancelled"&&dateKey(x.ordered_at||x.created_at)===todayKey);
+ const todayTurnover=todayOrders.reduce((n,x)=>n+orderPayout(x),0);
+ const monthTurnover=turnover(currentSales),previousTurnover=turnover(previousSales);
  const monthlyExpenses=financeEntries.filter(x=>x.entry_type==="expense"&&x.status==="paid"&&monthKey(x.paid_at||x.created_at)===currentMonth);
- const expenseTotal=monthlyExpenses.reduce((n,x)=>n+Number(x.amount||0),0);
  const operatingExpenses=monthlyExpenses.filter(x=>x.source_type!=="purchase").reduce((n,x)=>n+Number(x.amount||0),0);
  const profit=currentSales.reduce((n,x)=>n+Number(x.net_profit||0),0)-operatingExpenses;
  const stockValue=products.reduce((n,x)=>n+Number(x.cost_price||0)*Number(x.stock_qty||0),0);
- const receivable=financeEntries.filter(x=>x.entry_type==="receivable"&&x.status==="pending").reduce((n,x)=>n+Number(x.amount||0),0)+sales.filter(x=>!x.paid_at).reduce((n,x)=>n+Number(x.transferred_amount||0)*Number(x.quantity||0),0);
+ const deliveredUnpaid=sales.filter(x=>!x.paid_at&&orders.some(o=>o.id===x.order_id&&o.delivery_status==="delivered"&&o.payment_status!=="paid"));
+ const waitingAmount=deliveredUnpaid.reduce((n,x)=>n+Number(x.transferred_amount||0)*Number(x.quantity||0),0);
  const payable=financeEntries.filter(x=>x.entry_type==="payable"&&x.status==="pending").reduce((n,x)=>n+Number(x.amount||0),0);
  const purchaseTotal=purchases.filter(x=>monthKey(x.purchased_at||x.created_at)===currentMonth).reduce((n,x)=>n+Number(x.total_amount||0),0);
  const change=previousTurnover?((monthTurnover-previousTurnover)/previousTurnover)*100:(monthTurnover?100:0);
- const accountTotals=["cash","bank","marketplace"].map(account=>({account,label:account==="cash"?"Kassa":account==="bank"?"Bank":"Marketplace",balance:financeEntries.filter(x=>x.status==="paid"&&(x.payment_account||"cash")===account).reduce((n,x)=>n+(x.entry_type==="income"||x.entry_type==="receivable"?1:x.entry_type==="expense"||x.entry_type==="payable"?-1:0)*Number(x.amount||0),0)+(account==="marketplace"?sales.filter(x=>x.paid_at).reduce((n,x)=>n+Number(x.transferred_amount||0)*Number(x.quantity||0),0):0)}));
- const chart=useMemo(()=>{const count=Number(period);return Array.from({length:count},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(count-1-i));const key=dateKey(d);const value=sales.filter(x=>dateKey(x.sold_at||x.created_at)===key).reduce((n,x)=>n+Number(x.birmarket_sale_price||0)*Number(x.quantity||0),0);return {key,label:d.toLocaleDateString("az-AZ",{day:"2-digit",month:"short"}),value}})},[sales,period]);
+ const accountTotals=["cash","bank","marketplace"].map(account=>({account,label:account==="cash"?"Kassa":account==="bank"?"Bank":"Marketplace",balance:financeEntries.filter(x=>x.status==="paid"&&(x.payment_account||"cash")===account).reduce((n,x)=>n+(x.entry_type==="income"||x.entry_type==="receivable"?1:x.entry_type==="expense"||x.entry_type==="payable"?-1:0)*Number(x.amount||0),0)+(account==="marketplace"?turnover(paidSales):0)}));
+ const chart=useMemo(()=>{const count=Number(period);return Array.from({length:count},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(count-1-i));const key=dateKey(d);const dayOrders=orders.filter(x=>x.delivery_status!=="cancelled"&&dateKey(x.ordered_at||x.created_at)===key);const value=dayOrders.reduce((n,x)=>n+orderPayout(x),0);return {key,label:d.toLocaleDateString("az-AZ",{day:"2-digit",month:"short"}),fullDate:d.toLocaleDateString("az-AZ"),value,count:dayOrders.length}})},[orders,period]);
  const maxChart=Math.max(1,...chart.map(x=>x.value));
  const low=products.filter(x=>Number(x.stock_qty||0)<=Number(x.low_stock_threshold||0));
  const activeOrders=orders.filter(x=>!["delivered","cancelled"].includes(x.delivery_status));
  return <div className="owner-dashboard">
-  <div className="owner-welcome"><div><span className="owner-kicker">SAHİBKAR PANELİ</span><h2>ZED STORE — Biznes icmalı</h2><p>Satış, mənfəət, anbar və pul axınını bir ekranda izlə.</p></div><button className="owner-refresh" onClick={load}><RefreshCw size={16}/> Yenilə</button></div>
+  <div className="owner-welcome"><div><span className="owner-kicker">SAHİBKAR PANELİ</span><h2>ZED STORE — Biznes icmalı</h2><p>Sifariş, ödəniş, mənfəət, anbar və pul axınını bir ekranda izlə.</p></div><button className="owner-refresh" onClick={load}><RefreshCw size={16}/> Yenilə</button></div>
   <div className="owner-metrics">
-   <article className="owner-metric accent"><span>Bu gün satış</span><b>{money(todayTurnover)}</b><small>{todaySales.length} satış qeydi</small></article>
-   <article className="owner-metric"><span>Bu ay dövriyyə</span><b>{money(monthTurnover)}</b><small className={change>=0?"positive":"negative"}>{change>=0?"↑":"↓"} {Math.abs(change).toFixed(1)}% · əvvəlki ayla müqayisə</small></article>
-   <article className="owner-metric"><span>Xalis mənfəət</span><b>{money(profit)}</b><small>Satış mənfəəti − əlavə əməliyyat xərcləri</small></article>
-   <article className="owner-metric"><span>Ümumi xərclər</span><b>{money(expenseTotal)}</b><small>Bu ay ödənilmiş xərclər, alışlar daxil</small></article>
+   <article className="owner-metric accent"><span>Bu gün satış</span><b>{money(todayTurnover)}</b><small>{todayOrders.length} yeni sifariş · komissiyalar çıxıldıqdan sonra</small></article>
+   <article className="owner-metric"><span>Bu ay dövriyyə</span><b>{money(monthTurnover)}</b><small className={change>=0?"positive":"negative"}>{change>=0?"↑":"↓"} {Math.abs(change).toFixed(1)}% · yalnız ödənişi təsdiqlənənlər</small></article>
+   <article className="owner-metric"><span>Gözləmədə</span><b>{money(waitingAmount)}</b><small>{deliveredUnpaid.length} təhvil verilmiş, ödənişi gözləyən satış</small></article>
+   <article className="owner-metric"><span>Xalis mənfəət</span><b>{money(profit)}</b><small>Ödənişi təsdiqlənmiş satış mənfəəti − əlavə əməliyyat xərcləri</small></article>
    <article className="owner-metric"><span>Anbarın maya dəyəri</span><b>{money(stockValue)}</b><small>{products.length} aktiv məhsul</small></article>
-   <article className="owner-metric"><span>Alınmalı məbləğ</span><b>{money(receivable)}</b><small>Gözləyən alacaqlar</small></article>
   </div>
   <div className="owner-dashboard-grid">
-   <section className="owner-card owner-chart-card"><div className="owner-card-head"><div><h3>Satış dinamikası</h3><p>Günlər üzrə dövriyyə</p></div><select value={period} onChange={e=>setPeriod(e.target.value)}><option value="7">7 gün</option><option value="14">14 gün</option><option value="30">30 gün</option></select></div><div className="owner-chart">{chart.map(x=><div className="owner-chart-col" key={x.key} title={x.label+": "+money(x.value)}><div className="owner-chart-bar-wrap"><i style={{height:(x.value/maxChart*100)+"%"}}/></div><small>{x.label}</small></div>)}</div></section>
+   <section className="owner-card owner-chart-card"><div className="owner-card-head"><div><h3>Satış dinamikası</h3><p>Ləğv edilməmiş yeni sifarişlər üzrə günün köçəcək məbləği və sifariş sayı</p></div><select value={period} onChange={e=>setPeriod(e.target.value)}><option value="7">7 gün</option><option value="14">14 gün</option><option value="30">30 gün</option></select></div><div className="owner-chart">{chart.map(x=><div className="owner-chart-col" key={x.key} title={x.fullDate+": "+money(x.value)+" · Sifariş sayı: "+x.count}><div className="owner-chart-bar-wrap"><i style={{height:(x.value/maxChart*100)+"%"}}/></div><small>{x.label}</small></div>)}</div><div className="owner-order-days">{chart.filter(x=>x.count>0).slice().reverse().map(x=><div className="owner-order-day" key={x.key}><b>{x.fullDate}</b><strong>{money(x.value)}</strong><small>Sifariş sayı: {x.count}</small></div>)}{!chart.some(x=>x.count>0)&&<p className="owner-order-empty">Seçilmiş müddətdə yeni sifariş yoxdur.</p>}</div></section>
    <section className="owner-card"><div className="owner-card-head"><div><h3>Pul vəziyyəti</h3><p>Satış köçürmələri + maliyyə qeydləri üzrə</p></div><Wallet size={19}/></div><div className="owner-account-list">{accountTotals.map(x=><div key={x.account}><span>{x.label}</span><b className={x.balance<0?"negative":"positive"}>{money(x.balance)}</b></div>)}</div><div className="owner-debt-row"><span>Ödəniləcək borc</span><b>{money(payable)}</b></div><button className="owner-text-link" onClick={()=>navigate("finance")}>Pul axınına keç →</button></section>
   </div>
   <div className="owner-shortcuts">
    <button onClick={()=>navigate("orders")}><Store size={18}/><span><b>{activeOrders.length}</b><small>Prosesdə sifariş</small></span></button>
    <button onClick={()=>navigate("stock")}><Boxes size={18}/><span><b>{low.length}</b><small>Az qalan məhsul</small></span></button>
    <button onClick={()=>navigate("purchases")}><ArrowDownToLine size={18}/><span><b>{money(purchaseTotal)}</b><small>Bu ay alışlar</small></span></button>
-   <button onClick={()=>navigate("finance")}><Wallet size={18}/><span><b>{money(receivable+payable)}</b><small>Alacaq + borc</small></span></button>
+   <button onClick={()=>navigate("finance")}><Wallet size={18}/><span><b>{money(waitingAmount+payable)}</b><small>Gözləyən məbləğ + borc</small></span></button>
   </div>
-  <p className="owner-footnote">Hesablamalar sistemdə qeyd edilmiş satış və maliyyə əməliyyatlarına əsaslanır. Alış maya dəyəri satış mənfəətində artıq nəzərə alındığı üçün xalis mənfəət hesabında alış məbləği ikinci dəfə çıxılmır.</p>
+  <p className="owner-footnote">“Bu gün satış” və “Satış dinamikası” sifarişlərin yaradılma tarixinə əsaslanır və ləğv edilənləri saymır. “Bu ay dövriyyə” yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışların komissiyalar çıxıldıqdan sonra köçən məbləğini göstərir. “Gözləmədə” yalnız təhvil verilmiş, lakin ödənişi təsdiqlənməmiş satışları göstərir.</p>
  </div>
 }
-
 export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],say,load}){
  const [productId,setProductId]=useState("");
  const [supplierId,setSupplierId]=useState("");
