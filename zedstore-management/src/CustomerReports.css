@@ -135,3 +135,9 @@
  #monthly-print-report .monthly-print-products th:nth-child(6),#monthly-print-report .monthly-print-products td:nth-child(6){width:12%}
  #monthly-print-report .monthly-print-products th:nth-child(7),#monthly-print-report .monthly-print-products td:nth-child(7){width:14%}
 }
+
+
+/* Slightly reduce the complete printed monthly statement while retaining usable A4 width */
+@media print{
+ #monthly-print-report{zoom:.92;width:108.6957%!important;max-width:none!important}
+}
