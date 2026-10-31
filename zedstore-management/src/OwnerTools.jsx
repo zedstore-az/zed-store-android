@@ -1,4 +1,4 @@
-import React,{useMemo,useState} from "react";
+import React,{useEffect,useMemo,useState} from "react";
 import {ArrowDownToLine,ArrowUpFromLine,Boxes,CalendarDays,CheckCircle2,Clock3,Download,LockKeyhole,Plus,RefreshCw,ShieldCheck,Store,Trash2,Upload,Wallet} from "lucide-react";
 import "./OwnerTools.css";
 
@@ -11,6 +11,8 @@ const currentMonth=monthKey(new Date());
 
 export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[],purchases=[],returns=[],navigate=()=>{},load=()=>{}}){
  const [period,setPeriod]=useState("14");
+ const [selectedDay,setSelectedDay]=useState(dateKey(new Date()));
+ useEffect(()=>{const timer=setInterval(()=>{if(document.visibilityState==="visible")load()},10000);return()=>clearInterval(timer)},[]);
  const todayKey=dateKey(new Date()),currentMonth=monthKey(new Date());
  const previousMonth=monthKey(new Date(new Date().getFullYear(),new Date().getMonth()-1,1));
  const orderPayout=order=>(order.order_items||[]).reduce((n,item)=>n+Number(item.transferred_amount||0)*Number(item.quantity||0),0);
@@ -31,8 +33,10 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
  const payable=financeEntries.filter(x=>x.entry_type==="payable"&&x.status==="pending").reduce((n,x)=>n+Number(x.amount||0),0);
  const purchaseTotal=purchases.filter(x=>monthKey(x.purchased_at||x.created_at)===currentMonth).reduce((n,x)=>n+Number(x.total_amount||0),0);
  const change=previousTurnover?((monthTurnover-previousTurnover)/previousTurnover)*100:(monthTurnover?100:0);
- const chart=useMemo(()=>{const count=Number(period);return Array.from({length:count},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(count-1-i));const key=dateKey(d);const dayOrders=orders.filter(x=>x.delivery_status!=="cancelled"&&dateKey(x.ordered_at||x.created_at)===key);const value=dayOrders.reduce((n,x)=>n+orderPayout(x),0);return {key,label:d.toLocaleDateString("az-AZ",{day:"2-digit",month:"short"}),fullDate:d.toLocaleDateString("az-AZ"),value,count:dayOrders.length}})},[orders,period]);
- const maxChart=Math.max(1,...chart.map(x=>x.value));
+ const chart=useMemo(()=>{const count=Number(period);return Array.from({length:count},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(count-1-i));const key=dateKey(d);const dayOrders=orders.filter(x=>dateKey(x.ordered_at||x.created_at)===key);return {key,label:d.toLocaleDateString("az-AZ",{day:"2-digit",month:"short"}),fullDate:d.toLocaleDateString("az-AZ"),count:dayOrders.length}})},[orders,period]);
+ const maxChart=Math.max(1,...chart.map(x=>x.count));
+ const selectedDayOrders=orders.filter(x=>dateKey(x.ordered_at||x.created_at)===selectedDay);
+ const selectedDayLabel=selectedDay?new Date(selectedDay+"T12:00:00").toLocaleDateString("az-AZ",{weekday:"long",day:"numeric",month:"long",year:"numeric"}):"—";
  const low=products.filter(x=>Number(x.stock_qty||0)<=Number(x.low_stock_threshold||0));
  const activeOrders=orders.filter(x=>!["delivered","cancelled"].includes(x.delivery_status));
  return <div className="owner-dashboard">
@@ -45,7 +49,7 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
    <article className="owner-metric"><span>Anbarın maya dəyəri</span><b>{money(stockValue)}</b><small>{products.length} aktiv məhsul</small></article>
   </div>
   <div className="owner-dashboard-grid">
-   <section className="owner-card owner-chart-card"><div className="owner-card-head"><div><h3>Satış dinamikası</h3><p>Ləğv edilməmiş yeni sifarişlər üzrə günün köçəcək məbləği və sifariş sayı</p></div><select value={period} onChange={e=>setPeriod(e.target.value)}><option value="7">7 gün</option><option value="14">14 gün</option><option value="30">30 gün</option></select></div><div className="owner-chart">{chart.map(x=><div className="owner-chart-col" key={x.key} title={x.fullDate+": "+money(x.value)+" · Sifariş sayı: "+x.count}><div className="owner-chart-bar-wrap"><i style={{height:(x.value/maxChart*100)+"%"}}/></div><small>{x.label}</small></div>)}</div><div className="owner-order-days">{chart.filter(x=>x.count>0).slice().reverse().map(x=><div className="owner-order-day" key={x.key}><b>{x.fullDate}</b><strong>{money(x.value)}</strong><small>Sifariş sayı: {x.count}</small></div>)}{!chart.some(x=>x.count>0)&&<p className="owner-order-empty">Seçilmiş müddətdə yeni sifariş yoxdur.</p>}</div></section>
+   <section className="owner-card owner-chart-card"><div className="owner-card-head"><div><h3>Satış dinamikası</h3><p>Günlər üzrə yalnız yeni yaradılmış sifarişlərin sayı. Sütuna toxunaraq həmin günü seç.</p></div><select value={period} onChange={e=>{setPeriod(e.target.value);setSelectedDay(dateKey(new Date()))}}><option value="7">7 gün</option><option value="14">14 gün</option><option value="30">30 gün</option></select></div><div className="owner-chart">{chart.map(x=><button type="button" className={"owner-chart-col owner-chart-day"+(selectedDay===x.key?" selected":"")} key={x.key} aria-pressed={selectedDay===x.key} onClick={()=>setSelectedDay(x.key)} title={x.fullDate+" · "+x.count+" sifariş"}><span className="owner-chart-count">{x.count}</span><div className="owner-chart-bar-wrap"><i style={{height:(x.count/maxChart*100)+"%"}}/></div><small>{x.label}</small></button>)}</div><div className="owner-selected-day"><div><small>Seçilmiş gün</small><b>{selectedDayLabel}</b></div><strong>{selectedDayOrders.length}</strong><span>yeni sifariş</span></div><div className="owner-chart-refresh-note">Yeni sifarişlər avtomatik olaraq hər 10 saniyədən bir yoxlanılır. Paneldə yaradılan sifarişdən sonra məlumat dərhal yenilənir.</div></section>
   </div>
   <div className="owner-shortcuts">
    <button onClick={()=>navigate("orders")}><Store size={18}/><span><b>{activeOrders.length}</b><small>Prosesdə sifariş</small></span></button>
@@ -53,7 +57,7 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
    <button onClick={()=>navigate("purchases")}><ArrowDownToLine size={18}/><span><b>{money(purchaseTotal)}</b><small>Bu ay alışlar</small></span></button>
    <button onClick={()=>navigate("finance")}><Wallet size={18}/><span><b>{money(waitingAmount+payable)}</b><small>Gözləyən məbləğ + borc</small></span></button>
   </div>
-  <p className="owner-footnote">“Bu gün satış” və “Satış dinamikası” sifarişlərin yaradılma tarixinə əsaslanır və ləğv edilənləri saymır. “Bu ay dövriyyə” yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışların komissiyalar çıxıldıqdan sonra köçən məbləğini göstərir. “Gözləmədə” yalnız təhvil verilmiş, lakin ödənişi təsdiqlənməmiş satışları göstərir.</p>
+  <p className="owner-footnote">“Satış dinamikası” sifarişin yaradılma tarixinə əsaslanır, bütün yeni sifarişləri statusundan asılı olmayaraq sayır və məbləğ göstərmir. “Bu ay dövriyyə” yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışların komissiyalar çıxıldıqdan sonra köçən məbləğini göstərir. “Gözləmədə” yalnız təhvil verilmiş, lakin ödənişi təsdiqlənməmiş satışları göstərir.</p>
  </div>
 }
 export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],say,load}){
