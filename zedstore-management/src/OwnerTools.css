@@ -128,3 +128,14 @@
 .owner-mq-expand{padding:6px 9px;border:1px solid #dce7e8;border-radius:7px;background:#f7fbfa;color:#087f78;font-size:10px;font-weight:800}
 .owner-mq-detail td{background:#f8fbfb;color:#6b7c8d;font-size:10px}
 @media(max-width:760px){.owner-mq-content{grid-template-columns:1fr}.owner-mq-modal{padding:0}.owner-mq-head-actions{align-items:flex-end;flex-direction:column}.owner-mq-footer{position:sticky}}
+
+
+/* MQ is an internal child window inside the Mal qəbulu workspace */
+.owner-purchases{position:relative;min-height:460px}
+.owner-mq-window-host{position:absolute;z-index:30;inset:58px 8px 8px;display:flex;align-items:flex-start;justify-content:center;padding:10px;background:rgba(28,48,70,.16);border:1px solid #9db7ce;border-radius:7px}
+.owner-mq-modal{position:relative;width:min(100%,1080px);max-width:1080px;max-height:100%;overflow:auto;margin:0;border:1px solid #7fa9c9;border-radius:5px;background:#fff;box-shadow:0 12px 35px rgba(18,42,65,.22)}
+.owner-mq-titlebar{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;min-height:38px;padding:0 12px;background:linear-gradient(90deg,#168fc8,#45b5dc);color:#fff}
+.owner-mq-titlebar b{font-size:12px;font-weight:800}
+.owner-mq-titlebar button{display:grid;place-items:center;width:26px;height:25px;border:0;border-radius:4px;background:rgba(255,255,255,.2);color:#fff}
+.owner-mq-titlebar button:hover{background:#d94c4c}
+@media(max-width:760px){.owner-mq-window-host{inset:52px 0 0;padding:5px}.owner-mq-modal{width:100%;max-height:100%}}
