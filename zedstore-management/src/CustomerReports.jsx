@@ -197,13 +197,34 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
   else{say?.('Xərc hesabat üçün qeydə alındı.');setExpenseTitle('');setExpenseAmount('');setExpenseNotes('');await load?.()}
   setExpenseSaving(false);
  }
+ function printSelectedReport(){
+  const report=document.getElementById('monthly-print-report');
+  if(!report)return say?.('Çap hesabatı tapılmadı. Səhifəni yenilə və yenidən yoxla.');
+  const printWindow=window.open('','_blank');
+  if(!printWindow)return say?.('Çap pəncərəsi bloklandı. Brauzerdə pop-up icazəsi ver və yenidən cəhd et.');
+  const reportHtml=report.innerHTML;
+  printWindow.document.open();
+  printWindow.document.write(`<!doctype html><html lang="az"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZED STORE - Satış hesabatı</title><style>
+   @page{size:A4 portrait;margin:10mm}*{box-sizing:border-box}body{margin:0;color:#172033;font-family:Arial,sans-serif;font-size:9pt}
+   .monthly-print-header{text-align:center;border-bottom:2px solid #233a59;padding:0 0 8px;margin-bottom:10px}.monthly-print-brand{font-size:17pt;font-weight:900;letter-spacing:3px;color:#173b67}.monthly-print-title{font-size:11pt;font-weight:800;letter-spacing:1px;margin-top:4px}.monthly-print-subtitle{font-size:8pt;color:#68778a;margin-top:5px}
+   .monthly-print-month-head{display:flex;justify-content:space-between;align-items:end;border-bottom:1px solid #d8e0e9;padding-bottom:5px;margin-bottom:8px}.monthly-print-month-head h2{margin:0;font-size:12pt;color:#193b63}.monthly-print-month-head span{font-size:8pt;color:#6e7c8e}
+   .monthly-print-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-bottom:12px}.monthly-print-summary>div{border:1px solid #dce4ed;border-radius:4px;padding:6px;min-width:0}.monthly-print-summary small{display:block;font-size:7pt;line-height:1.2;color:#64748b;margin-bottom:3px}.monthly-print-summary b{display:block;font-size:8.5pt;line-height:1.2;overflow-wrap:anywhere}
+   .monthly-print-table-title{font-size:9pt;font-weight:800;color:#193b63;margin:10px 0 5px}.monthly-print-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:7.5pt}.monthly-print-table th,.monthly-print-table td{border:1px solid #dce3eb;padding:5px 3px;text-align:center;vertical-align:middle;overflow-wrap:anywhere;word-break:break-word}.monthly-print-table th{background:#edf2f7;color:#34465d;font-size:7pt;font-weight:800}
+   .monthly-print-products th:nth-child(1),.monthly-print-products td:nth-child(1){width:12%}.monthly-print-products th:nth-child(2),.monthly-print-products td:nth-child(2){width:27%;text-align:left}.monthly-print-products th:nth-child(3),.monthly-print-products td:nth-child(3){width:7%}.monthly-print-products th:nth-child(4),.monthly-print-products td:nth-child(4){width:12%}.monthly-print-products th:nth-child(5),.monthly-print-products td:nth-child(5){width:14%}.monthly-print-products th:nth-child(6),.monthly-print-products td:nth-child(6){width:12%}.monthly-print-products th:nth-child(7),.monthly-print-products td:nth-child(7){width:16%}
+   .monthly-print-table tbody tr{break-inside:avoid;page-break-inside:avoid}.monthly-print-table tbody tr:nth-child(even){background:#f8fafc}.monthly-print-table tfoot th{background:#e5ebf2;font-weight:900}.monthly-print-empty{font-size:9pt;color:#69778a;text-align:center;padding:20px;border:1px dashed #cbd5e1}
+   .monthly-print-total{display:flex;justify-content:flex-end;align-items:center;gap:14px;border-top:2px solid #213b5b;margin-top:10px;padding-top:7px;font-size:10pt;font-weight:800}.monthly-print-total b{font-size:13pt;color:#087a59}.monthly-print-footer{border-top:1px solid #dce3eb;margin-top:12px;padding-top:7px;font-size:7pt;line-height:1.4;color:#64748b}.monthly-print-footer span{float:right}
+   @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style></head><body>${reportHtml}</body></html>`);
+  printWindow.document.close();
+  printWindow.onload=()=>{printWindow.focus();setTimeout(()=>{printWindow.print();printWindow.close()},300)};
+ }
  function exportCsv(){
   const rows=[['Ay','Daxil olan sifarişlər','Təhvil verilmiş sifarişlər','Ödənişi təsdiqlənmiş sifarişlər','Köçən pul (AZN)','Xalis mənfəət (AZN)','Əməliyyat xərcləri (AZN)'],...monthly.map(x=>[monthLabel(x.month),x.incoming,x.delivered,x.paidCount,x.cash.toFixed(2),x.profit.toFixed(2),x.expenses.toFixed(2)])];
   const csv='\\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\\r\\n');
   downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),'zed-store-tarix-araligi-hesabati.csv');
  }
  return <div className="cr-page monthly-report-page">
-  <div className="toolbar"><div><h2>Hesabatlar</h2><p>İstədiyin tarix aralığı üzrə sifariş, ödəniş və mənfəət hesabatı.</p></div><div className="monthly-report-actions"><button className="outline" onClick={exportCsv} disabled={!fromDate||!toDate||fromDate>toDate}><Download size={16}/> CSV yüklə</button><button className="primary" onClick={()=>window.print()} disabled={!fromDate||!toDate||fromDate>toDate}><Printer size={16}/> Seçilmiş tarixi çap et</button></div></div>
+  <div className="toolbar"><div><h2>Hesabatlar</h2><p>İstədiyin tarix aralığı üzrə sifariş, ödəniş və mənfəət hesabatı.</p></div><div className="monthly-report-actions"><button className="outline" onClick={exportCsv} disabled={!fromDate||!toDate||fromDate>toDate}><Download size={16}/> CSV yüklə</button><button className="primary" onClick={printSelectedReport} disabled={!fromDate||!toDate||fromDate>toDate}><Printer size={16}/> Seçilmiş tarixi çap et</button></div></div>
   <section className="panel monthly-selector"><div className="monthly-selector-head"><div><b>Hesabat dövrü</b><small>Başlanğıc və son günü seç. Seçilmiş tarix aralığı hesabat və çap üçün tətbiq olunur.</small></div><span>{rangeLabel}</span></div><div className="monthly-add-row"><label>Başlanğıc tarix<input type="date" value={fromDate} max={toDate||undefined} onChange={e=>setFromDate(e.target.value)}/></label><label>Son tarix<input type="date" value={toDate} min={fromDate||undefined} onChange={e=>setToDate(e.target.value)}/></label><button className="outline" type="button" onClick={()=>{setFromDate(currentMonth+'-01');setToDate(today)}}>Bu ay</button><button className="outline" type="button" onClick={()=>{setFromDate(today);setToDate(today)}}>Bu gün</button><button className="outline" type="button" onClick={()=>{const d=new Date();const first=new Date(d.getFullYear(),d.getMonth(),d.getDate()-29);setFromDate(dayKey(first));setToDate(today)}}>Son 30 gün</button></div><small className="cr-range-note">Hesabat dövrü: {rangeLabel}</small></section>
   {fromDate&&toDate&&fromDate<=toDate?<><div className="cr-stats monthly-kpis">
    <div className="cr-stat"><ShoppingCart/><small>Daxil olunan sifarişlər</small><b>{incomingOrders.length}</b><span>Seçilmiş tarix aralığında yaradılan bütün sifarişlər</span></div>
