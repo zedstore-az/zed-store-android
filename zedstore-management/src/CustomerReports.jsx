@@ -61,16 +61,16 @@ export function CustomerAnalyticsPanel({orders=[],sales=[],returns=[],searchValu
  </div>;
 }
 
-export function BusinessReportsPanel({sales=[],orders=[],products=[],purchases=[],financeEntries=[],returns=[],adjustedSales=[]}){
+export function BusinessReportsPanel({sales=[],orders=[],products=[],purchases=[],suppliers=[],financeEntries=[],returns=[],adjustedSales=[]}){
  const today=dayKey(new Date()),month=monthKey(new Date());
  const [from,F]=useState(month+'-01'),[to,T]=useState(today);
  const inRange=d=>{const k=dayKey(d);return !!k&&(!from||k>=from)&&(!to||k<=to)};
- const sold=adjustedSales.filter(s=>s.paid_at&&inRange(s.sold_at||s.paid_at));
+ const sold=adjustedSales.filter(s=>inRange(s.sold_at||s.created_at));
  const dailyRows=sold.map(s=>({Tarix:date(s.sold_at),Məhsul:s.product_name,Miqdar:Number(s.quantity||0),Dövriyyə:Number(s.transferred_amount||0)*Number(s.quantity||0),Mənfəət:Number(s.net_profit||0),Ödəniş:s.paid_at?'Ödənilib':'Gözləyir'}));
  const expenses=financeEntries.filter(e=>e.entry_type==='expense'&&e.status==='paid'&&inRange(e.paid_at||e.created_at));
  const purchasesInRange=purchases.filter(p=>inRange(p.purchased_at));
  const stockRows=products.map(p=>({Məhsul:p.name,SKU:p.sku||'',Kateqoriya:p.category||'',Qalıq:Number(p.stock_qty||0),Maya:Number(p.cost_price||0),Anbar_dəyəri:Number(p.stock_qty||0)*Number(p.cost_price||0)}));
- const purchaseRows=purchasesInRange.map(p=>({Tarix:date(p.purchased_at),Məhsul:products.find(x=>x.id===p.product_id)?.name||'Məhsul',Təchizatçı:p.supplier_name||'—',Miqdar:Number(p.quantity||0),Vahid_maya:Number(p.unit_cost||0),Cəmi:Number(p.total_amount||0),Ödənilib:Number(p.paid_amount||0),Status:p.payment_status||'—'}));
+ const purchaseRows=purchasesInRange.map(p=>({Tarix:date(p.purchased_at),Məhsul:products.find(x=>x.id===p.product_id)?.name||'Məhsul',Təchizatçı:p.supplier_name||suppliers.find(s=>s.id===p.supplier_id)?.name||'—',Miqdar:Number(p.quantity||0),Vahid_maya:Number(p.unit_cost||0),Cəmi:Number(p.total_amount||0),Ödənilib:Number(p.paid_amount||0),Status:p.payment_status||'—'}));
  const expenseRows=expenses.map(e=>({Tarix:date(e.paid_at||e.created_at),Kateqoriya:e.title||e.entry_type,Məbləğ:Number(e.amount||0),Hesab:e.payment_account||'—',Qeyd:e.notes||''}));
  const turnover=sold.reduce((n,s)=>n+Number(s.transferred_amount||0)*Number(s.quantity||0),0);
  const grossProfit=sold.reduce((n,s)=>n+Number(s.net_profit||0),0);
@@ -86,7 +86,7 @@ export function BusinessReportsPanel({sales=[],orders=[],products=[],purchases=[
  ];
  const exportPdf=()=>window.print();
  return <div className="cr-page cr-reports">
-  <div className="toolbar"><div><h2>Sənədlər və hesabatlar</h2><p>Tarix aralığına görə real satış, anbar, alış və xərc məlumatları.</p></div><div className="cr-export-actions"><button className="outline" onClick={()=>exportExcel(sheets,'zedstore-hesabatlar')}><FileSpreadsheet size={16}/> Excel yüklə</button><button className="primary" onClick={exportPdf}><Printer size={16}/> PDF / Çap</button></div></div>
+  <div className="toolbar"><div><h2>Sənədlər və hesabatlar</h2><p>Tarix aralığına görə real satış, anbar, alış və xərc məlumatları.</p></div><div className="cr-export-actions"><button className="outline" onClick={()=>exportExcel(sheets,'zedstore-hesabatlar')}><FileSpreadsheet size={16}/> Excel (.xls) yüklə</button><button className="primary" onClick={exportPdf}><Printer size={16}/> PDF / Çap</button></div></div>
   <section className="panel cr-panel cr-filter-panel"><div className="cr-date-filters"><label>Başlanğıc tarix<input type="date" value={from} onChange={e=>F(e.target.value)}/></label><label>Son tarix<input type="date" value={to} onChange={e=>T(e.target.value)}/></label><button className="outline" onClick={()=>{F(month+'-01');T(today)}}>Bu ay</button><button className="outline" onClick={()=>{F(today);T(today)}}>Bu gün</button></div><small className="cr-range-note">Hesabat dövrü: {from||'Başlanğıcdan'} — {to||'bu günə qədər'}</small></section>
   <div className="cr-stats"><div className="cr-stat"><FileText/><small>Təhvil edilmiş satışlar</small><b>{sold.length}</b></div><div className="cr-stat"><Download/><small>Dövriyyə</small><b>{money(turnover)}</b></div><div className="cr-stat"><Users/><small>Xalis mənfəət (satış)</small><b>{money(grossProfit)}</b></div><div className="cr-stat"><FileText/><small>Mənfəət / zərər</small><b className={profitLoss>=0?'good':'bad'}>{money(profitLoss)}</b></div></div>
   <section className="panel cr-panel report-print"><SectionTitle title="Gündəlik satış hesabatı" description="Ödənişi təsdiqlənmiş satışlar; seçilmiş tarix aralığı."/><div className="tablewrap"><table><thead><tr><th>Tarix</th><th>Məhsul</th><th>Miqdar</th><th>Dövriyyə</th><th>Mənfəət</th><th>Ödəniş</th></tr></thead><tbody>{dailyRows.map((x,i)=><tr key={i}><td>{x.Tarix}</td><td>{x.Məhsul}</td><td>{x.Miqdar}</td><td>{money(x.Dövriyyə)}</td><td>{money(x.Mənfəət)}</td><td>{x.Ödəniş}</td></tr>)}</tbody></table>{!dailyRows.length&&<p className="empty">Bu tarix aralığında ödənilmiş satış yoxdur.</p>}</div></section>
