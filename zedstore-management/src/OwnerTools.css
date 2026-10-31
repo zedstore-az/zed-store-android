@@ -14,7 +14,7 @@
 .owner-metric.accent>b{color:#fff}
 .owner-metric .positive,.positive{color:#0b9876!important}
 .owner-metric .negative,.negative{color:#c45151!important}
-.owner-dashboard-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,1fr);gap:14px}
+.owner-dashboard-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
 .owner-card{min-width:0;padding:18px;border:1px solid #e5ebf1;border-radius:14px;background:white}
 .owner-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 .owner-card-head h3,.owner-purchase-form h3,.owner-supplier-panel h3,.owner-security-card h3{margin:0 0 5px;font:800 14px Manrope;color:#21334a}
