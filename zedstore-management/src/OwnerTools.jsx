@@ -28,6 +28,7 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
  const stockValue=products.reduce((n,x)=>n+Number(x.cost_price||0)*Number(x.stock_qty||0),0);
  const deliveredUnpaid=sales.filter(x=>!x.paid_at&&orders.some(o=>o.id===x.order_id&&o.delivery_status==="delivered"&&o.payment_status!=="paid"));
  const waitingAmount=deliveredUnpaid.reduce((n,x)=>n+Number(x.transferred_amount||0)*Number(x.quantity||0),0);
+ const payable=financeEntries.filter(x=>x.entry_type==="payable"&&x.status==="pending").reduce((n,x)=>n+Number(x.amount||0),0);
  const purchaseTotal=purchases.filter(x=>monthKey(x.purchased_at||x.created_at)===currentMonth).reduce((n,x)=>n+Number(x.total_amount||0),0);
  const change=previousTurnover?((monthTurnover-previousTurnover)/previousTurnover)*100:(monthTurnover?100:0);
  const chart=useMemo(()=>{const count=Number(period);return Array.from({length:count},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(count-1-i));const key=dateKey(d);const dayOrders=orders.filter(x=>x.delivery_status!=="cancelled"&&dateKey(x.ordered_at||x.created_at)===key);const value=dayOrders.reduce((n,x)=>n+orderPayout(x),0);return {key,label:d.toLocaleDateString("az-AZ",{day:"2-digit",month:"short"}),fullDate:d.toLocaleDateString("az-AZ"),value,count:dayOrders.length}})},[orders,period]);
