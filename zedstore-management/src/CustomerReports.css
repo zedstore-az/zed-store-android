@@ -76,7 +76,7 @@
 /* Dedicated print-only monthly product statement */
 #monthly-print-report{display:none}
 @media print{
- @page{size:A4 portrait;margin:34mm 9mm 9mm}
+ @page{size:A4 portrait;margin:20mm 9mm 9mm}
  body *{visibility:hidden!important}
  #monthly-print-report,#monthly-print-report *{visibility:visible!important}
  #monthly-print-report{display:block!important;position:absolute!important;left:0!important;top:0!important;width:100%!important;margin:0!important;padding:0!important;background:#fff!important;color:#172033!important;font-family:Arial,sans-serif!important}
