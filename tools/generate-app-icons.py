@@ -34,8 +34,12 @@ desktop.mkdir(parents=True,exist_ok=True)
 make_icon(1024).save(desktop/"icon.png")
 make_icon(256).save(desktop/"icon.ico",format="ICO",sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])
 # Android launcher assets, if the Android Studio project is present.
-project=ROOT/"project"
-for res in project.rglob("src/main/res"):
+res=ROOT/"android-app"/"app"/"src"/"main"/"res"
+if res.exists():
+  res_dirs=[res]
+else:
+  res_dirs=[]
+for res in res_dirs:
     for folder,size in [("mipmap-mdpi",48),("mipmap-hdpi",72),("mipmap-xhdpi",96),("mipmap-xxhdpi",144),("mipmap-xxxhdpi",192)]:
         out=res/folder
         out.mkdir(parents=True,exist_ok=True)
