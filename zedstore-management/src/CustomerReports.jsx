@@ -155,7 +155,7 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
  const visibleOrders=detail==='orders'?incomingOrders:deliveredOrders;
  const printReports=selectedMonths.map(month=>{
   const rows=allPaidSales.filter(s=>monthKey(s.paid_at)===month).map(s=>{
-   const relatedReturns=returns.filter(r=>r.return_type==='return'&&r.order_item_id===s.order_item_id);
+   const relatedReturns=returns.filter(r=>r.return_type==='return'&&r.order_item_id===s.order_item_id&&monthKey(r.created_at)<=month);
    const returnedQty=relatedReturns.reduce((n,r)=>n+Number(r.quantity||0),0);
    const quantity=Math.max(0,Number(s.quantity||0)-returnedQty);
    const unitCost=Number(s.unit_cost||0);
@@ -170,7 +170,8 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
    const bank=unitBank*quantity;
    const fees=marketplace+logistics+bank;
    const profit=sale-cost-fees;
-   return {id:s.id,date:s.paid_at,order:s.order_number||s.order_id,product:s.product_name||'Məhsul',quantity,unitCost,unitSale,cost,sale,marketplace,logistics,bank,fees,profit};
+   const orderNumber=orders.find(o=>o.id===s.order_id)?.order_number||String(s.order_id||'').slice(0,8).toUpperCase();
+   return {id:s.id,date:s.paid_at,order:orderNumber,product:s.product_name||'Məhsul',quantity,unitCost,unitSale,cost,sale,marketplace,logistics,bank,fees,profit};
   }).filter(x=>x.quantity>0);
   return {month,rows,units:rows.reduce((n,x)=>n+x.quantity,0),cost:rows.reduce((n,x)=>n+x.cost,0),sale:rows.reduce((n,x)=>n+x.sale,0),fees:rows.reduce((n,x)=>n+x.fees,0),profit:rows.reduce((n,x)=>n+x.profit,0)};
  });
@@ -217,7 +218,7 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
    {printReports.map(report=><section className="monthly-print-month" key={'print-'+report.month}>
     <div className="monthly-print-month-head"><h2>{monthLabel(report.month)}</h2><span>Hesabat dövrü: {report.month}</span></div>
     <div className="monthly-print-summary"><div><small>Satılan məhsul sayı</small><b>{report.units} ədəd</b></div><div><small>Satış məbləği</small><b>{moneyValue(report.sale)}</b></div><div><small>Maya dəyəri</small><b>{moneyValue(report.cost)}</b></div><div><small>Komissiya və xidmət haqları</small><b>{moneyValue(report.fees)}</b></div><div><small>Xalis mənfəət</small><b>{moneyValue(report.profit)}</b></div></div>
-    <table className="monthly-print-table"><thead><tr><th>Tarix</th><th>Sifariş №</th><th>Məhsul</th><th>Say</th><th>Maya</th><th>Satış qiyməti</th><th>Komissiya</th><th>Logistika</th><th>Bank</th><th>Xalis mənfəət</th></tr></thead><tbody>{report.rows.map(row=><tr key={row.id}><td>{date(row.date)}</td><td>{String(row.order||'—').slice(0,14)}</td><td>{row.product}</td><td>{row.quantity}</td><td>{moneyValue(row.cost)}</td><td>{moneyValue(row.sale)}</td><td>{moneyValue(row.marketplace)}</td><td>{moneyValue(row.logistics)}</td><td>{moneyValue(row.bank)}</td><td className={row.profit>=0?'good':'bad'}>{moneyValue(row.profit)}</td></tr>)}</tbody></table>
+    <table className="monthly-print-table"><thead><tr><th>Tarix</th><th>Sifariş №</th><th>Məhsul</th><th>Say</th><th>Maya / ədəd</th><th>Satış / ədəd</th><th>Maya cəmi</th><th>Satış cəmi</th><th>Komissiya</th><th>Logistika</th><th>Bank</th><th>Xalis mənfəət</th></tr></thead><tbody>{report.rows.map(row=><tr key={row.id}><td>{date(row.date)}</td><td>{String(row.order||'—').slice(0,14)}</td><td>{row.product}</td><td>{row.quantity}</td><td>{moneyValue(row.unitCost)}</td><td>{moneyValue(row.unitSale)}</td><td>{moneyValue(row.cost)}</td><td>{moneyValue(row.sale)}</td><td>{moneyValue(row.marketplace)}</td><td>{moneyValue(row.logistics)}</td><td>{moneyValue(row.bank)}</td><td className={row.profit>=0?'good':'bad'}>{moneyValue(row.profit)}</td></tr>)}</tbody></table>
     {!report.rows.length&&<p className="monthly-print-empty">Bu ayda təhvil verilmiş və ödənişi təsdiqlənmiş satış yoxdur.</p>}
     <div className="monthly-print-total"><span>AYLIQ XALİS MƏNFƏƏT</span><b>{moneyValue(report.profit)}</b></div>
    </section>)}
