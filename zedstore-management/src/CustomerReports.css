@@ -76,7 +76,7 @@
 /* Dedicated print-only monthly product statement */
 #monthly-print-report{display:none}
 @media print{
- @page{size:A4 portrait;margin:20mm 25mm 9mm}
+ @page{size:210mm 297mm;margin:20mm 25mm 9mm}
  body *{visibility:hidden!important}
  #monthly-print-report,#monthly-print-report *{visibility:visible!important}
  #monthly-print-report{display:block!important;position:absolute!important;left:0!important;top:0!important;width:100%!important;margin:0!important;padding:0!important;background:#fff!important;color:#172033!important;font-family:Arial,sans-serif!important}
@@ -93,11 +93,22 @@
  #monthly-print-report .monthly-print-summary>div{border:1px solid #dce4ed;border-radius:4px;padding:5px 4px;min-width:0}
  #monthly-print-report .monthly-print-summary small{display:block;font-size:6.5px;line-height:1.2;color:#64748b;margin-bottom:3px}
  #monthly-print-report .monthly-print-summary b{display:block;font-size:8px;line-height:1.2;color:#172b46;overflow-wrap:anywhere}
- #monthly-print-report .monthly-print-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:6pt}
- #monthly-print-report .monthly-print-table th{background:#edf2f7!important;color:#34465d;font-size:5.5pt;line-height:1.15;text-transform:uppercase;letter-spacing:0;font-weight:800;overflow-wrap:anywhere}
- #monthly-print-report .monthly-print-table th,#monthly-print-report .monthly-print-table td{border:1px solid #dce3eb;padding:4px 2px;text-align:right;white-space:normal;overflow-wrap:anywhere;vertical-align:middle}
- #monthly-print-report .monthly-print-table th:nth-child(1),#monthly-print-report .monthly-print-table td:nth-child(1),#monthly-print-report .monthly-print-table th:nth-child(2),#monthly-print-report .monthly-print-table td:nth-child(2),#monthly-print-report .monthly-print-table th:nth-child(3),#monthly-print-report .monthly-print-table td:nth-child(3){text-align:left}
- #monthly-print-report .monthly-print-table th:nth-child(1),#monthly-print-report .monthly-print-table td:nth-child(1){width:8%}\n #monthly-print-report .monthly-print-table th:nth-child(2),#monthly-print-report .monthly-print-table td:nth-child(2){width:8%}\n #monthly-print-report .monthly-print-table th:nth-child(3),#monthly-print-report .monthly-print-table td:nth-child(3){width:18%}\n #monthly-print-report .monthly-print-table th:nth-child(4),#monthly-print-report .monthly-print-table td:nth-child(4){width:4%}\n #monthly-print-report .monthly-print-table th:nth-child(n+5),#monthly-print-report .monthly-print-table td:nth-child(n+5){width:7.75%}\n #monthly-print-report .monthly-print-table tbody tr{break-inside:avoid;page-break-inside:avoid}
+ #monthly-print-report .monthly-print-table{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;font-size:5pt}
+ #monthly-print-report .monthly-print-table th{background:#edf2f7!important;color:#34465d;font-size:4.8pt;line-height:1.1;text-transform:uppercase;letter-spacing:0;font-weight:800;overflow-wrap:anywhere;word-break:break-word}
+ #monthly-print-report .monthly-print-table th,#monthly-print-report .monthly-print-table td{border:1px solid #dce3eb;padding:3px 1.5px;text-align:right;white-space:normal;overflow-wrap:anywhere;word-break:break-word;vertical-align:middle;min-width:0}
+  #monthly-print-report .monthly-print-table th:nth-child(1),#monthly-print-report .monthly-print-table td:nth-child(1){width:7%}
+ #monthly-print-report .monthly-print-table th:nth-child(2),#monthly-print-report .monthly-print-table td:nth-child(2){width:7%}
+ #monthly-print-report .monthly-print-table th:nth-child(3),#monthly-print-report .monthly-print-table td:nth-child(3){width:17%}
+ #monthly-print-report .monthly-print-table th:nth-child(4),#monthly-print-report .monthly-print-table td:nth-child(4){width:4%}
+ #monthly-print-report .monthly-print-table th:nth-child(5),#monthly-print-report .monthly-print-table td:nth-child(5){width:7%}
+ #monthly-print-report .monthly-print-table th:nth-child(6),#monthly-print-report .monthly-print-table td:nth-child(6){width:7%}
+ #monthly-print-report .monthly-print-table th:nth-child(7),#monthly-print-report .monthly-print-table td:nth-child(7){width:8%}
+ #monthly-print-report .monthly-print-table th:nth-child(8),#monthly-print-report .monthly-print-table td:nth-child(8){width:8%}
+ #monthly-print-report .monthly-print-table th:nth-child(9),#monthly-print-report .monthly-print-table td:nth-child(9){width:8%}
+ #monthly-print-report .monthly-print-table th:nth-child(10),#monthly-print-report .monthly-print-table td:nth-child(10){width:7%}
+ #monthly-print-report .monthly-print-table th:nth-child(11),#monthly-print-report .monthly-print-table td:nth-child(11){width:6%}
+ #monthly-print-report .monthly-print-table th:nth-child(12),#monthly-print-report .monthly-print-table td:nth-child(12){width:14%}
+ #monthly-print-report .monthly-print-table tbody tr{break-inside:avoid;page-break-inside:avoid}
  #monthly-print-report .monthly-print-table tbody tr:nth-child(even){background:#f8fafc!important}
  #monthly-print-report .monthly-print-table .good{color:#087a59!important;font-weight:800}
  #monthly-print-report .monthly-print-table .bad{color:#b42318!important;font-weight:800}
