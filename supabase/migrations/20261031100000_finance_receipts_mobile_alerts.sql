@@ -22,9 +22,12 @@ with check ((select auth.uid()) = owner_id);
 grant select, insert, update, delete on public.finance_entries to authenticated;
 
 create or replace function public.notify_return_event()
-returns trigger language plpgsql set search_path = public
+returns trigger language plpgsql security definer set search_path = public
 as $$
 begin
+  if new.owner_id is distinct from auth.uid() then
+    raise exception 'Return owner does not match authenticated user';
+  end if;
   insert into public.notifications(owner_id, type, title, message, severity, entity_type, entity_id)
   values (
     new.owner_id,
@@ -50,3 +53,6 @@ begin
     alter publication supabase_realtime add table public.notifications;
   end if;
 end $$;
+
+revoke all on function public.notify_return_event() from public, anon;
+grant execute on function public.notify_return_event() to authenticated;
