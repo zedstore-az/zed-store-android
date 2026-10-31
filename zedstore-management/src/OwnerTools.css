@@ -203,3 +203,16 @@
 .owner-mq-own-price input{width:100%;min-height:50px;box-sizing:border-box;padding:12px 15px;border:1px solid #d8e5f3;border-radius:11px;background:#f0f6ff;color:#1766d6;font-size:17px;font-weight:800}
 .owner-mq-own-price input::placeholder{font-size:12px;font-weight:500;color:#98a5b2}
 .owner-mq-own-price small{font-size:11px;font-weight:400;color:#98a5b2;line-height:1.5}
+
+
+.owner-mq-file{padding:14px 12px 18px;background:#f7faff;border:1px solid #e1eaf4;border-radius:13px}
+.owner-mq-file-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.owner-mq-file-head>div{display:grid;gap:4px}
+.owner-mq-file-head b{color:#25384c;font-size:14px}
+.owner-mq-file-head small,.owner-mq-file-head>span{color:#8795a4;font-size:11px}
+.owner-mq-file-table{min-width:850px;background:#fff}
+.owner-mq-file-table th,.owner-mq-file-table td{padding:11px 10px;white-space:nowrap}
+.owner-mq-file-table td:first-child{white-space:normal;min-width:150px}
+.owner-mq-file-table tfoot th{background:#edf5ff;color:#1b5eb2;font-weight:800}
+.owner-mq-expand{padding:8px 13px;border:1px solid #d8e6f5;border-radius:9px;background:#f1f7ff;color:#1766c8;font-weight:700}
+@media(max-width:650px){.owner-mq-file{padding:10px 8px}.owner-mq-file-head{align-items:flex-start;flex-direction:column}.owner-mq-file-table{min-width:850px}}
