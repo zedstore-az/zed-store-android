@@ -15,8 +15,6 @@ im.save(root / "zedstore-management" / "electron" / "icon.ico", format="ICO", si
 # Android legacy launcher density assets
 project = root / "project"
 res_dirs = list(project.rglob("src/main/res"))
-if not res_dirs:
-    raise SystemExit("Android res directory not found")
 for res in res_dirs:
     for folder, size in [("mipmap-mdpi",48),("mipmap-hdpi",72),("mipmap-xhdpi",96),("mipmap-xxhdpi",144),("mipmap-xxxhdpi",192)]:
         out = res / folder
