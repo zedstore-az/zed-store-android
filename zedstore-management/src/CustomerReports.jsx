@@ -197,7 +197,6 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
   else{say?.('Xərc hesabat üçün qeydə alındı.');setExpenseTitle('');setExpenseAmount('');setExpenseNotes('');await load?.()}
   setExpenseSaving(false);
  }
- function addMonth(){if(!/^\\d{4}-\\d{2}$/.test(monthDraft)||selectedSet.has(monthDraft))return;setSelectedMonths(old=>[...old,monthDraft].sort())}
  function exportCsv(){
   const rows=[['Ay','Daxil olan sifarişlər','Təhvil verilmiş sifarişlər','Ödənişi təsdiqlənmiş sifarişlər','Köçən pul (AZN)','Xalis mənfəət (AZN)','Əməliyyat xərcləri (AZN)'],...monthly.map(x=>[monthLabel(x.month),x.incoming,x.delivered,x.paidCount,x.cash.toFixed(2),x.profit.toFixed(2),x.expenses.toFixed(2)])];
   const csv='\\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\\r\\n');
