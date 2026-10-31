@@ -61,47 +61,83 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
  </div>
 }
 export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],say,load}){
- const [productId,setProductId]=useState("");
- const [supplierId,setSupplierId]=useState("");
- const [quantity,setQuantity]=useState("1");
- const [unitCost,setUnitCost]=useState("");
- const [purchasedAt,setPurchasedAt]=useState(new Date().toISOString().slice(0,10));
- const [paymentStatus,setPaymentStatus]=useState("paid");
- const [paidAmount,setPaidAmount]=useState("");
- const [account,setAccount]=useState("cash");
- const [invoice,setInvoice]=useState("");
- const [notes,setNotes]=useState("");
+ const [open,setOpen]=useState(false);
+ const [draft,setDraft]=useState({name:"",category:"",weight:"0",birmarket:"",quantity:"1",cost:"0"});
+ const [items,setItems]=useState([]);
+ const [confirm,setConfirm]=useState(false);
+ const [saving,setSaving]=useState(false);
+ const [expanded,setExpanded]=useState({});
  const [supplierName,setSupplierName]=useState("");
  const [supplierPhone,setSupplierPhone]=useState("");
- const [saving,setSaving]=useState(false);
- const selected=products.find(x=>x.id===productId);
- const total=Math.max(0,Number(quantity)||0)*Math.max(0,Number(unitCost)||0);
- const paid=paymentStatus==="paid"?total:paymentStatus==="pending"?0:Math.min(total,Math.max(0,Number(paidAmount)||0));
- async function addSupplier(){if(!supplierName.trim())return;const r=await sb.from("suppliers").insert({owner_id:user.id,name:supplierName.trim(),phone:supplierPhone.trim()||null}).select().single();if(r.error){say("Təchizatçı əlavə edilmədi: "+r.error.message);return}setSupplierId(r.data.id);setSupplierName("");setSupplierPhone("");say("Təchizatçı əlavə edildi");await load()}
- async function save(e){e.preventDefault();if(!productId||!(Number(quantity)>0)||!(Number(unitCost)>=0)){say("Məhsul, miqdar və alış qiymətini düzgün daxil et.");return}if(paymentStatus==="partial"&&!(paid>0&&paid<total)){say("Qismən ödəniş üçün ödənilmiş məbləğ ümumi alışdan az və sıfırdan böyük olmalıdır.");return}setSaving(true);const payload={owner_id:user.id,product_id:productId,supplier_id:supplierId||null,quantity:Number(quantity),unit_cost:Number(unitCost),total_amount:total,paid_amount:paid,payment_status:paymentStatus,payment_account:account,purchased_at:new Date(purchasedAt+"T12:00:00").toISOString(),invoice_no:invoice.trim()||null,notes:notes.trim()||null,stock_applied:false};const r=await sb.from("purchases").insert(payload);if(r.error)say("Alış qeydi saxlanmadı: "+r.error.message);else{say("Alış qeydə alındı, anbar qalığı və maliyyə dəftəri yeniləndi.");setProductId("");setQuantity("1");setUnitCost("");setInvoice("");setNotes("");setPaymentStatus("paid");setPaidAmount("");await load()}setSaving(false)}
+ const category=BIRM_CATEGORIES.find(x=>x.name===draft.category);
+ const calc=(item)=>{
+  const price=Math.max(0,Number(item.birmarket)||0),weight=Math.max(0,Number(item.weight)||0);
+  const rate=Number(BIRM_CATEGORIES.find(x=>x.name===item.category)?.rate||0);
+  let cls=weight>60?3:weight>30?2:weight>1?1:0;
+  const logistics=price<10?0:([[1,2],[2,5],[7,11],[12,15]][cls][price>=50?1:0]);
+  const commission=price*rate/100,bank=price*1.5/100;
+  const payout=Math.max(0,Math.round((price-commission-bank-logistics+Number.EPSILON)*100)/100);
+  return {rate,commission,bank,logistics,payout};
+ };
+ const preview=calc(draft);
+ function addItem(e){
+  e.preventDefault();
+  if(!draft.name.trim()||!draft.category||!(Number(draft.birmarket)>0)||!(Number(draft.quantity)>0)||!(Number(draft.weight)>=0)||!(Number(draft.cost)>=0)){say("Məhsulun adını, kateqoriyasını, çəkisini, miqdarını və Birmarket qiymətini düzgün daxil et.");return}
+  setItems(old=>[...old,{...draft,id:crypto.randomUUID(),name:draft.name.trim()}]);
+  setDraft({name:"",category:"",weight:"0",birmarket:"",quantity:"1",cost:"0"});
+ }
+ function removeItem(id){setItems(old=>old.filter(x=>x.id!==id))}
+ async function addSupplier(){if(!supplierName.trim())return;const r=await sb.from("suppliers").insert({owner_id:user.id,name:supplierName.trim(),phone:supplierPhone.trim()||null}).select().single();if(r.error){say("Təchizatçı əlavə edilmədi: "+r.error.message);return}setSupplierName("");setSupplierPhone("");say("Təchizatçı əlavə edildi");await load()}
+ async function registerReceipt(){
+  if(!items.length||saving)return;
+  setSaving(true);
+  const receiptNo="MQ-"+new Date().toISOString().replace(/[-:T.Z]/g,"").slice(0,14);
+  const created=[];
+  try{
+   const productRows=items.map(item=>{const c=calc(item);return {owner_id:user.id,name:item.name,category:item.category,weight_kg:Number(item.weight),birmarket_price:Number(item.birmarket),sale_price:c.payout,cost_price:Number(item.cost),stock_qty:0,low_stock_threshold:1,is_active:true,notes:"MQ mal qəbulu · Komissiya "+c.rate+"%"}});
+   const inserted=await sb.from("products").insert(productRows).select("id,name");
+   if(inserted.error)throw new Error("Məhsullar yaradıla bilmədi: "+inserted.error.message);
+   created.push(...(inserted.data||[]));
+   const byName=new Map(created.map(x=>[x.name,x.id]));
+   const purchaseRows=items.map(item=>{const id=byName.get(item.name);return {owner_id:user.id,product_id:id,quantity:Number(item.quantity),unit_cost:Number(item.cost),total_amount:Number(item.quantity)*Number(item.cost),paid_amount:Number(item.quantity)*Number(item.cost),payment_status:"paid",payment_account:"marketplace",purchased_at:new Date().toISOString(),invoice_no:receiptNo,notes:"MQ mal qəbulu · "+item.name,stock_applied:false}});
+   const purchasesResult=await sb.from("purchases").insert(purchaseRows);
+   if(purchasesResult.error)throw new Error("Mal qəbulu stoka köçürülmədi: "+purchasesResult.error.message);
+   say("MQ "+items.length+" çeşid üzrə qeydiyyata alındı və mallar anbara əlavə edildi.");
+   setItems([]);setConfirm(false);setOpen(false);setExpanded(old=>({...old,[receiptNo]:true}));
+   await load();
+  }catch(error){
+   if(created.length){const ids=created.map(x=>x.id);await sb.from("products").delete().in("id",ids)}
+   say("Mal qəbulu tamamlanmadı: "+error.message);
+  }
+  setSaving(false);
+ }
  const rows=[...purchases].sort((a,b)=>new Date(b.purchased_at||b.created_at)-new Date(a.purchased_at||a.created_at));
+ const groups=Object.values(rows.reduce((acc,row)=>{const key=row.invoice_no||("single-"+row.id);if(!acc[key])acc[key]={key,rows:[],date:row.purchased_at||row.created_at};acc[key].rows.push(row);return acc},{}));
+ const totalQty=items.reduce((n,x)=>n+Number(x.quantity||0),0);
  return <div className="owner-purchases">
-  <div className="toolbar"><div><h2>Alış və təchizat</h2><p>Məhsul alışlarını, təchizatçıları, maya dəyərini və anbar daxilolmalarını izləy.</p></div><div className="owner-purchase-total"><small>Ümumi alış qeydləri</small><b>{rows.length}</b></div></div>
-  <div className="owner-purchase-grid">
-   <section className="panel owner-purchase-form"><h3>Yeni məhsul alışı</h3><form onSubmit={save}>
-    <label>Məhsul<select required value={productId} onChange={e=>{setProductId(e.target.value);const p=products.find(x=>x.id===e.target.value);if(p)setUnitCost(String(p.cost_price||""))}}><option value="">Məhsul seç</option>{products.map(p=><option key={p.id} value={p.id}>{p.name} · stok: {p.stock_qty}</option>)}</select></label>
-    <label>Təchizatçı<select value={supplierId} onChange={e=>setSupplierId(e.target.value)}><option value="">Təchizatçı seçilməyib</option>{suppliers.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
-    <div className="owner-inline-supplier"><input value={supplierName} onChange={e=>setSupplierName(e.target.value)} placeholder="Yeni təchizatçı adı"/><input value={supplierPhone} onChange={e=>setSupplierPhone(e.target.value)} placeholder="Telefon (istəyə bağlı)"/><button type="button" className="outline" onClick={addSupplier} disabled={!supplierName.trim()}><Plus size={15}/> Əlavə et</button></div>
-    <div className="owner-form-two"><label>Miqdar<input type="number" min="0.001" step="0.001" required value={quantity} onChange={e=>setQuantity(e.target.value)}/></label><label>1 ədədin alış qiyməti (₼)<input type="number" min="0" step="0.01" required value={unitCost} onChange={e=>setUnitCost(e.target.value)}/></label></div>
-    <div className="owner-purchase-total-line"><span>Alışın ümumi məbləği</span><b>{money(total)}</b></div>
-    <div className="owner-form-two"><label>Alış tarixi<input type="date" required value={purchasedAt} onChange={e=>setPurchasedAt(e.target.value)}/></label><label>Ödəniş statusu<select value={paymentStatus} onChange={e=>setPaymentStatus(e.target.value)}><option value="paid">Tam ödənilib</option><option value="partial">Qismən ödənilib</option><option value="pending">Ödənilməyib</option></select></label></div>
-    {paymentStatus==="partial"&&<label>İndiyə qədər ödənilən (₼)<input type="number" min="0.01" max={Math.max(0,total-0.01)} step="0.01" required value={paidAmount} onChange={e=>setPaidAmount(e.target.value)}/></label>}
-    <label>Ödəniş hesabı<select value={account} onChange={e=>setAccount(e.target.value)}><option value="cash">Kassa</option><option value="bank">Bank</option><option value="marketplace">Marketplace</option></select></label>
-    <label>Qaimə / faktura nömrəsi<input value={invoice} onChange={e=>setInvoice(e.target.value)} placeholder="İstəyə bağlı"/></label>
-    <label>Qeyd<textarea rows="2" value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Əlavə məlumat..."/></label>
-    <button className="primary" disabled={saving||!selected}><Plus size={16}/>{saving?"Saxlanır...":"Alışı qeydə al"}</button>
-   </form></section>
-   <section className="panel owner-supplier-panel"><h3>Təchizatçılar</h3><div className="owner-supplier-list">{suppliers.map(s=><div key={s.id}><span className="owner-supplier-avatar">{s.name.slice(0,1).toUpperCase()}</span><span><b>{s.name}</b><small>{s.phone||s.email||"Əlaqə məlumatı yoxdur"}</small></span></div>)}{!suppliers.length&&<p className="empty">Təchizatçı əlavə edilməyib.</p>}</div><div className="owner-stock-note"><Boxes size={17}/><span>Alış təsdiqləndikdə məhsulun anbar qalığı avtomatik artırılır. Maya dəyəri çəkili orta qiymətlə yenilənir.</span></div></section>
-  </div>
-  <section className="panel"><div className="finance-list-head"><h3>Alış tarixçəsi</h3><span>{rows.length} qeyd</span></div><div className="tablewrap"><table><thead><tr><th>Tarix</th><th>Məhsul</th><th>Təchizatçı</th><th>Miqdar</th><th>Vahid maya</th><th>Cəmi</th><th>Ödənilib</th><th>Status</th></tr></thead><tbody>{rows.map(x=>{const product=products.find(p=>p.id===x.product_id);const supplier=suppliers.find(s=>s.id===x.supplier_id);return <tr key={x.id}><td>{dateLabel(x.purchased_at)}</td><td><b>{product?.name||"Məhsul arxivdə yoxdur"}</b></td><td>{supplier?.name||"—"}</td><td>{x.quantity}</td><td>{money(x.unit_cost)}</td><td><b>{money(x.total_amount)}</b></td><td>{money(x.paid_amount)}</td><td><span className={"badge "+(x.payment_status==="paid"?"green":"yellow")}>{x.payment_status==="paid"?"Ödənilib":x.payment_status==="partial"?"Qismən":"Gözləyir"}</span></td></tr>})}</tbody></table>{!rows.length&&<p className="empty">Hələ alış qeydi yoxdur.</p>}</div></section>
+  <div className="toolbar"><div><h2>Mal qəbulu qeyd et</h2><p>MQ — yeni malları siyahıya əlavə et, qeydiyyatdan keçir və avtomatik anbara köçür.</p></div><div className="owner-mq-head-actions"><div className="owner-purchase-total"><small>Qəbul jurnalı</small><b>{groups.length}</b></div><button className="primary" onClick={()=>setOpen(true)}><Plus size={16}/> MQ · Mal qəbulu</button></div></div>
+  {open&&<div className="shade" onClick={e=>e.target===e.currentTarget&&!confirm&&setOpen(false)}><section className="modal owner-mq-modal"><header><b>MQ · Mal qəbulu</b><button type="button" onClick={()=>{setOpen(false);setConfirm(false)}}><X/></button></header>
+   <div className="owner-mq-content">
+    <form className="owner-mq-form" onSubmit={addItem}>
+     <label>Məhsulun adı<input value={draft.name} onChange={e=>setDraft(x=>({...x,name:e.target.value}))} placeholder="Məsələn: Maus T5" required/></label>
+     <label>Kateqoriya<select value={draft.category} onChange={e=>setDraft(x=>({...x,category:e.target.value}))} required><option value="">Kateqoriya seç</option>{BIRM_CATEGORIES.map(x=><option key={x.name} value={x.name}>{x.name} · {x.rate}%</option>)}</select></label>
+     <div className="owner-form-two"><label>Çəki (kq)<input type="number" min="0" step="0.001" value={draft.weight} onChange={e=>setDraft(x=>({...x,weight:e.target.value}))} required/></label><label>Miqdar (ədəd)<input type="number" min="1" step="1" value={draft.quantity} onChange={e=>setDraft(x=>({...x,quantity:e.target.value}))} required/></label></div>
+     <div className="owner-form-two"><label>Birmarket satış qiyməti (₼)<input type="number" min="0.01" step="0.01" value={draft.birmarket} onChange={e=>setDraft(x=>({...x,birmarket:e.target.value}))} required/></label><label>1 ədədin maya dəyəri (₼)<input type="number" min="0" step="0.01" value={draft.cost} onChange={e=>setDraft(x=>({...x,cost:e.target.value}))} required/></label></div>
+     <div className="owner-mq-calculation"><div><span>Komissiya</span><b>{preview.rate.toFixed(2)}%</b></div><div><span>Komissiya məbləği</span><b>{money(preview.commission)}</b></div><div><span>Bank + logistika</span><b>{money(preview.bank+preview.logistics)}</b></div><div className="owner-mq-payout"><span>Sizə köçən məbləğ / satış qiyməti</span><b>{money(preview.payout)}</b></div></div>
+     <button className="primary" type="submit"><Plus size={16}/> Siyahıya əlavə et</button>
+    </form>
+    <section className="owner-mq-list"><div className="finance-list-head"><h3>Qəbul siyahısı</h3><span>{items.length} çeşid · {totalQty} ədəd</span></div>
+     {items.map((item,index)=>{const c=calc(item);return <article className="owner-mq-item" key={item.id}><div><b>{index+1}. {item.name}</b><small>{item.category} · {item.weight} kq · {item.quantity} ədəd</small><small>Birmarket: {money(item.birmarket)} · Komissiya: {c.rate}% · Sizə köçən: {money(c.payout)}</small></div><button type="button" className="tiny bad" onClick={()=>removeItem(item.id)} aria-label="Siyahıdan sil"><Trash2 size={15}/></button></article>})}
+     {!items.length&&<p className="empty">Hələ mal əlavə edilməyib. Soldakı formanı doldur və “Siyahıya əlavə et” düyməsinə bas.</p>}
+    </section>
+   </div>
+   <footer className="owner-mq-footer"><span>{items.length} çeşid / {totalQty} ədəd</span><button type="button" className="primary" disabled={!items.length} onClick={()=>setConfirm(true)}>Registrasiya et</button></footer>
+   {confirm&&<div className="owner-mq-confirm"><div className="owner-mq-confirm-box"><h3>Mal qəbulunu təsdiqlə</h3><p>{items.length} çeşid, ümumilikdə {totalQty} ədəd məhsul bu günün tarixi ilə MQ jurnalına yazılacaq və anbar stokuna əlavə olunacaq.</p><div><button type="button" className="outline" onClick={()=>setConfirm(false)}>Geri</button><button type="button" className="primary" disabled={saving} onClick={registerReceipt}>{saving?"Qeydiyyat aparılır...":"OK · Qeydiyyatı tamamla"}</button></div></div></div>}
+  </section></div>}
+  <section className="panel owner-mq-journal"><div className="finance-list-head"><h3>Mal qəbulu jurnalı</h3><span>{groups.length} qəbul</span></div><div className="tablewrap"><table><thead><tr><th>Tarix</th><th>MQ nömrəsi</th><th>Çeşid sayı</th><th>Ümumi miqdar</th><th>Məhsullar</th></tr></thead><tbody>{groups.map(group=><React.Fragment key={group.key}><tr><td>{dateLabel(group.date)}</td><td><b>{group.key.startsWith("single-")?"Alış":group.key}</b></td><td>{group.rows.length}</td><td>{group.rows.reduce((n,x)=>n+Number(x.quantity||0),0)} ədəd</td><td><button type="button" className="owner-mq-expand" onClick={()=>setExpanded(old=>({...old,[group.key]:!old[group.key]}))}>{expanded[group.key]?"Gizlət":"Ətraflı bax"}</button></td></tr>{expanded[group.key]&&group.rows.map(row=>{const p=products.find(x=>x.id===row.product_id);return <tr className="owner-mq-detail" key={row.id}><td></td><td colSpan="2"><b>{p?.name||"Məhsul"}</b></td><td>{row.quantity} ədəd</td><td>Maya: {money(row.unit_cost)} · Cəmi: {money(row.total_amount)}</td></tr>})}</React.Fragment>)}</tbody></table>{!groups.length&&<p className="empty">Hələ mal qəbulu qeydə alınmayıb.</p>}</div></section>
+  <section className="panel owner-supplier-panel"><div className="finance-list-head"><h3>Təchizatçılar</h3><span>{suppliers.length}</span></div><div className="owner-inline-supplier"><input value={supplierName} onChange={e=>setSupplierName(e.target.value)} placeholder="Yeni təchizatçı adı"/><input value={supplierPhone} onChange={e=>setSupplierPhone(e.target.value)} placeholder="Telefon (istəyə bağlı)"/><button type="button" className="outline" onClick={addSupplier} disabled={!supplierName.trim()}><Plus size={15}/> Əlavə et</button></div></section>
  </div>
 }
-
 export function SecurityPanel({sb,user,loginEvents=[],say,load}){
  const [backupBusy,setBackupBusy]=useState(false);
  const [restoreBusy,setRestoreBusy]=useState(false);
