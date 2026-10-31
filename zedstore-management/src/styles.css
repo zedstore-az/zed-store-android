@@ -322,3 +322,33 @@
 .cancel-filter-actions button{padding:6px 10px;font-size:9px}
 .cancel-day-chip{background:#edf5ff;border-color:#d4e5fa;color:#235b99}
 @media(max-width:680px){.cancel-date-filter{grid-template-columns:1fr}.cancel-date-add>div{flex-wrap:nowrap}.cancel-date-add input{flex-basis:0}.cancel-date-add button{flex-shrink:0}.cancel-filter-actions{justify-content:flex-start}}
+
+/* Dashboard navigation tiles and animated ZED STORE product showcase */
+.stat-clickable{width:100%;text-align:left;color:inherit;cursor:pointer;position:relative;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.stat-clickable:hover{transform:translateY(-3px);border-color:#b9e8dd;box-shadow:0 10px 24px #123d3012}
+.stat-clickable:focus-visible{outline:3px solid #23b99b66;outline-offset:3px}
+.stat-open{display:flex;align-items:center;gap:5px;margin-top:5px;font-style:normal;font-size:10px;font-weight:700;color:#079b7b}
+.stat-open span{font-size:15px;line-height:10px}
+.store-showcase{grid-column:span 2;position:relative;isolation:isolate;overflow:hidden;min-height:178px;border-radius:15px;padding:22px 24px 39px;color:#fff;background:radial-gradient(ellipse at 80% 15%,#1d8e83 0,transparent 34%),linear-gradient(118deg,#101c32 0%,#162d49 52%,#0c5b5b 100%);border:1px solid #244a61;box-shadow:0 12px 28px #10243a20;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.store-showcase:before{content:"";position:absolute;inset:0;z-index:-1;opacity:.16;background-image:linear-gradient(30deg,transparent 48%,#b4e7dc 49%,transparent 50%),linear-gradient(120deg,transparent 48%,#b4e7dc 49%,transparent 50%);background-size:42px 42px}
+.showcase-glow{position:absolute;z-index:-1;width:240px;height:240px;right:7%;top:-130px;border-radius:50%;background:#4fe0c14a;filter:blur(12px)}
+.showcase-copy{position:relative;z-index:2;max-width:58%}
+.showcase-kicker{font-size:8px;letter-spacing:2px;font-weight:800;color:#8de4d0}
+.showcase-copy h3{font:800 17px/1.3 Manrope;margin:9px 0 6px;color:#fff;max-width:280px}
+.showcase-copy p{font-size:10px;color:#c0d2dc;margin:0}
+.showcase-count{display:flex;align-items:baseline;gap:7px;margin-top:14px}
+.showcase-count b{font:800 23px Manrope;color:#83e3cb}
+.showcase-count span{font-size:9px;color:#c7d9df}
+.showcase-visual{position:relative;z-index:1;flex:1;min-width:110px;height:132px;display:flex;align-items:center;justify-content:center}
+.showcase-product-image{position:relative;z-index:2;display:block;max-width:100%;width:150px;height:130px;object-fit:contain;filter:drop-shadow(0 12px 14px #0008);animation:showcaseProductIn .58s cubic-bezier(.2,.75,.25,1) both}
+@keyframes showcaseProductIn{from{opacity:0;transform:translateY(9px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+.showcase-orbit{position:absolute;display:block;border:1px solid #8de4d04a;border-radius:50%;width:130px;height:130px}
+.orbit-two{width:98px;height:98px;border-color:#8de4d02b}
+.showcase-empty{max-width:150px;text-align:center;font-size:9px;line-height:1.5;color:#c3d9dc}
+.showcase-footer{position:absolute;left:24px;right:24px;bottom:13px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #ffffff20;padding-top:9px;color:#a9c8cf;font-size:8px;letter-spacing:1px}
+.showcase-footer>span{display:flex;align-items:center;gap:7px}
+.showcase-footer i{width:6px;height:6px;border-radius:50%;background:#55dfb8;box-shadow:0 0 0 3px #55dfb822}
+.showcase-footer small{font-size:8px;color:#c1d7dc}
+@media(max-width:1100px){.store-showcase{grid-column:span 2}}
+@media(max-width:720px){.store-showcase{grid-column:span 2;min-height:166px;padding:18px 16px 38px;gap:5px}.showcase-copy{max-width:62%}.showcase-copy h3{font-size:14px}.showcase-visual{min-width:90px;height:118px}.showcase-product-image{width:120px;height:116px}.showcase-orbit{width:108px;height:108px}.orbit-two{width:80px;height:80px}.showcase-footer{left:16px;right:16px}.showcase-kicker{font-size:7px;letter-spacing:1.4px}}
+@media(prefers-reduced-motion:reduce){.showcase-product-image{animation:none}.stat-clickable{transition:none}}
