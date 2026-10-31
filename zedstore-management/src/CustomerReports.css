@@ -52,3 +52,22 @@
  .monthly-report-note{break-inside:avoid}
  .monthly-report-page .cr-panel{break-inside:avoid}
 }
+
+
+.monthly-expense-panel{display:grid;gap:14px}
+.monthly-expense-form{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end;padding:13px;border:1px solid #e5edf5;border-radius:11px;background:#f9fbfe}
+.monthly-expense-form label{display:grid;gap:5px;min-width:0;font-size:10px;font-weight:700;color:#65768b}
+.monthly-expense-form input,.monthly-expense-form select{width:100%;min-width:0;height:36px;padding:0 9px;border:1px solid #dce5ed;border-radius:8px;background:#fff;color:#26364d;font-size:11px}
+.monthly-expense-form .monthly-expense-notes{grid-column:span 2}
+.monthly-expense-form button{height:36px;white-space:nowrap;font-size:10px}
+.monthly-expense-list{display:grid;gap:9px}
+.monthly-expense-list-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.monthly-expense-list-head b{font:800 11px Manrope;color:#31435a}
+.monthly-expense-list-head strong{font:800 13px Manrope;color:#c24b4b}
+@media(max-width:720px){
+ .monthly-expense-form{grid-template-columns:1fr 1fr;padding:10px}
+ .monthly-expense-form .monthly-expense-notes{grid-column:1/-1}
+ .monthly-expense-form button{grid-column:1/-1}
+ .monthly-expense-list-head{align-items:flex-start;flex-direction:column}
+}
+@media print{.monthly-expense-form{display:none!important}}
