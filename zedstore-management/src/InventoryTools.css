@@ -32,3 +32,7 @@
 .return-history-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 19px 0}
 .return-history-head h3{margin:0;font:800 15px Manrope;color:#1e2d43}
 @media(max-width:600px){.barcode-scanner,.return-form-panel{padding:13px}.barcode-actions{align-items:stretch}.barcode-actions .primary{width:100%;justify-content:center}.barcode-result{align-items:flex-start}.barcode-result strong{font-size:10px}.return-history-head{padding:14px 13px 0}}
+
+.barcode-captured{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.barcode-captured img{display:block;width:min(100%,420px);max-height:260px;object-fit:contain;border:1px solid #e5ebf2;border-radius:10px;background:#f7f9fc}
+@media(max-width:600px){.barcode-actions .outline{width:100%;justify-content:center}.barcode-captured img{width:100%}}
