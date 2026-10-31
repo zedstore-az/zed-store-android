@@ -77,8 +77,8 @@
 .monthly-report-page #monthly-print-report{display:none}
 @media print{
  .monthly-report-page *{visibility:hidden!important}
- .monthly-report-page>*:not(.monthly-report-page #monthly-print-report){display:none!important}
- .monthly-report-page .monthly-report-page #monthly-print-report,.monthly-report-page .monthly-report-page #monthly-print-report *{visibility:visible!important}
+ .monthly-report-page>*:not(#monthly-print-report){display:none!important}
+ .monthly-report-page #monthly-print-report,.monthly-report-page #monthly-print-report *{visibility:visible!important}
  .monthly-report-page #monthly-print-report{display:block!important;position:absolute!important;left:0!important;top:0!important;width:100%!important;margin:0!important;padding:0!important;background:#fff!important;color:#172033!important;font-family:Arial,sans-serif!important}
  .monthly-report-page #monthly-print-report .monthly-print-header{text-align:center;border-bottom:2px solid #233a59;padding:0 0 5px;margin-bottom:7px}
  .monthly-report-page #monthly-print-report .monthly-print-brand{font-size:16px;font-weight:900;letter-spacing:3px;color:#173b67}
