@@ -6,8 +6,8 @@ const money=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).
 const dateText=d=>d?new Date(d).toLocaleString('az-AZ'):'—';
 
 export function BarcodePanel({products}){
- const [code,setCode]=useState(''),[streaming,setStreaming]=useState(false),[cameraError,setCameraError]=useState(''),[selected,setSelected]=useState(null),[captured,setCaptured]=useState('');
- const video=useRef(null),stream=useRef(null),raf=useRef(0),lastScan=useRef(0),detector=useRef(null),fileInput=useRef(null);
+ const [code,setCode]=useState(''),[streaming,setStreaming]=useState(false),[cameraError,setCameraError]=useState(''),[selected,setSelected]=useState(null);
+ const video=useRef(null),stream=useRef(null),raf=useRef(0),lastScan=useRef(0),detector=useRef(null);
  const matches=products.filter(p=>code.trim()&&[p.barcode,p.sku].some(v=>String(v||'').toLocaleLowerCase('az').includes(code.trim().toLocaleLowerCase('az'))));
  const stop=()=>{cancelAnimationFrame(raf.current);if(stream.current)stream.current.getTracks().forEach(t=>t.stop());stream.current=null;if(video.current)video.current.srcObject=null;setStreaming(false)};
  useEffect(()=>()=>stop(),[]);
@@ -35,7 +35,7 @@ export function BarcodePanel({products}){
     const now=Date.now();
     if(detector.current&&now-lastScan.current>500&&video.current.readyState>=2){
      lastScan.current=now;
-     try{const found=await detector.current.detect(video.current);if(found?.length){setCode(found[0].rawValue||'');stop();return}}catch{}
+     try{const found=await detector.current.detect(video.current);if(found?.length){const value=String(found[0].rawValue||'').trim();setCode(value);const product=products.find(p=>[p.barcode,p.sku].some(v=>String(v||'').trim()===value));setSelected(product||null);setCameraError(product?'Məhsul tapıldı.':'Barkod oxundu, amma bu kodla məhsul tapılmadı.');stop();return}}catch{}
     }
     raf.current=requestAnimationFrame(scan);
    };
@@ -45,53 +45,28 @@ export function BarcodePanel({products}){
    setCameraError(e?.name==='NotAllowedError'?'Kamera icazəsi verilməyib. Telefon ayarlarından brauzerə kamera icazəsi ver.':e?.name==='NotFoundError'?'Cihazda kamera tapılmadı.':e?.message||'Kamera açıla bilmədi.');
   }
  }
- async function capture(){
-  if(!video.current||video.current.readyState<2)return;
-  const canvas=document.createElement('canvas');
-  canvas.width=video.current.videoWidth;canvas.height=video.current.videoHeight;
-  if(!canvas.width||!canvas.height){setCameraError('Kamera görüntüsü hələ hazır deyil. Bir az gözlə və yenidən çək.');return}
-  const ctx=canvas.getContext('2d');ctx.drawImage(video.current,0,0,canvas.width,canvas.height);
-  const image=canvas.toDataURL('image/jpeg',0.9);setCaptured(image);setCameraError('');
-  if(detector.current){
-   try{const found=await detector.current.detect(canvas);if(found?.length){setCode(found[0].rawValue||'');setCameraError('Barkod şəkildən oxundu.');return}}
-   catch{}
-   setCameraError('Şəkil çəkildi, amma barkod oxunmadı. Barkodu aydın və düz göstərib yenidən çək.');
-  }else setCameraError('Şəkil çəkildi. Avtomatik oxuma bu brauzerdə dəstəklənmir; barkodu aşağıda əl ilə daxil et.');
- }
- async function scanFile(file){
-  if(!file)return;
-  setCameraError('');
-  const url=URL.createObjectURL(file);
-  try{
-   const img=new Image();img.src=url;await img.decode();
-   const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
-   canvas.getContext('2d').drawImage(img,0,0);
-   setCaptured(canvas.toDataURL('image/jpeg',0.9));
-   const d=detector.current||await makeDetector();
-   if(!d){setCameraError('Bu brauzer şəkildən barkod oxumağı dəstəkləmir. Kodu əl ilə daxil edə bilərsən.');return}
-   const found=await d.detect(canvas);
-   if(found?.length){setCode(found[0].rawValue||'');setCameraError('Barkod şəkildən oxundu.')}
-   else setCameraError('Şəkildə barkod tapılmadı. Barkod aydın görünən başqa şəkil seç.');
-  }catch{setCameraError('Şəkil açıla bilmədi. Başqa şəkil seç.')}
-  finally{URL.revokeObjectURL(url)}
+ function handleScannerKeyDown(e){
+  if(e.key!=='Enter')return;
+  e.preventDefault();
+  const value=code.trim();
+  if(!value)return;
+  const product=products.find(p=>[p.barcode,p.sku].some(v=>String(v||'').trim()===value));
+  setSelected(product||null);
+  setCameraError(product?'Skaner barkodu oxudu — məhsul tapıldı.':'Barkod oxundu, amma bu kodla məhsul tapılmadı.');
  }
  return <div className="barcode-page">
-  <div className="toolbar"><div><h2>Barkod skaneri</h2><p>Kameradan barkodu oxut, şəkil çək və ya qalereyadan şəkil seç.</p></div><ScanBarcode size={28}/></div>
+  <div className="toolbar"><div><h2>Barkod skaneri</h2><p>Telefon kamerası ilə barkodu oxut və ya fiziki barkod skanerini qoş.</p></div><ScanBarcode size={28}/></div>
   <section className="panel barcode-scanner">
    <div className="barcode-actions">
-    <button className="primary" type="button" onClick={streaming?stop:start}>{streaming?<><CameraOff size={17}/> Kameranı bağla</>:<><Camera size={17}/> Kameranı aç</>}</button>
-    {streaming&&<button className="outline" type="button" onClick={capture}><Camera size={16}/> Şəkil çək və oxu</button>}
-    <button className="outline" type="button" onClick={()=>fileInput.current?.click()}><Search size={16}/> Qalereyadan şəkil seç</button>
-    <input ref={fileInput} type="file" accept="image/*" capture="environment" hidden onChange={e=>{scanFile(e.target.files?.[0]);e.target.value=''}}/>
+    <button className="primary" type="button" onClick={streaming?stop:start}>{streaming?<><CameraOff size={17}/> Kameranı bağla</>:<><Camera size={17}/> Kamera ilə oxut</>}</button>
    </div>
    {streaming&&<video ref={video} className="barcode-video" playsInline muted autoPlay/>}
-   {captured&&<div className="barcode-captured"><img src={captured} alt="Çəkilmiş barkod şəkli"/><button className="tiny" type="button" onClick={()=>setCaptured('')}>Şəkli sil</button></div>}
    {cameraError&&<div className="barcode-warning"><AlertTriangle size={17}/>{cameraError}</div>}
-   <label className="barcode-input-label">Barkod / SKU<input autoComplete="off" value={code} onChange={e=>{setCode(e.target.value);setSelected(null)}} placeholder="Barkodu skan et və ya daxil et"/></label>
+   <label className="barcode-input-label">Fiziki skaner / Barkod / SKU<input autoComplete="off" value={code} onChange={e=>{setCode(e.target.value);setSelected(null);setCameraError('')}} onKeyDown={handleScannerKeyDown} placeholder="Skaner ilə oxutmaq üçün bura kliklə, sonra barkodu oxut"/></label>
    <div className="barcode-results">{matches.map(p=><button type="button" key={p.id} className={'barcode-result '+(selected?.id===p.id?'active':'')} onClick={()=>setSelected(p)}><span>{p.image_url?<img src={p.image_url} alt=""/>:<ScanBarcode/>}</span><span><b>{p.name}</b><small>{p.barcode||'Barkod yoxdur'} · SKU: {p.sku||'—'}</small></span><strong>{p.stock_qty} ədəd</strong></button>)}{code.trim()&&!matches.length&&<p className="empty">Bu barkod və ya SKU ilə məhsul tapılmadı. Məhsul kartına barkod əlavə et.</p>}</div>
    {selected&&<div className="barcode-selected"><CheckCircle2/><div><b>{selected.name}</b><small>Anbar qalığı: {selected.stock_qty} · Maya: {money(selected.cost_price)}</small></div></div>}
   </section>
-  <p className="barcode-note">Qeyd: Barkod avtomatik oxunmadıqda şəkil çəkə, qalereyadan şəkil seçə və ya kodu əl ilə daxil edə bilərsən.</p>
+  <p className="barcode-note">İstifadə: kameranı aç və barkodu kameraya tərəf tut. Fiziki USB/Bluetooth skanerini qoşduqda yuxarıdakı kod xanasına kliklə və skan et — skaner klaviatura kimi kodu avtomatik daxil edib Enter göndərməlidir.</p>
  </div>
 }
 export function ReturnsPanel({sb,user,products,orders,say,load}){
