@@ -118,3 +118,21 @@
  #monthly-print-report .monthly-print-footer{border-top:1px solid #dce3eb;margin-top:10px;padding-top:5px;font-size:6px;line-height:1.35;color:#64748b}
  #monthly-print-report .monthly-print-footer span{float:right}
 }
+
+@media print{
+ #monthly-print-report .monthly-print-table{font-size:4.1pt}
+ #monthly-print-report .monthly-print-table th{font-size:3.9pt}
+ #monthly-print-report .monthly-print-table th,#monthly-print-report .monthly-print-table td{padding:2px .8px}
+ #monthly-print-report .monthly-print-table th:nth-child(1),#monthly-print-report .monthly-print-table td:nth-child(1){width:7%}
+ #monthly-print-report .monthly-print-table th:nth-child(2),#monthly-print-report .monthly-print-table td:nth-child(2){width:7%}
+ #monthly-print-report .monthly-print-table th:nth-child(3),#monthly-print-report .monthly-print-table td:nth-child(3){width:16%}
+ #monthly-print-report .monthly-print-table th:nth-child(4),#monthly-print-report .monthly-print-table td:nth-child(4){width:5%}
+ #monthly-print-report .monthly-print-table th:nth-child(5),#monthly-print-report .monthly-print-table td:nth-child(5){width:6%}
+ #monthly-print-report .monthly-print-table th:nth-child(6),#monthly-print-report .monthly-print-table td:nth-child(6){width:10%}
+ #monthly-print-report .monthly-print-table th:nth-child(7),#monthly-print-report .monthly-print-table td:nth-child(7){width:8%}
+ #monthly-print-report .monthly-print-table th:nth-child(8),#monthly-print-report .monthly-print-table td:nth-child(8){width:7%}
+ #monthly-print-report .monthly-print-table th:nth-child(9),#monthly-print-report .monthly-print-table td:nth-child(9){width:7%}
+ #monthly-print-report .monthly-print-table th:nth-child(10),#monthly-print-report .monthly-print-table td:nth-child(10){width:5%}
+ #monthly-print-report .monthly-print-table th:nth-child(11),#monthly-print-report .monthly-print-table td:nth-child(11){width:22%}
+ #monthly-print-report .monthly-print-table tfoot th{background:#e5ebf2!important;font-weight:900;border-top:1.5px solid #334155}
+}
