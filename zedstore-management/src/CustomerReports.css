@@ -120,3 +120,19 @@
  #monthly-print-report .monthly-print-footer{border-top:1px solid #dce3eb;margin-top:10px;padding-top:5px;font-size:7pt;line-height:1.35;color:#64748b}
  #monthly-print-report .monthly-print-footer span{float:right}
 }
+
+/* Final monthly statement: one compact sales table, fees shown only in summary totals */
+@media print{
+ #monthly-print-report .monthly-print-table-title{font-size:8.5pt;margin:8px 0 4px}
+ #monthly-print-report .monthly-print-products{width:100%;table-layout:fixed;font-size:7pt}
+ #monthly-print-report .monthly-print-products th{font-size:6.5pt;line-height:1.2}
+ #monthly-print-report .monthly-print-products th,#monthly-print-report .monthly-print-products td{padding:4px 2px;overflow-wrap:anywhere;word-break:break-word}
+ #monthly-print-report .monthly-print-products th:nth-child(1),#monthly-print-report .monthly-print-products td:nth-child(1){width:9%}
+ #monthly-print-report .monthly-print-products th:nth-child(2),#monthly-print-report .monthly-print-products td:nth-child(2){width:11%}
+ #monthly-print-report .monthly-print-products th:nth-child(3),#monthly-print-report .monthly-print-products td:nth-child(3){width:23%;text-align:left}
+ #monthly-print-report .monthly-print-products th:nth-child(4),#monthly-print-report .monthly-print-products td:nth-child(4){width:6%}
+ #monthly-print-report .monthly-print-products th:nth-child(5),#monthly-print-report .monthly-print-products td:nth-child(5){width:10%}
+ #monthly-print-report .monthly-print-products th:nth-child(6),#monthly-print-report .monthly-print-products td:nth-child(6){width:14%}
+ #monthly-print-report .monthly-print-products th:nth-child(7),#monthly-print-report .monthly-print-products td:nth-child(7){width:12%}
+ #monthly-print-report .monthly-print-products th:nth-child(8),#monthly-print-report .monthly-print-products td:nth-child(8){width:15%}
+}
