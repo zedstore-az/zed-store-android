@@ -177,3 +177,28 @@
  #monthly-print-report .monthly-print-footer{margin-top:6px!important;padding-top:3px!important;font-size:5.5pt!important;line-height:1.15!important}
  #monthly-print-report .monthly-print-empty{font-size:7pt!important;padding:10px!important}
 }
+
+
+/* Narrow the entire monthly statement so its left and right edges fit A4 */
+@media print{
+ #monthly-print-report{
+  width:86%!important;
+  max-width:86%!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  left:auto!important;
+  right:auto!important;
+  box-sizing:border-box!important;
+ }
+ #monthly-print-report .monthly-print-table-group,
+ #monthly-print-report .monthly-print-table{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+ }
+ #monthly-print-report .monthly-print-products th,
+ #monthly-print-report .monthly-print-products td{
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+ }
+}
