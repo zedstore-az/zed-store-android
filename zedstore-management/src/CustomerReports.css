@@ -151,3 +151,29 @@
   margin:0!important;
  }
 }
+
+
+/* Compact typography and spacing so the monthly statement fits A4 cleanly */
+@media print{
+ #monthly-print-report{font-size:7pt!important}
+ #monthly-print-report .monthly-print-header{padding-bottom:3px!important;margin-bottom:4px!important}
+ #monthly-print-report .monthly-print-brand{font-size:12pt!important;letter-spacing:2px!important}
+ #monthly-print-report .monthly-print-title{font-size:8pt!important;margin-top:2px!important}
+ #monthly-print-report .monthly-print-subtitle{font-size:6pt!important;margin-top:2px!important}
+ #monthly-print-report .monthly-print-month-head{padding-bottom:2px!important;margin-bottom:4px!important}
+ #monthly-print-report .monthly-print-month-head h2{font-size:9pt!important}
+ #monthly-print-report .monthly-print-month-head span{font-size:6.5pt!important}
+ #monthly-print-report .monthly-print-summary{gap:2px!important;margin-bottom:5px!important}
+ #monthly-print-report .monthly-print-summary>div{padding:2px!important}
+ #monthly-print-report .monthly-print-summary small{font-size:5.2pt!important;line-height:1.05!important;margin-bottom:1px!important}
+ #monthly-print-report .monthly-print-summary b{font-size:6.3pt!important;line-height:1.05!important}
+ #monthly-print-report .monthly-print-table-title{font-size:6.5pt!important;margin:5px 0 2px!important;padding-bottom:1px!important}
+ #monthly-print-report .monthly-print-products{font-size:6.2pt!important}
+ #monthly-print-report .monthly-print-products th{font-size:5.7pt!important;line-height:1.05!important}
+ #monthly-print-report .monthly-print-products th,
+ #monthly-print-report .monthly-print-products td{padding:2px 1.5px!important;line-height:1.08!important}
+ #monthly-print-report .monthly-print-total{gap:8px!important;margin-top:5px!important;padding-top:3px!important;font-size:7pt!important}
+ #monthly-print-report .monthly-print-total b{font-size:9pt!important}
+ #monthly-print-report .monthly-print-footer{margin-top:6px!important;padding-top:3px!important;font-size:5.5pt!important;line-height:1.15!important}
+ #monthly-print-report .monthly-print-empty{font-size:7pt!important;padding:10px!important}
+}
