@@ -65,7 +65,8 @@ export function BusinessReportsPanel({sales=[],orders=[],products=[],purchases=[
  const today=dayKey(new Date()),month=monthKey(new Date());
  const [from,F]=useState(month+'-01'),[to,T]=useState(today);
  const inRange=d=>{const k=dayKey(d);return !!k&&(!from||k>=from)&&(!to||k<=to)};
- const sold=adjustedSales.filter(s=>!!s.paid_at&&inRange(s.paid_at||s.sold_at));
+ const successfulOrderIds=new Set(orders.filter(o=>o.delivery_status==='delivered'&&o.payment_status==='paid'&&!!o.paid_at).map(o=>o.id));
+ const sold=adjustedSales.filter(s=>!!s.paid_at&&successfulOrderIds.has(s.order_id)&&inRange(s.paid_at||s.sold_at));
  const dailyRows=sold.map(s=>({Tarix:date(s.paid_at||s.sold_at),Məhsul:s.product_name,Miqdar:Number(s.quantity||0),Dövriyyə:Number(s.transferred_amount||0)*Number(s.quantity||0),Mənfəət:Number(s.net_profit||0),Ödəniş:'Ödənilib'}));
  const successfulQuantity=sold.reduce((n,s)=>n+Number(s.quantity||0),0);
  const successfulCost=sold.reduce((n,s)=>n+Number(s.unit_cost||0)*Number(s.quantity||0),0);
