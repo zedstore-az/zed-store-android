@@ -115,7 +115,7 @@ export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],sa
  const totalQty=items.reduce((n,x)=>n+Number(x.quantity||0),0);
  return <div className="owner-purchases">
   <div className="toolbar"><div><h2>Mal qəbulu qeyd et</h2><p>MQ — yeni malları siyahıya əlavə et, qeydiyyatdan keçir və avtomatik anbara köçür.</p></div><div className="owner-mq-head-actions"><div className="owner-purchase-total"><small>Qəbul jurnalı</small><b>{groups.length}</b></div><button className="primary" onClick={()=>setOpen(true)}><Plus size={16}/> MQ · Mal qəbulu</button></div></div>
-  {open&&<div className="shade" onClick={e=>e.target===e.currentTarget&&!confirm&&setOpen(false)}><section className="modal owner-mq-modal"><header><b>MQ · Mal qəbulu</b><button type="button" onClick={()=>{setOpen(false);setConfirm(false)}}><X/></button></header>
+  {open&&<div className="owner-mq-window-host" onClick={e=>e.stopPropagation()}><section className="owner-mq-modal"><header className="owner-mq-titlebar"><b>MQ · Mal qəbulu</b><button type="button" onClick={()=>{setOpen(false);setConfirm(false)}} title="Pəncərəni bağla"><X/></button></header>
    <div className="owner-mq-content">
     <form className="owner-mq-form" onSubmit={addItem}>
      <label>Məhsulun adı<input value={draft.name} onChange={e=>setDraft(x=>({...x,name:e.target.value}))} placeholder="Məsələn: Maus T5" required/></label>
