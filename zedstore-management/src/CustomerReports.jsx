@@ -94,7 +94,7 @@ export function BusinessReportsPanel({sales=[],orders=[],products=[],purchases=[
   {name:'Alışlar',rows:[['Tarix','Məhsul','Təchizatçı','Miqdar','Vahid maya','Cəmi','Ödənilib','Status'],...purchaseRows.map(x=>[x.Tarix,x.Məhsul,x.Təchizatçı,x.Miqdar,x.Vahid_maya,x.Cəmi,x.Ödənilib,x.Status])]},
   {name:'Xərclər',rows:[['Tarix','Kateqoriya','Məbləğ','Hesab','Qeyd'],...expenseRows.map(x=>[x.Tarix,x.Kateqoriya,x.Məbləğ,x.Hesab,x.Qeyd])]}
  ];
- const exportPdf=()=>window.print();
+ const exportPdf=()=>{const body=document.body;body.classList.add('zed-print-documents');const cleanup=()=>body.classList.remove('zed-print-documents');window.addEventListener('afterprint',cleanup,{once:true});window.print();window.setTimeout(cleanup,5000)};
  return <div className="cr-page cr-reports">
   <div className="toolbar"><div><h2>Sənədlər və hesabatlar</h2><p>Tarix aralığına görə real satış, anbar, alış və xərc məlumatları.</p></div><div className="cr-export-actions"><button className="outline" onClick={()=>exportExcel(sheets,'zedstore-hesabatlar')}><FileSpreadsheet size={16}/> Excel (.xls) yüklə</button><button className="primary" onClick={exportPdf}><Printer size={16}/> PDF / Çap</button></div></div>
   <section className="panel cr-panel cr-filter-panel"><div className="cr-date-filters"><label>Başlanğıc tarix<input type="date" value={from} onChange={e=>F(e.target.value)}/></label><label>Son tarix<input type="date" value={to} onChange={e=>T(e.target.value)}/></label><button className="outline" onClick={()=>{F(month+'-01');T(today)}}>Bu ay</button><button className="outline" onClick={()=>{F(today);T(today)}}>Bu gün</button></div><small className="cr-range-note">Hesabat dövrü: {from||'Başlanğıcdan'} — {to||'bu günə qədər'}</small></section>
