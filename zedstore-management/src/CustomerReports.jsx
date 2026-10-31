@@ -111,7 +111,7 @@ export function BusinessReportsPanel({sales=[],orders=[],products=[],purchases=[
 }
 
 
-export function MonthlyReportsPanel({orders=[],sales=[],returns=[],products=[],financeEntries=[]}){
+export function MonthlyReportsPanel({orders=[],adjustedSales=[],products=[]}){
  const today=dayKey(new Date());
  const currentMonth=monthKey(new Date());
  const [fromDate,setFromDate]=useState(currentMonth+'-01');
@@ -121,25 +121,18 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],products=[],f
  const orderMap=new Map(orders.map(o=>[o.id,o]));
  const productMap=new Map(products.map(p=>[p.id,p]));
  const paidOrderIds=new Set(orders.filter(o=>o.delivery_status==='delivered'&&o.payment_status==='paid'&&!!o.paid_at).map(o=>o.id));
- const rows=sales.filter(s=>!!s.paid_at&&paidOrderIds.has(s.order_id)&&inSelected(s.paid_at)).map(s=>{
-  const relatedReturns=returns.filter(r=>r.return_type==='return'&&r.order_item_id===s.order_item_id&&inSelected(r.created_at));
-  const originalQty=Math.max(0,Number(s.quantity||0));
-  const returnedQty=Math.min(originalQty,relatedReturns.reduce((n,r)=>n+Number(r.quantity||0),0));
-  const quantity=Math.max(0,originalQty-returnedQty);
-  const refund=relatedReturns.reduce((n,r)=>n+Number(r.refund_amount||0),0);
+ const rows=adjustedSales.filter(s=>!!s.paid_at&&paidOrderIds.has(s.order_id)&&inSelected(s.paid_at)).map(s=>{
+  const quantity=Math.max(0,Number(s.quantity||0));
   const unitCost=Number(s.unit_cost||0);
-  const grossUnit=Number(s.birmarket_sale_price??s.unit_sale_price??0);
-  const feesUnit=Number(s.marketplace_commission||0)+Number(s.logistics_fee||0)+Number(s.bank_fee||0);
-  const computedPayout=Math.max(0,grossUnit-feesUnit);
-  const payoutUnit=Number.isFinite(Number(s.transferred_amount))&&s.transferred_amount!==null?Number(s.transferred_amount):computedPayout;
-  const totalSale=Math.max(0,payoutUnit*quantity-refund);
+  const unitSale=Math.max(0,Number(s.transferred_amount||0));
+  const totalSale=unitSale*quantity;
   const totalCost=unitCost*quantity;
   const totalProfit=totalSale-totalCost;
   const product=productMap.get(s.product_id)||{};
   const order=orderMap.get(s.order_id)||{};
   const orderNumber=order.order_number||String(s.order_id||'').slice(0,8).toUpperCase();
   const image=product.image_urls?.[0]||product.image_url||s.product_image_url||'';
-  return {id:s.id,orderNumber,product:s.product_name||product.name||'Məhsul',image,sku:product.sku||s.sku||'',quantity,unitCost,unitSale:quantity?totalSale/quantity:0,unitProfit:quantity?totalProfit/quantity:0,totalCost,totalSale,totalProfit,refund};
+  return {id:s.id,orderNumber,product:s.product_name||product.name||'Məhsul',image,sku:product.sku||s.sku||'',quantity,unitCost,unitSale,unitProfit:quantity?totalProfit/quantity:0,totalCost,totalSale,totalProfit};
  }).filter(x=>x.quantity>0);
  const totals=rows.reduce((a,x)=>({quantity:a.quantity+x.quantity,cost:a.cost+x.totalCost,sale:a.sale+x.totalSale,profit:a.profit+x.totalProfit}),{quantity:0,cost:0,sale:0,profit:0});
  const validRange=!!fromDate&&!!toDate&&fromDate<=toDate;
