@@ -137,13 +137,16 @@
 }
 
 
-/* Slightly reduce the complete printed monthly statement while retaining usable A4 width */
+/* Fit the monthly statement inside a standard A4 printer page */
 @media print{
- #monthly-print-report{zoom:.92;width:108.6957%!important;max-width:none!important}
-}
-
-
-/* Use the full A4 sheet: remove page margins for the monthly statement */
-@media print{
- @page{size:190mm 260mm;margin:0!important}
+ @page{size:A4 portrait;margin:8mm}
+ #monthly-print-report{
+  zoom:1!important;
+  position:relative!important;
+  left:auto!important;
+  top:auto!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin:0!important;
+ }
 }
