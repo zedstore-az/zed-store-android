@@ -1,7 +1,7 @@
 name: Build ZED STORE APK
 on:
   push:
-    branches: [zedstore-management]
+    branches: [zedstore-management, feature/real-push-notifications]
     paths:
       - 'android-app/**'
       - 'tools/generate-app-icons.py'
