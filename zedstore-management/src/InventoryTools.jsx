@@ -16,7 +16,7 @@ export function BarcodePanel({products}){
   if(!navigator.mediaDevices?.getUserMedia){setCameraError('Bu brauzerdə kamera dəstəyi yoxdur. Barkodu əl ilə daxil edə bilərsən.');return}
   if(!('BarcodeDetector' in window)){setCameraError('Bu brauzer barkodun avtomatik oxunmasını dəstəkləmir. Barkodu əl ilə daxil et.');return}
   try{
-   const detector=new window.BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code']});
+   const supported=await window.BarcodeDetector.getSupportedFormats();const formats=['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code'].filter(x=>supported.includes(x));if(!formats.length)throw new Error('Dəstəklənən barkod formatı tapılmadı');const detector=new window.BarcodeDetector({formats});
    stream.current=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
    if(!video.current)return;
    video.current.srcObject=stream.current;await video.current.play();setStreaming(true);
@@ -45,7 +45,7 @@ export function ReturnsPanel({sb,user,products,orders,say,load}){
  const replacement=products.find(x=>x.id===replacementId);
  async function refresh(){const r=await sb.from('returns').select('*,products(name,sku),orders(order_number,customer_name)').order('created_at',{ascending:false}).limit(100);if(r.error)say('Qaytarılma tarixçəsi yüklənmədi: '+r.error.message);else setHistory(r.data||[])}
  useEffect(()=>{refresh()},[]);
- useEffect(()=>{if(chosen){setQuantity(1);setRefund(String(Number(chosen.unit_sale_price||0).toFixed(2))) }},[orderItemId]);
+ useEffect(()=>{if(chosen){setQuantity(1);setRefund(String((Number(chosen.birmarket_price||0)*Number(quantity||1)).toFixed(2))) }},[orderItemId]);
  useEffect(()=>{if(returnType==='exchange'&&!replacementId){const candidate=products.find(p=>p.id!==chosen?.product_id&&Number(p.stock_qty)>0);if(candidate)setReplacementId(candidate.id)}},[returnType,products,chosen]);
  async function submit(e){
   e.preventDefault();
@@ -64,7 +64,7 @@ export function ReturnsPanel({sb,user,products,orders,say,load}){
   <section className="panel return-form-panel"><form className="formmodal return-form" onSubmit={submit}>
    <label>Sifarişdəki məhsul<select required value={orderItemId} onChange={e=>setOrderItemId(e.target.value)}><option value="">Məhsul seç...</option>{deliveredItems.map(item=><option key={item.id} value={item.id}>#{item.order.order_number||item.order.id.slice(0,8)} · {item.order.customer_name} · {item.product_name} × {item.quantity}</option>)}</select></label>
    {chosen&&<div className="return-selected"><b>{chosen.product_name}</b><small>Sifariş miqdarı: {chosen.quantity} · Müştəri: {chosen.order.customer_name}</small></div>}
-   <div className="fields"><label>Qaytarılan miqdar<input type="number" min="1" max={chosen?.quantity||1} step="1" value={quantity} onChange={e=>setQuantity(e.target.value)} disabled={!chosen}/></label><label>Əməliyyat növü<select value={returnType} onChange={e=>setReturnType(e.target.value)}><option value="return">Qaytarılma</option><option value="exchange">Dəyişdirilmə</option></select></label><label>Məhsulun vəziyyəti<select value={condition} onChange={e=>setCondition(e.target.value)}><option value="restock">Yenidən satışa yararlıdır — stoka qaytar</option><option value="damaged">Zədəlidir — stoka əlavə etmə</option></select></label>{returnType==='return'&&<label>Geri qaytarılan məbləğ (₼)<input type="number" min="0" step="0.01" value={refund} onChange={e=>setRefund(e.target.value)}/></label>}</div>
+   <div className="fields"><label>Qaytarılan miqdar<input type="number" min="1" max={chosen?.quantity||1} step="1" value={quantity} onChange={e=>{setQuantity(e.target.value);setRefund((Number(chosen?.birmarket_price||0)*Number(e.target.value||0)).toFixed(2))}} disabled={!chosen}/></label><label>Əməliyyat növü<select value={returnType} onChange={e=>setReturnType(e.target.value)}><option value="return">Qaytarılma</option><option value="exchange">Dəyişdirilmə</option></select></label><label>Məhsulun vəziyyəti<select value={condition} onChange={e=>setCondition(e.target.value)}><option value="restock">Yenidən satışa yararlıdır — stoka qaytar</option><option value="damaged">Zədəlidir — stoka əlavə etmə</option></select></label>{returnType==='return'&&<label>Geri qaytarılan məbləğ (₼)<input type="number" min="0" step="0.01" value={refund} onChange={e=>setRefund(e.target.value)}/></label>}</div>
    {returnType==='exchange'&&<div className="fields"><label>Əvəz məhsul<select required value={replacementId} onChange={e=>setReplacementId(e.target.value)}><option value="">Məhsul seç...</option>{products.filter(p=>Number(p.stock_qty)>0).map(p=><option key={p.id} value={p.id}>{p.name} · stok {p.stock_qty}</option>)}</select></label><label>Veriləcək miqdar<input type="number" min="1" step="1" max={replacement?.stock_qty||1} value={replacementQty} onChange={e=>setReplacementQty(e.target.value)}/></label></div>}
    <label>Səbəb<textarea required rows="3" value={reason} onChange={e=>setReason(e.target.value)} placeholder="Məs: Məhsul uyğun gəlmədi..."/></label>
    <div className="return-stock-note"><PackageCheck size={17}/><span>Stok hərəkətləri bazada avtomatik və birlikdə icra olunur. Dəyişdirilmədə əvəz məhsulun stokdan çıxılması da yoxlanılır.</span></div>
