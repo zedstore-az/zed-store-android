@@ -21,7 +21,7 @@ jobs:
         shell: pwsh
         run: |
           py -m pip install --upgrade pip
-          py -m pip install pillow
+          py -m pip install pillow numpy
           py tools/generate-app-icons.py
       - name: Install dependencies
         working-directory: zedstore-management
