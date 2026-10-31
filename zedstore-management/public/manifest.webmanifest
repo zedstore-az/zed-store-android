@@ -1,0 +1,7 @@
+{
+ "id":"/","name":"ZED STORE İdarəetmə Sistemi","short_name":"ZED STORE",
+ "description":"Anbar, sifariş, satış və maliyyə idarəetməsi",
+ "start_url":"/","scope":"/","display":"standalone",
+ "background_color":"#f4f6fb","theme_color":"#0757ed",
+ "icons":[{"src":"/zed-store-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}

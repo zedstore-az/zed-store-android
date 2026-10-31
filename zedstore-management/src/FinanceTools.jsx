@@ -62,10 +62,82 @@ export function ProductRankingPanel({products,sales,returns=[]}){
  return <div className="ranking-page"><div className="toolbar"><div><h2>Məhsul reytinqi</h2><p>Ən çox satılan, dövriyyə gətirən və qazandıran məhsullar. Qaytarılmalar nəzərə alınır.</p></div><TrendingUp size={28}/></div><div className="ranking-controls"><label>Reytinq meyarı<select value={sortBy} onChange={e=>Sort(e.target.value)}><option value="profit">Ən çox qazandıran</option><option value="quantity">Ən çox satılan</option><option value="revenue">Ən yüksək dövriyyə</option></select></label></div><section className="panel"><div className="tablewrap"><table><thead><tr><th>#</th><th>Məhsul</th><th>Satılan</th><th>Qaytarılan</th><th>Dövriyyə</th><th>Xalis mənfəət*</th><th>Stok</th></tr></thead><tbody>{ranked.map((p,i)=><tr key={p.id}><td><b>{i+1}</b></td><td><b>{p.name}</b><small>{p.sku||'—'}</small></td><td>{p.quantity}</td><td>{p.returnedQty}</td><td>{money(p.revenue)}</td><td className={p.profit>=0?'good':'bad'}>{money(p.profit)}</td><td>{p.stock_qty}</td></tr>)}</tbody></table>{!ranked.length&&<p className="empty">Məhsul yoxdur.</p>}</div></section><p className="finance-disclaimer">* Qaytarılan məbləğ satış gəlirindən çıxılır; yenidən satışa yararlı məhsulun maya dəyəri geri hesablanır. Mübadilə əməliyyatı satış kimi sayılmır.</p></div>
 }
 
+function base64UrlToUint8Array(value){
+ const padding='='.repeat((4-value.length%4)%4);
+ const base64=(value+padding).replace(/-/g,'+').replace(/_/g,'/');
+ const raw=window.atob(base64);
+ return Uint8Array.from(raw,c=>c.charCodeAt(0));
+}
+function isAndroidWebView(){
+ const ua=navigator.userAgent||'';
+ return ua.includes('; wv)')||(ua.includes('Android')&&ua.includes('Version/')&&!ua.includes('Chrome/'));
+}
 export function MobileAlerts({sb,user,say}){
  const [enabled,SetEnabled]=useState(localStorage.getItem('zed_mobile_alerts')==='on');
  const [state,State]=useState('');
- useEffect(()=>{if(!enabled||!user||!('Notification' in window)||Notification.permission!=='granted')return;const channel=sb.channel('zed-mobile-alerts-'+user.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'owner_id=eq.'+user.id},payload=>{const row=payload.new||{};try{const n=new Notification(row.title||'ZED STORE',{body:row.message||'Yeni bildiriş var',tag:row.id||undefined});n.onclick=()=>{window.focus();window.location.href='/notifications';n.close()}}catch{}}).subscribe(status=>State(status==='SUBSCRIBED'?'Aktivdir':status));return()=>{sb.removeChannel(channel)}},[enabled,user?.id]);
- async function toggle(){if(enabled){SetEnabled(false);localStorage.removeItem('zed_mobile_alerts');State('Söndürülüb');return}if(!('Notification' in window)){say('Bu brauzer mobil bildirişləri dəstəkləmir.');return}const permission=await Notification.requestPermission();if(permission!=='granted'){say('Bildiriş icazəsi verilmədi. Brauzer ayarlarından icazə verə bilərsən.');return}SetEnabled(true);localStorage.setItem('zed_mobile_alerts','on');State('Qoşulur...')}
- return <section className="panel mobile-alert-panel"><div><span className="mobile-alert-icon"><Smartphone/></span><div><h3>Mobil bildirişlər</h3><p>Yeni sifariş, azalan stok və qaytarılma bildirişlərini telefonunda göstər.</p><small>{enabled?'Bildirişlər aktivdir · '+(state||'qoşulur'):'Bildirişlər söndürülüb'}</small></div></div><button type="button" className={enabled?'outline':'primary'} onClick={toggle}>{enabled?'Bildirişləri söndür':'Bildirişləri aktiv et'}</button><p className="mobile-alert-note">Bu rejim tətbiq açıq və internetə qoşulu olduqda işləyir. Telefon tətbiqi tam bağlandıqda da gələn push bildirişləri üçün ayrıca push server və cihaz qeydiyyatı lazımdır.</p></section>
+ const [busy,Busy]=useState(false);
+ const functionUrl=(()=>{let base=import.meta.env.VITE_SUPABASE_URL||'';while(base.endsWith('/'))base=base.slice(0,-1);return base+'/functions/v1/zed-web-push'})();
+
+ useEffect(()=>{
+  if(!enabled)return;
+  if(isAndroidWebView()){State('Android tətbiqinin daxili brauzeri push bildirişlərini dəstəkləmir.');return}
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){State('Bu brauzerdə Push API dəstəyi yoxdur. Chrome və ya Edge istifadə et.');return}
+  if(Notification.permission!=='granted'){State('Bildiriş icazəsi gözlənilir.');return}
+  State('Aktivdir');
+ },[enabled]);
+
+ async function toggle(){
+  if(busy)return;
+  if(enabled){
+   Busy(true);
+   try{
+    if('serviceWorker' in navigator){
+     const registration=await navigator.serviceWorker.getRegistration('/');
+     const subscription=await registration?.pushManager?.getSubscription();
+     if(subscription){
+      const {error}=await sb.from('push_subscriptions').delete().eq('owner_id',user.id).eq('endpoint',subscription.endpoint);
+      if(error)throw error;
+      await subscription.unsubscribe();
+     }
+    }
+    SetEnabled(false);localStorage.removeItem('zed_mobile_alerts');State('Söndürülüb');
+   }catch(error){say('Bildiriş söndürülmədi: '+(error.message||'Naməlum xəta'))}
+   finally{Busy(false)}
+   return;
+  }
+  if(isAndroidWebView()){
+   say('Android tətbiqinin daxili brauzeri Push API-ni dəstəkləmir. Android Chrome üçün ayrıca aç.');
+   return;
+  }
+  if(!window.isSecureContext||!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){
+   say('Bu brauzer Push bildirişlərini dəstəkləmir. HTTPS üzərindən Chrome və ya Edge aç.');
+   return;
+  }
+  Busy(true);
+  try{
+   const permission=await Notification.requestPermission();
+   if(permission!=='granted')throw new Error('Bildiriş icazəsi verilmədi. Brauzer ayarlarından icazə ver.');
+   const response=await fetch(functionUrl,{method:'GET',headers:{'Accept':'application/json'}});
+   if(!response.ok)throw new Error('Push serverə qoşulmaq mümkün olmadı ('+response.status+').');
+   const config=await response.json();
+   if(!config.publicKey)throw new Error('VAPID açarı serverdə qurulmayıb.');
+   const registration=await navigator.serviceWorker.register('/service-worker.js',{scope:'/'});
+   await navigator.serviceWorker.ready;
+   const subscription=await registration.pushManager.getSubscription()||await registration.pushManager.subscribe({
+    userVisibleOnly:true,
+    applicationServerKey:base64UrlToUint8Array(config.publicKey)
+   });
+   const {error}=await sb.from('push_subscriptions').upsert({
+    owner_id:user.id,
+    endpoint:subscription.endpoint,
+    subscription:subscription.toJSON(),
+    user_agent:navigator.userAgent
+   },{onConflict:'owner_id,endpoint'});
+   if(error)throw error;
+   SetEnabled(true);localStorage.setItem('zed_mobile_alerts','on');State('Aktivdir');
+   say('Push bildirişləri aktiv edildi.');
+  }catch(error){say('Bildiriş aktiv olmadı: '+(error.message||'Naməlum xəta'));State('Aktivləşdirmə alınmadı.')}
+  finally{Busy(false)}
+ }
+ return <section className="panel mobile-alert-panel"><div><span className="mobile-alert-icon"><Smartphone/></span><div><h3>Mobil bildirişlər</h3><p>Yeni sifariş, azalan stok, ödəniş və qaytarılma bildirişlərini telefonunda göstər.</p><small>{enabled?'Push bildirişləri · '+(state||'yoxlanılır'):state||'Bildirişlər söndürülüb'}</small></div></div><button type="button" className={enabled?'outline':'primary'} disabled={busy} onClick={toggle}>{busy?'Gözləyin...':enabled?'Bildirişləri söndür':'Bildirişləri aktiv et'}</button><p className="mobile-alert-note">Push bildirişləri Chrome/Edge-də tətbiq bağlı olduqda da işləyə bilər. Android tətbiqinin daxili WebView-i native push-u dəstəkləmir; APK üçün ayrıca Firebase inteqrasiyası lazımdır.</p></section>
 }
