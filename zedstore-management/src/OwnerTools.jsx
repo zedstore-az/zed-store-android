@@ -63,7 +63,7 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
 }
 export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],say,load,calculateProductPayout}){
  const [open,setOpen]=useState(false),[items,setItems]=useState([]),[confirm,setConfirm]=useState(false),[saving,setSaving]=useState(false),[expanded,setExpanded]=useState({});
- const [supplierName,setSupplierName]=useState(""),[supplierPhone,setSupplierPhone]=useState("");
+ const [supplierName,setSupplierName]=useState(""),[supplierPhone,setSupplierPhone]=useState(""),[supplierId,setSupplierId]=useState("");
  const emptyDraft={name:"",sku:"",barcode:"",brand:"",category:"",weight_kg:"0",birmarket_price:"",quantity:"1",cost_price:"0",low_stock_threshold:"1",notes:""};
  const [draft,setDraft]=useState(emptyDraft),[draftImages,setDraftImages]=useState([]),[categoryFocused,setCategoryFocused]=useState(false);
  const matchingCategories=BIRM_CATEGORIES.filter(x=>(x.name+" "+(x.group||"")+" "+(x.vertical||"")).toLocaleLowerCase("az").includes(draft.category.trim().toLocaleLowerCase("az"))).slice(0,12);
@@ -99,12 +99,12 @@ export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],sa
      paths.push(path);uploaded.push(path);
     }
     const urls=paths.map(path=>sb.storage.from("zedstore-products").getPublicUrl(path).data.publicUrl);
-    const row={owner_id:user.id,name:item.name,sku:item.sku||null,barcode:item.barcode||null,brand:item.brand||null,category:item.category,weight_kg:Number(item.weight_kg),birmarket_price:Number(item.birmarket_price),sale_price:Number(calculateProductPayout(item).payout),cost_price:Number(item.cost_price),stock_qty:0,low_stock_threshold:Number(item.low_stock_threshold)||1,is_active:true,notes:item.notes||("MQ mal qəbulu · "+receiptNo),image_paths:paths,image_urls:urls,image_path:paths[0]||null,image_url:urls[0]||null};
+    const row={owner_id:user.id,name:item.name,supplier_id:supplierId||null,sku:item.sku||null,barcode:item.barcode||null,brand:item.brand||null,category:item.category,weight_kg:Number(item.weight_kg),birmarket_price:Number(item.birmarket_price),sale_price:Number(calculateProductPayout(item).payout),cost_price:Number(item.cost_price),stock_qty:0,low_stock_threshold:Number(item.low_stock_threshold)||1,is_active:true,notes:item.notes||("MQ mal qəbulu · "+receiptNo),image_paths:paths,image_urls:urls,image_path:paths[0]||null,image_url:urls[0]||null};
     const inserted=await sb.from("products").insert(row).select("id,name").single();
     if(inserted.error)throw new Error("Məhsul yaradıla bilmədi: "+inserted.error.message);
     created.push({id:inserted.data.id,item});
    }
-   const purchaseRows=created.map(({id,item})=>({owner_id:user.id,product_id:id,quantity:Number(item.quantity),unit_cost:Number(item.cost_price),total_amount:Number(item.quantity)*Number(item.cost_price),paid_amount:Number(item.quantity)*Number(item.cost_price),payment_status:"paid",payment_account:"marketplace",purchased_at:new Date().toISOString(),invoice_no:receiptNo,notes:"MQSNAP:"+JSON.stringify({name:item.name,sku:item.sku||"",barcode:item.barcode||"",brand:item.brand||"",category:item.category||"",sale_price:Number(calculateProductPayout(item).payout),birmarket_price:Number(item.birmarket_price),weight_kg:Number(item.weight_kg),notes:item.notes||""}),stock_applied:false}));
+   const purchaseRows=created.map(({id,item})=>({owner_id:user.id,product_id:id,supplier_id:supplierId||null,quantity:Number(item.quantity),unit_cost:Number(item.cost_price),total_amount:Number(item.quantity)*Number(item.cost_price),paid_amount:Number(item.quantity)*Number(item.cost_price),payment_status:"paid",payment_account:"marketplace",purchased_at:new Date().toISOString(),invoice_no:receiptNo,notes:"MQSNAP:"+JSON.stringify({name:item.name,sku:item.sku||"",barcode:item.barcode||"",brand:item.brand||"",category:item.category||"",sale_price:Number(calculateProductPayout(item).payout),birmarket_price:Number(item.birmarket_price),weight_kg:Number(item.weight_kg),notes:item.notes||""}),stock_applied:false}));
    const purchasesResult=await sb.from("purchases").insert(purchaseRows);
    if(purchasesResult.error)throw new Error("Mal qəbulu jurnala yazılmadı: "+purchasesResult.error.message);
    (items.flatMap(x=>x.images||[])).forEach(im=>URL.revokeObjectURL(im.url));
@@ -123,6 +123,7 @@ export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],sa
   <div className="toolbar"><div><h2>Mal qəbulu qeyd et</h2><p>MQ — malları əlavə et, qeydiyyatdan keçir və anbara köçür.</p></div><div className="owner-mq-head-actions"><div className="owner-purchase-total"><small>Qəbul jurnalı</small><b>{groups.length}</b></div><button className="primary" onClick={()=>setOpen(true)}><Plus size={16}/> MQ · Mal qəbulu</button></div></div>
   {open&&<div className="owner-mq-window-host" onClick={e=>e.stopPropagation()}><section className="owner-mq-modal"><header className="owner-mq-titlebar"><b>MQ · Mal qəbulu</b><button type="button" onClick={()=>{setOpen(false);setConfirm(false)}} title="Pəncərəni bağla"><X/></button></header>
    <form className="owner-mq-form owner-mq-product-form" onSubmit={addItem}>
+    <label className="owner-mq-supplier-select">Təchizatçı <select value={supplierId} onChange={e=>setSupplierId(e.target.value)}><option value="">Təchizatçı seçilməyib</option>{suppliers.map(s=><option key={s.id} value={s.id}>{s.name}{s.phone?" · "+s.phone:""}</option>)}</select><small>Əvvəlcədən yaradılmış təchizatçılardan birini seç. Seçim bu MQ qəbzindəki bütün məhsullara tətbiq olunacaq.</small></label>
     <div className="owner-mq-fields">
      { [["Məhsul adı","name","text"],["SKU","sku","text"],["Barkod","barcode","text"],["Brend","brand","text"],["Maya qiyməti","cost_price","number"],["Birmarket qiyməti","birmarket_price","number"],["Çəki (kq)","weight_kg","number"],["Miqdar (ədəd)","quantity","number"],["Az stok həddi","low_stock_threshold","number"]].map(([label,key,type])=><label key={key}>{label}<input type={type} step="any" min={type==="number"?"0":undefined} required={key==="name"||key==="birmarket_price"} value={draft[key]} onChange={e=>setDraft(x=>({...x,[key]:e.target.value}))}/></label>)}
      <label className="owner-mq-category-field">Birmarket tarif kateqoriyası
