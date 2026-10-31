@@ -98,8 +98,7 @@ export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],sa
    const inserted=await sb.from("products").insert(productRows).select("id,name");
    if(inserted.error)throw new Error("Məhsullar yaradıla bilmədi: "+inserted.error.message);
    created.push(...(inserted.data||[]));
-   const byName=new Map(created.map(x=>[x.name,x.id]));
-   const purchaseRows=items.map(item=>{const id=byName.get(item.name);return {owner_id:user.id,product_id:id,quantity:Number(item.quantity),unit_cost:Number(item.cost),total_amount:Number(item.quantity)*Number(item.cost),paid_amount:Number(item.quantity)*Number(item.cost),payment_status:"paid",payment_account:"marketplace",purchased_at:new Date().toISOString(),invoice_no:receiptNo,notes:"MQ mal qəbulu · "+item.name,stock_applied:false}});
+   const purchaseRows=items.map((item,index)=>({owner_id:user.id,product_id:created[index]?.id,quantity:Number(item.quantity),unit_cost:Number(item.cost),total_amount:Number(item.quantity)*Number(item.cost),paid_amount:Number(item.quantity)*Number(item.cost),payment_status:"paid",payment_account:"marketplace",purchased_at:new Date().toISOString(),invoice_no:receiptNo,notes:"MQ mal qəbulu · "+item.name,stock_applied:false}));
    const purchasesResult=await sb.from("purchases").insert(purchaseRows);
    if(purchasesResult.error)throw new Error("Mal qəbulu stoka köçürülmədi: "+purchasesResult.error.message);
    say("MQ "+items.length+" çeşid üzrə qeydiyyata alındı və mallar anbara əlavə edildi.");
