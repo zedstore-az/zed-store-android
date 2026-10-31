@@ -1,6 +1,6 @@
 import React,{useEffect,useRef,useState} from 'react';
 import './InventoryTools.css';
-import {ScanBarcode,Camera,CameraOff,Search,PackageCheck,RotateCcw,ArrowLeftRight,AlertTriangle,CheckCircle2} from 'lucide-react';
+import {ScanBarcode,Camera,CameraOff,PackageCheck,RotateCcw,ArrowLeftRight,AlertTriangle,CheckCircle2} from 'lucide-react';
 
 const money=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).format(Number(n||0));
 const dateText=d=>d?new Date(d).toLocaleString('az-AZ'):'—';
@@ -29,7 +29,7 @@ export function BarcodePanel({products}){
    video.current.srcObject=stream.current;
    await video.current.play();
    setStreaming(true);
-   if(!detector.current){setCameraError('Kamera açıldı. Bu brauzer avtomatik barkod oxumağı dəstəkləmir; şəkil çəkib saxla və kodu əl ilə daxil et.')}
+   if(!detector.current){setCameraError('Kamera açıldı, amma bu brauzer canlı barkod oxumağı dəstəkləmir. Fiziki barkod skanerindən istifadə edə və ya kodu əl ilə daxil edə bilərsən.')}
    const scan=async()=>{
     if(!stream.current||!video.current)return;
     const now=Date.now();
