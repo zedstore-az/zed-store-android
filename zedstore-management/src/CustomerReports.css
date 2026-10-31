@@ -200,3 +200,56 @@
   word-break:break-word!important;
  }
 }
+
+/* ZED STORE — compact successful-order sales ledger */
+.sales-ledger-panel{display:grid;gap:18px;padding:20px}
+.sales-ledger-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.sales-ledger-kicker{font-size:9px;font-weight:900;letter-spacing:1.5px;color:#087f70}
+.sales-ledger-heading h3{margin:5px 0 4px;font:800 19px Manrope;color:#172b45}
+.sales-ledger-heading p{margin:0;font-size:11px;color:#8794a5}
+.sales-ledger-period{flex:none;padding:7px 10px;border:1px solid #e2eaf2;border-radius:9px;background:#f8fafc;color:#65758a;font-size:10px;font-weight:700}
+.sales-ledger-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.sales-ledger-metric{display:grid;gap:5px;min-width:0;padding:14px 15px;border:1px solid #e5ecf3;border-radius:11px;background:linear-gradient(145deg,#fff,#f8fbfe)}
+.sales-ledger-metric small{font-size:10px;font-weight:800;color:#738298}
+.sales-ledger-metric>b{font:800 20px Manrope;color:#1c304b;overflow-wrap:anywhere}
+.sales-ledger-metric>span{font-size:9px;line-height:1.45;color:#98a4b3}
+.sales-ledger-metric:nth-child(2){border-color:#cfe8e1;background:linear-gradient(145deg,#fff,#f3fbf8)}
+.sales-ledger-metric:nth-child(2)>b{color:#087f70}
+.sales-ledger-metric:nth-child(3){border-color:#dce8f8;background:linear-gradient(145deg,#fff,#f4f8ff)}
+.sales-ledger-table-wrap{overflow-x:auto}
+.sales-ledger-table{min-width:690px}
+.sales-ledger-table thead th{background:#f4f7fb;color:#687a90;font-size:10px;font-weight:800}
+.sales-ledger-table tbody td{padding-top:11px;padding-bottom:11px;font-size:11px}
+.sales-ledger-table tfoot th{padding:12px 9px;background:#f3f7fb;border-top:2px solid #d9e3ed;color:#20344d;font-size:11px}
+.sales-ledger-order{color:#1764c8;font-size:11px}
+.sales-ledger-product{display:flex;align-items:center;gap:9px;min-width:170px;max-width:290px}
+.sales-ledger-product img,.sales-ledger-product-placeholder{width:39px;height:39px;flex:none;border:1px solid #e5ebf2;border-radius:9px;background:#f7f9fc;object-fit:contain}
+.sales-ledger-product-placeholder{display:grid;place-items:center;color:#9aa8b8}
+.sales-ledger-product>span:last-child{display:grid;gap:3px;min-width:0}
+.sales-ledger-product b{font-size:10px;line-height:1.4;color:#30435b;white-space:normal}
+.sales-ledger-product small{font-size:9px;color:#95a1b0}
+.sales-ledger-bottom{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-top:14px;border-top:1px solid #e8edf3}
+.sales-ledger-bottom>div{display:grid;gap:4px;min-width:0}
+.sales-ledger-bottom small{font-size:10px;font-weight:800;letter-spacing:.4px;color:#8492a4;text-transform:uppercase}
+.sales-ledger-bottom b{font:800 18px Manrope;color:#1e344f;overflow-wrap:anywhere}
+.sales-ledger-bottom span{font-size:9px;color:#98a4b3;line-height:1.4}
+.sales-ledger-bottom>div:first-child b{color:#36516e}
+.sales-ledger-bottom>div:nth-child(2) b{color:#1764c8}
+.sales-ledger-bottom>div:nth-child(3) b{color:#07836c}
+.sales-ledger-note{margin:0;padding:10px 12px;border-radius:9px;background:#f7f9fc;color:#8290a1;font-size:9px;line-height:1.6}
+.sales-ledger-empty{display:grid;justify-items:center;gap:7px;padding:34px 15px;text-align:center;color:#8796a8}
+.sales-ledger-empty svg{color:#0c9a7a}
+.sales-ledger-empty b{font-size:12px;color:#3b4d64}
+.sales-ledger-empty span{font-size:10px}
+@media(max-width:720px){
+ .sales-ledger-panel{gap:13px;padding:13px}
+ .sales-ledger-heading{display:grid}
+ .sales-ledger-heading h3{font-size:16px}
+ .sales-ledger-period{width:max-content;max-width:100%;white-space:normal}
+ .sales-ledger-summary{grid-template-columns:1fr}
+ .sales-ledger-metric{padding:12px}
+ .sales-ledger-metric>b{font-size:19px}
+ .sales-ledger-bottom{gap:8px}
+ .sales-ledger-bottom b{font-size:14px}
+ .sales-ledger-bottom span{font-size:8px}
+}
