@@ -1,0 +1,33 @@
+name: Verify ZED STORE frontend
+
+on:
+  push:
+    branches:
+      - feature/zed-store-automation-suite
+      - feature/zed-store-production-integration
+      - zedstore-management
+    paths:
+      - "zedstore-management/**"
+      - ".github/workflows/zed-store-frontend-build.yml"
+  pull_request:
+    paths:
+      - "zedstore-management/**"
+      - ".github/workflows/zed-store-frontend-build.yml"
+
+jobs:
+  frontend-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: zedstore-management
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build frontend
+        run: npm run build
