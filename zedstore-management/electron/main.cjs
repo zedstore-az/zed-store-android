@@ -1,5 +1,4 @@
 const { app, BrowserWindow, shell, session } = require("electron");
-const path = require("node:path");
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -24,7 +23,7 @@ function createWindow() {
     return { action: "deny" };
   });
 
-  win.loadFile(path.join(__dirname, "..", "dist", "index.html"));
+  win.loadURL("https://zedstore-management.onrender.com");
 }
 
 app.whenReady().then(() => {
