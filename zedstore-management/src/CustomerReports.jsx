@@ -174,7 +174,7 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
    const fees=marketplace+logistics+bank;
    const profit=sale-cost;
    const orderNumber=orders.find(o=>o.id===s.order_id)?.order_number||String(s.order_id||'').slice(0,8).toUpperCase();
-   return {id:s.id,date:s.paid_at,order:orderNumber,product:s.product_name||'Məhsul',quantity,unitCost,unitSale,unitBirmarket,unitFinal,cost,sale,saleAfterCommission,finalSale,marketplace,logistics,bank,fees,profit};
+   return {id:s.id,date:s.paid_at,order:orderNumber,product:s.product_name||'Məhsul',quantity,unitCost,unitSale,unitBirmarket,cost,sale,saleAfterCommission,finalSale,marketplace,logistics,bank,fees,profit};
   }).filter(x=>x.quantity>0);
   return {month,rows,units:rows.reduce((n,x)=>n+x.quantity,0),cost:rows.reduce((n,x)=>n+x.cost,0),sale:rows.reduce((n,x)=>n+x.sale,0),saleAfterCommission:rows.reduce((n,x)=>n+x.saleAfterCommission,0),marketplace:rows.reduce((n,x)=>n+x.marketplace,0),logistics:rows.reduce((n,x)=>n+x.logistics,0),bank:rows.reduce((n,x)=>n+x.bank,0),finalSale:rows.reduce((n,x)=>n+x.finalSale,0),fees:rows.reduce((n,x)=>n+x.fees,0),profit:rows.reduce((n,x)=>n+x.profit,0)};
  });
