@@ -111,11 +111,17 @@ export function BusinessReportsPanel({sales=[],orders=[],products=[],purchases=[
 }
 
 
-export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntries=[]}){
+export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntries=[],sb,user,say,load}){
  const currentMonth=monthKey(new Date());
  const [selectedMonths,setSelectedMonths]=useState([currentMonth]);
  const [monthDraft,setMonthDraft]=useState(currentMonth);
  const [detail,setDetail]=useState('orders');
+ const [expenseTitle,setExpenseTitle]=useState('');
+ const [expenseAmount,setExpenseAmount]=useState('');
+ const [expenseDate,setExpenseDate]=useState(new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10));
+ const [expenseNotes,setExpenseNotes]=useState('');
+ const [expenseAccount,setExpenseAccount]=useState('cash');
+ const [expenseSaving,setExpenseSaving]=useState(false);
  const selectedSet=useMemo(()=>new Set(selectedMonths),[selectedMonths]);
  const monthLabel=m=>new Date(Number(m.slice(0,4)),Number(m.slice(5,7))-1,1).toLocaleDateString('az-AZ',{month:'long',year:'numeric'});
  const moneyValue=n=>money(n);
@@ -151,6 +157,18 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
   ...paidSales.map(s=>({id:'sale-'+s.id,type:'Ödəniş',date:s.paid_at,orderId:s.order_id,product:s.product_name,quantity:Number(s.quantity||0),cash:Number(s.transferred_amount||0)*Number(s.quantity||0),profit:Number(s.net_profit||0)})),
   ...selectedReturns.map(r=>{const sale=paidSalesByItem.get(r.order_item_id);return {id:'return-'+r.id,type:'Qaytarılma',date:r.created_at,orderId:sale?.order_id,product:r.product_name||sale?.product_name,quantity:Number(r.quantity||0),cash:-Number(r.refund_amount||0),profit:-Number(r.refund_amount||0)+(r.item_condition==='restock'?Number(sale?.unit_cost||0)*Number(r.quantity||0):0)}})
  ].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+ async function addExpense(e){
+  e.preventDefault();
+  const amount=Number(expenseAmount);
+  if(!expenseTitle.trim()||!Number.isFinite(amount)||amount<=0||!expenseDate)return say?.('Xərc adı, tarix və müsbət məbləğ daxil et.');
+  if(!user?.id||!sb)return say?.('Xərc əlavə etmək üçün admin sessiyası tapılmadı.');
+  setExpenseSaving(true);
+  const paidAt=new Date(expenseDate+'T12:00:00').toISOString();
+  const result=await sb.from('finance_entries').insert({owner_id:user.id,entry_type:'expense',amount,status:'paid',title:expenseTitle.trim(),notes:expenseNotes.trim()||null,payment_account:expenseAccount,source_type:'manual',paid_at:paidAt});
+  if(result.error)say?.('Xərc saxlanmadı: '+result.error.message);
+  else{say?.('Xərc hesabat üçün qeydə alındı.');setExpenseTitle('');setExpenseAmount('');setExpenseNotes('');await load?.()}
+  setExpenseSaving(false);
+ }
  function addMonth(){if(!/^\\d{4}-\\d{2}$/.test(monthDraft)||selectedSet.has(monthDraft))return;setSelectedMonths(old=>[...old,monthDraft].sort())}
  function exportCsv(){
   const rows=[['Ay','Daxil olan sifarişlər','Təhvil verilmiş sifarişlər','Ödənişi təsdiqlənmiş sifarişlər','Köçən pul (AZN)','Xalis mənfəət (AZN)','Əməliyyat xərcləri (AZN)'],...monthly.map(x=>[monthLabel(x.month),x.incoming,x.delivered,x.paidCount,x.cash.toFixed(2),x.profit.toFixed(2),x.expenses.toFixed(2)])];
@@ -170,6 +188,7 @@ export function MonthlyReportsPanel({orders=[],sales=[],returns=[],financeEntrie
   <section className="panel cr-panel monthly-detail-panel"><div className="monthly-detail-head"><div><h3>Ətraflı məlumat</h3><p>Seçilmiş dövr üzrə sifariş və ödəniş qeydləri.</p></div><div className="monthly-detail-tabs"><button type="button" className={detail==='orders'?'active':''} onClick={()=>setDetail('orders')}>Daxil olanlar ({incomingOrders.length})</button><button type="button" className={detail==='delivered'?'active':''} onClick={()=>setDetail('delivered')}>Təhvil verilənlər ({deliveredOrders.length})</button><button type="button" className={detail==='payments'?'active':''} onClick={()=>setDetail('payments')}>Ödənişlər / qaytarılmalar ({new Set(paidSales.map(s=>s.order_id)).size})</button></div></div>
    {detail==='payments'?<div className="tablewrap"><table><thead><tr><th>Tarix</th><th>Əməliyyat</th><th>Sifariş</th><th>Məhsul</th><th>Miqdar</th><th>Köçən pul</th><th>Mənfəət düzəlişi</th></tr></thead><tbody>{paymentRows.map(row=><tr key={row.id}><td>{date(row.date)}</td><td>{row.type}</td><td>#{String(row.orderId||'').slice(0,8).toUpperCase()||'—'}</td><td>{row.product||'—'}</td><td>{row.quantity}</td><td className={row.cash>=0?'good':'bad'}>{moneyValue(row.cash)}</td><td className={row.profit>=0?'good':'bad'}>{moneyValue(row.profit)}</td></tr>)}</tbody></table>{!paymentRows.length&&<p className="empty">Seçilmiş aylarda təsdiqlənmiş ödəniş və ya qaytarılma yoxdur.</p>}</div>:<div className="tablewrap"><table><thead><tr><th>Sifariş</th><th>Müştəri</th><th>Sifariş tarixi</th><th>Təhvil tarixi</th><th>Status</th><th>Ödəniş</th></tr></thead><tbody>{visibleOrders.map(o=><tr key={o.id}><td><b>#{o.order_number||String(o.id).slice(0,8).toUpperCase()}</b><small>{(o.order_items||[]).map(i=>(i.product_name||'Məhsul')+' × '+i.quantity).join(', ')}</small></td><td>{o.customer_name||'—'}<small>{o.customer_phone||''}</small></td><td>{date(o.ordered_at)}</td><td>{date(o.delivered_at)}</td><td><span className={'badge '+(o.delivery_status==='delivered'?'green':o.delivery_status==='cancelled'?'red':'yellow')}>{o.delivery_status==='delivered'?'Təhvil verilib':o.delivery_status==='cancelled'?'Ləğv edilib':'Prosesdə'}</span></td><td>{o.payment_status==='paid'?'Təsdiqlənib':'Gözləyir'}</td></tr>)}</tbody></table>{!visibleOrders.length&&<p className="empty">Bu bölmə üzrə seçilmiş aylarda qeyd yoxdur.</p>}</div>}
   </section>
+  <section className="panel cr-panel monthly-expense-panel"><SectionTitle title="Əməliyyat xərcləri" description="Bu xərclər seçilmiş ayın xalis mənfəətindən çıxılır. Məhsul alışları burada təkrar xərc kimi daxil edilmir."/><form className="monthly-expense-form" onSubmit={addExpense}><label>Xərcin adı<input required value={expenseTitle} onChange={e=>setExpenseTitle(e.target.value)} placeholder="Məs: çatdırılma, reklam, qablaşdırma"/></label><label>Məbləğ (₼)<input type="number" min="0.01" step="0.01" required value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value)} placeholder="0.00"/></label><label>Tarix<input type="date" required value={expenseDate} onChange={e=>setExpenseDate(e.target.value)}/></label><label>Hesab<select value={expenseAccount} onChange={e=>setExpenseAccount(e.target.value)}><option value="cash">Kassa</option><option value="bank">Bank</option><option value="marketplace">Marketplace</option></select></label><label className="monthly-expense-notes">Qeyd<input value={expenseNotes} onChange={e=>setExpenseNotes(e.target.value)} placeholder="İstəyə bağlı qeyd"/></label><button className="primary" disabled={expenseSaving}>{expenseSaving?'Saxlanır...':'Xərci əlavə et'}</button></form><div className="monthly-expense-list"><div className="monthly-expense-list-head"><b>Seçilmiş dövr üzrə qeydə alınmış xərclər</b><strong>{moneyValue(expenseTotal)}</strong></div><div className="tablewrap"><table><thead><tr><th>Tarix</th><th>Xərc</th><th>Hesab</th><th>Qeyd</th><th>Məbləğ</th></tr></thead><tbody>{paidExpenses.map(e=><tr key={e.id}><td>{date(e.paid_at||e.created_at)}</td><td>{e.title||'Xərc'}</td><td>{{cash:'Kassa',bank:'Bank',marketplace:'Marketplace'}[e.payment_account||'cash']}</td><td>{e.notes||'—'}</td><td>{moneyValue(e.amount)}</td></tr>)}</tbody></table>{!paidExpenses.length&&<p className="empty">Seçilmiş aylarda ödənilmiş əməliyyat xərci yoxdur.</p>}</div></div></section>
   <section className="monthly-report-note"><b>Hesablama qaydası</b><p>“Daxil olunan sifarişlər” sifarişin yaradıldığı aya, “Təhvil verilmişlər” təhvil tarixinə, “Köçən pul” ödənişin təsdiq edildiyi aya görə hesablanır və qaytarılmaların geri ödənişi çıxılır. Xalis mənfəət satış mənfəətinə qaytarılma düzəlişləri əlavə edilməklə, həmin ay ödənilmiş əməliyyat xərcləri çıxılaraq göstərilir. Məhsul alışları stok investisiyasıdır və ikinci dəfə xərc kimi çıxılmır.</p></section>
   </>:<section className="panel report-empty"><b>Hesabat dövrü seçilməyib</b><p>Yuxarıdan ən azı bir ay əlavə et.</p></section>}
  </div>;
