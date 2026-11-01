@@ -278,52 +278,45 @@
 @media print{.order-dynamics-panel{break-inside:avoid}}
 
 
-/* Restore the monthly print table to the previous full-width centered layout */
+/* Standard A4 print layout: center the entire document, not just its table */
 @media print{
- #monthly-print-report{
+ @page{
+  size:A4 portrait;
+  margin:12mm;
+ }
+ .monthly-report-page #monthly-print-report{
+  display:block!important;
+  position:relative!important;
+  inset:auto!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  margin:0 auto!important;
+  padding:0!important;
+  transform:none!important;
+  zoom:1!important;
+  box-sizing:border-box!important;
+ }
+ .monthly-report-page #monthly-print-report,
+ .monthly-report-page #monthly-print-report *{
+  box-sizing:border-box!important;
+ }
+ .monthly-report-page #monthly-print-report .monthly-print-table-group{
   display:block!important;
   width:100%!important;
   max-width:100%!important;
   margin:0 auto!important;
-  left:auto!important;
-  right:auto!important;
-  box-sizing:border-box!important;
- }
- #monthly-print-report .monthly-print-table-group,
- #monthly-print-report .monthly-print-table{
-  width:100%!important;
-  max-width:100%!important;
-  margin-left:auto!important;
-  margin-right:auto!important;
-  box-sizing:border-box!important;
- }
-}
-
-
-/* Center the narrowed monthly report table precisely on the A4 page */
-@media print{
- .monthly-report-page #monthly-print-report{
-  width:100%!important;
-  max-width:100%!important;
-  margin-left:auto!important;
-  margin-right:auto!important;
-  box-sizing:border-box!important;
- }
- .monthly-report-page #monthly-print-report .monthly-print-table-group{
-  width:100%!important;
-  max-width:100%!important;
-  margin-left:auto!important;
-  margin-right:auto!important;
-  text-align:center!important;
-  box-sizing:border-box!important;
+  text-align:initial!important;
  }
  .monthly-report-page #monthly-print-report .monthly-print-table{
   display:table!important;
-  width:84%!important;
-  max-width:84%!important;
+  width:100%!important;
+  max-width:100%!important;
   margin:0 auto!important;
   float:none!important;
   table-layout:fixed!important;
-  box-sizing:border-box!important;
  }
 }
