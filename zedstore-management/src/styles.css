@@ -665,3 +665,5 @@
 :root[data-theme="dark"] .return-order-summary{background:#203b35}
 @media(max-width:900px){.return-layout{grid-template-columns:1fr}.return-order-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.return-order-summary{grid-template-columns:1fr}.return-order-summary>div:last-child{grid-column:auto}.return-product-summary span{align-items:flex-start}.return-history-head{align-items:stretch}.return-history-panel table{min-width:680px}}
+
+/* POS safe preview */
