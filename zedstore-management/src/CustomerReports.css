@@ -278,17 +278,19 @@
 @media print{.order-dynamics-panel{break-inside:avoid}}
 
 
-/* Make the ENTIRE PDF report visibly narrower and center it on A4 */
+/* Center the narrowed full report precisely within the printable A4 area */
 @media print{
  @page{size:A4 portrait;margin:12mm}
  html body #monthly-print-report{
   display:block!important;
   position:relative!important;
   inset:auto!important;
+  float:none!important;
   width:78%!important;
   min-width:0!important;
   max-width:78%!important;
-  margin:0 auto!important;
+  margin-left:11%!important;
+  margin-right:11%!important;
   padding:0!important;
   transform:none!important;
   zoom:1!important;
