@@ -339,6 +339,31 @@
 }
 
 
+/* Give long product names room; quantity values need only a narrow column */
+@media print{
+ html body .monthly-report-page #monthly-print-report .monthly-print-products{
+  table-layout:fixed!important;
+  width:100%!important;
+ }
+ html body .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(1),
+ html body .monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(1){width:13%!important}
+ html body .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(2),
+ html body .monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(2){
+  width:42%!important;
+  text-align:left!important;
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+ }
+ html body .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(3),
+ html body .monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(3){width:6%!important}
+ html body .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(4),
+ html body .monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(4){width:13%!important}
+ html body .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(5),
+ html body .monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(5){width:13%!important}
+ html body .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(6),
+ html body .monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(6){width:13%!important}
+}
+
 /* Highest-specificity print font override: beats earlier html body #monthly-print-report rules */
 @media print{
  html body .monthly-report-page #monthly-print-report,
