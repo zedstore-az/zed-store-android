@@ -224,3 +224,84 @@
 .owner-mq-deleted-row{background:#fffaf2;color:#87909b}
 .owner-mq-deleted-row td{border-top:1px dashed #eadfc9}
 .owner-mq-deleted-row .owner-mq-deleted-tag{color:#a0783c}
+
+
+/* Dark theme: dashboard summary panels and statistic cards */
+:root[data-theme="dark"] .owner-welcome,
+:root[data-theme="dark"] .owner-card,
+:root[data-theme="dark"] .owner-metric,
+:root[data-theme="dark"] .owner-shortcuts>button,
+:root[data-theme="dark"] .owner-selected-day,
+:root[data-theme="dark"] .owner-card-head select,
+:root[data-theme="dark"] .owner-chart-refresh-note,
+:root[data-theme="dark"] .owner-footnote,
+:root[data-theme="dark"] .owner-empty,
+:root[data-theme="dark"] .owner-section,
+:root[data-theme="dark"] .owner-panel {
+  background:#252b33;
+  border-color:#303741;
+  color:#d7dce4;
+}
+:root[data-theme="dark"] .owner-welcome {
+  background:linear-gradient(110deg,#222d35,#252b33);
+  border-color:#303b43;
+}
+:root[data-theme="dark"] .owner-welcome h2,
+:root[data-theme="dark"] .owner-card h3,
+:root[data-theme="dark"] .owner-card-head h3,
+:root[data-theme="dark"] .owner-metric b,
+:root[data-theme="dark"] .owner-shortcuts b,
+:root[data-theme="dark"] .owner-selected-day b,
+:root[data-theme="dark"] .owner-selected-day strong {
+  color:#e5edf5;
+}
+:root[data-theme="dark"] .owner-welcome p,
+:root[data-theme="dark"] .owner-card-head p,
+:root[data-theme="dark"] .owner-metric span,
+:root[data-theme="dark"] .owner-metric small,
+:root[data-theme="dark"] .owner-shortcuts small,
+:root[data-theme="dark"] .owner-selected-day small,
+:root[data-theme="dark"] .owner-selected-day span,
+:root[data-theme="dark"] .owner-chart-refresh-note,
+:root[data-theme="dark"] .owner-footnote {
+  color:#a0adbd;
+}
+:root[data-theme="dark"] .owner-metric.accent {
+  background:linear-gradient(125deg,#123f43,#164b49);
+  border-color:#24635d;
+}
+:root[data-theme="dark"] .owner-metric.accent span,
+:root[data-theme="dark"] .owner-metric.accent small {
+  color:#c0d8d4;
+}
+:root[data-theme="dark"] .owner-metric.accent b {
+  color:#f0faf7;
+}
+:root[data-theme="dark"] .owner-refresh,
+:root[data-theme="dark"] .owner-card-head select {
+  background:#202832;
+  border-color:#38424e;
+  color:#dce5ee;
+}
+:root[data-theme="dark"] .owner-shortcuts>button:hover {
+  background:#2b333d;
+  border-color:#43505e;
+}
+:root[data-theme="dark"] .owner-chart-bar-wrap {
+  background:#303a46;
+}
+:root[data-theme="dark"] .owner-chart-col small,
+:root[data-theme="dark"] .owner-chart-count {
+  color:#a9b6c6;
+}
+:root[data-theme="dark"] .owner-chart-col.selected .owner-chart-bar-wrap {
+  background:#254d4a;
+}
+:root[data-theme="dark"] .owner-chart-col.selected small {
+  color:#75d9c3;
+}
+:root[data-theme="dark"] .owner-card,
+:root[data-theme="dark"] .owner-metric,
+:root[data-theme="dark"] .owner-shortcuts>button {
+  box-shadow:none;
+}
