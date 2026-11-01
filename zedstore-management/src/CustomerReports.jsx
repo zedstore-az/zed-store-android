@@ -21,7 +21,7 @@ function SectionTitle({title,description}){return <div className="cr-section-tit
 export function CustomerAnalyticsPanel({orders=[],sales=[],returns=[],searchValue=''}) {
  const [query,Q]=useState(searchValue),[selected,S]=useState('');
  const customers=useMemo(()=>{
-  const completed=orders.filter(o=>o.delivery_status==='delivered');
+  const completed=orders.filter(o=>o.delivery_status==='delivered'&&o.payment_status==='paid'&&!!o.paid_at);
   const byKey=new Map();
   for(const order of completed){
    const name=String(order.customer_name||'Adı qeyd edilməyib').trim()||'Adı qeyd edilməyib';
@@ -31,7 +31,7 @@ export function CustomerAnalyticsPanel({orders=[],sales=[],returns=[],searchValu
    const c=byKey.get(key);c.orders.push(order);
    if(!c.phone&&phone)c.phone=phone;
   }
-  for(const sale of sales){
+  for(const sale of sales.filter(s=>!!s.paid_at)){
    const order=completed.find(o=>o.id===sale.order_id);
    if(!order)continue;
    const name=String(order.customer_name||'Adı qeyd edilməyib').trim()||'Adı qeyd edilməyib';
