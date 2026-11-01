@@ -3,7 +3,7 @@ import {Download,FileSpreadsheet,FileText,Search,Users,Repeat2,CalendarDays,Prin
 import './CustomerReports.css';
 
 const money=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).format(Number(n||0));
-const dateValue=d=>{if(!d)return null;if(typeof d==='string'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(d)){const [y,m,day]=d.split('-').map(Number);return new Date(y,m-1,day)}const x=new Date(d);return Number.isNaN(x.getTime())?null:x};
+const dateValue=d=>{if(!d)return null;if(typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)){const [y,m,day]=d.split('-').map(Number);return new Date(y,m-1,day)}const x=new Date(d);return Number.isNaN(x.getTime())?null:x};
 const date=d=>{const x=dateValue(d);return x?String(x.getDate()).padStart(2,'0')+'.'+String(x.getMonth()+1).padStart(2,'0')+'.'+x.getFullYear():'—'};
 const dateTime=d=>{const x=dateValue(d);return x?date(d)+', '+String(x.getHours()).padStart(2,'0')+':'+String(x.getMinutes()).padStart(2,'0'):'—'};
 const dayKey=d=>{if(!d)return '';const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
