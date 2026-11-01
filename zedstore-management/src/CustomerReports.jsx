@@ -141,7 +141,7 @@ export function MonthlyReportsPanel({orders=[],adjustedSales=[],products=[]}){
   const unitSale=Math.max(0,Number(s.transferred_amount||0));
   const totalSale=unitSale*quantity;
   const totalCost=unitCost*quantity;
-  const totalProfit=totalSale-totalCost;
+  const totalProfit=Number(s.net_profit||0);
   const product=productMap.get(s.product_id)||{};
   const order=orderMap.get(s.order_id)||{};
   const orderNumber=order.order_number||String(s.order_id||'').slice(0,8).toUpperCase();
