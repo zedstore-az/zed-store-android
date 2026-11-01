@@ -3,7 +3,8 @@ import {Wallet,Plus,ArrowDownCircle,ArrowUpCircle,Printer,FileText,TrendingUp,Pa
 import './FinanceTools.css';
 
 const money=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).format(Number(n||0));
-const dateText=d=>d?new Date(d).toLocaleString('az-AZ'):'—';
+const dateValue=d=>{if(!d)return null;if(typeof d==='string'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(d)){const [y,m,day]=d.split('-').map(Number);return new Date(y,m-1,day)}const x=new Date(d);return Number.isNaN(x.getTime())?null:x};
+const dateText=d=>{const x=dateValue(d);if(!x)return '—';const day=String(x.getDate()).padStart(2,'0'),month=String(x.getMonth()+1).padStart(2,'0'),year=x.getFullYear();const date=day+'.'+month+'.'+year;return typeof d==='string'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(d)?date:date+', '+String(x.getHours()).padStart(2,'0')+':'+String(x.getMinutes()).padStart(2,'0')};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const entryLabels={income:'Gəlir',expense:'Xərc',receivable:'Alacağım borc',payable:'Ödəyəcəyim borc'};
 
