@@ -450,3 +450,96 @@
 :root[data-theme="dark"] .empty,:root[data-theme="dark"] .report-empty{color:#9aabc0}
 .theme-toggle{flex:none}
 @media(prefers-reduced-motion:no-preference){.theme-toggle{transition:background .2s ease,color .2s ease,border-color .2s ease}}
+
+
+/* Dark theme refinement — neutral charcoal frames inspired by the supplied reference */
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] main { background:#191e26; }
+:root[data-theme="dark"] .top { background:#1d232c; border-color:#2d333c; }
+:root[data-theme="dark"] .panel,
+:root[data-theme="dark"] .stat,
+:root[data-theme="dark"] .cancel-metric,
+:root[data-theme="dark"] .repeat-section,
+:root[data-theme="dark"] .repeat-customer,
+:root[data-theme="dark"] .repeat-customer-detail,
+:root[data-theme="dark"] .ai-manager,
+:root[data-theme="dark"] .modal,
+:root[data-theme="dark"] .login form {
+  background:#252b33;
+  border-color:#303741;
+  color:#d7dce4;
+}
+:root[data-theme="dark"] .stat,
+:root[data-theme="dark"] .panel,
+:root[data-theme="dark"] .cancel-metric,
+:root[data-theme="dark"] .repeat-section,
+:root[data-theme="dark"] .repeat-customer,
+:root[data-theme="dark"] .repeat-customer-detail,
+:root[data-theme="dark"] .ai-manager,
+:root[data-theme="dark"] .order-product-picker,
+:root[data-theme="dark"] .order-payment,
+:root[data-theme="dark"] .order-edit-summary,
+:root[data-theme="dark"] .order-edit-note,
+:root[data-theme="dark"] .cancel-confirm-card,
+:root[data-theme="dark"] .repeat-order-meta,
+:root[data-theme="dark"] .repeat-empty,
+:root[data-theme="dark"] .repeat-customer-head,
+:root[data-theme="dark"] .order-product-card,
+:root[data-theme="dark"] .order-selected-product,
+:root[data-theme="dark"] .order-months button,
+:root[data-theme="dark"] .choice,
+:root[data-theme="dark"] .category-option,
+:root[data-theme="dark"] .image-tile,
+:root[data-theme="dark"] .repeat-customer-card,
+:root[data-theme="dark"] .category-suggestions,
+:root[data-theme="dark"] .selected-category,
+:root[data-theme="dark"] .pricing-preview,
+:root[data-theme="dark"] .pricing-preview-details>span,
+:root[data-theme="dark"] .search,
+:root[data-theme="dark"] .tools select,
+:root[data-theme="dark"] .toolbar input[type=month],
+:root[data-theme="dark"] .outline,
+:root[data-theme="dark"] .modal header,
+:root[data-theme="dark"] .ai-compose,
+:root[data-theme="dark"] .ai-head,
+:root[data-theme="dark"] .repeat-events,
+:root[data-theme="dark"] .repeat-event,
+:root[data-theme="dark"] .cancel-month-filter,
+:root[data-theme="dark"] .order-edit-button,
+:root[data-theme="dark"] .cancel-date-add input,
+:root[data-theme="dark"] .cancel-month-filter {
+  border-color:#303741;
+}
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] .category-searchbox input,
+:root[data-theme="dark"] .category-input-wrap>input,
+:root[data-theme="dark"] .calcfields input,
+:root[data-theme="dark"] .calcfields select,
+:root[data-theme="dark"] .monthpicker input {
+  background:#20262e!important;
+  border-color:#343b45!important;
+  color:#e0e4ea!important;
+}
+:root[data-theme="dark"] th { background:#252b33; border-color:#303741; }
+:root[data-theme="dark"] td { border-color:#303741; }
+:root[data-theme="dark"] .modal header { border-bottom-color:#303741; }
+:root[data-theme="dark"] .order-product-card,
+:root[data-theme="dark"] .order-selected-product,
+:root[data-theme="dark"] .repeat-customer-card,
+:root[data-theme="dark"] .image-tile { background:#292f37; }
+:root[data-theme="dark"] .category-suggestions { background:#252b33; }
+:root[data-theme="dark"] .category-option { background:transparent; }
+:root[data-theme="dark"] .category-option:hover,
+:root[data-theme="dark"] .category-option.active { background:#303741; }
+:root[data-theme="dark"] .selected-category,
+:root[data-theme="dark"] .pricing-preview { background:#252f3a; }
+:root[data-theme="dark"] .order-edit-summary,
+:root[data-theme="dark"] .order-edit-note,
+:root[data-theme="dark"] .repeat-order-meta,
+:root[data-theme="dark"] .repeat-empty,
+:root[data-theme="dark"] .repeat-customer-head { background:#292f37; }
+:root[data-theme="dark"] .theme-toggle,
+:root[data-theme="dark"] .topright button,
+:root[data-theme="dark"] .menubtn { border-color:#343b45; }
