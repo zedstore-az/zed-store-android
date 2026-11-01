@@ -300,18 +300,20 @@
 }
 
 
-/* Scale the complete monthly report down by 8% to fit A4 print width */
+/* Narrow the monthly report itself so it fits within A4 print margins */
 @media print{
  #monthly-print-report{
-  zoom:.92!important;
-  width:108.7%!important;
-  max-width:108.7%!important;
-  margin:0 0 0 -4.35%!important;
+  zoom:1!important;
+  width:92%!important;
+  max-width:92%!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
   box-sizing:border-box!important;
  }
  #monthly-print-report .monthly-print-table-group,
  #monthly-print-report .monthly-print-table{
   width:100%!important;
   max-width:100%!important;
+  box-sizing:border-box!important;
  }
 }
