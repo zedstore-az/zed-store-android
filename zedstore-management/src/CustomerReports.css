@@ -337,3 +337,13 @@
   margin-right:0!important;
  }
 }
+
+
+/* Clean Latin font with full Azerbaijani character support in printed reports */
+@media print{
+ .monthly-report-page #monthly-print-report,
+ .monthly-report-page #monthly-print-report *{
+  font-family:Arial, "Noto Sans", Helvetica, sans-serif!important;
+  font-style:normal!important;
+ }
+}
