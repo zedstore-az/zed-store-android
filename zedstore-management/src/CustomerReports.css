@@ -339,10 +339,12 @@
 }
 
 
-/* Clean Latin font with full Azerbaijani character support in printed reports */
+/* Highest-specificity print font override: beats earlier html body #monthly-print-report rules */
 @media print{
- .monthly-report-page #monthly-print-report,
- .monthly-report-page #monthly-print-report *{
+ html body .monthly-report-page #monthly-print-report,
+ html body .monthly-report-page #monthly-print-report *,
+ html body .monthly-report-page #monthly-print-report *::before,
+ html body .monthly-report-page #monthly-print-report *::after{
   font-family:Arial, "Noto Sans", Helvetica, sans-serif!important;
   font-style:normal!important;
  }
