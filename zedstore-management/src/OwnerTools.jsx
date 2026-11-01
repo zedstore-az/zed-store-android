@@ -22,7 +22,7 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
  const currentSales=paidSales.filter(x=>monthKey(x.paid_at)===currentMonth);
  const previousSales=paidSales.filter(x=>monthKey(x.paid_at)===previousMonth);
  const turnover=list=>list.reduce((n,x)=>n+Number(x.transferred_amount||0)*Number(x.quantity||0),0);
- const todayOrders=orders.filter(x=>x.delivery_status!=="cancelled"&&dateKey(x.ordered_at||x.created_at)===todayKey);
+ const todayOrders=orders.filter(x=>!["cancelled","canceled"].includes(String(x.delivery_status||"").trim().toLowerCase())&&!x.cancelled_at&&dateKey(x.ordered_at||x.created_at)===todayKey);
  const todayTurnover=todayOrders.reduce((n,x)=>n+orderPayout(x),0);
  const monthTurnover=turnover(currentSales),previousTurnover=turnover(previousSales);
  const monthlyExpenses=financeEntries.filter(x=>x.entry_type==="expense"&&x.status==="paid"&&monthKey(x.paid_at||x.created_at)===currentMonth);
