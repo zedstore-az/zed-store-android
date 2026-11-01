@@ -180,7 +180,52 @@ function App(){
  const filtered=useMemo(()=>products.filter(x=>(x.name+' '+(x.sku||'')+' '+(x.barcode||'')).toLowerCase().includes(search.toLowerCase())).filter(x=>filter==='all'||(filter==='low'?+x.stock_qty<=+x.low_stock_threshold:filter==='zero'?+x.stock_qty===0:+x.stock_qty>0)),[products,search,filter]);
  const productPricing=calculateProductPayout(p);
  async function downloadProductImage(im,index){try{let blob;if(im.path){const r=await sb.storage.from('zedstore-products').download(im.path);if(r.error)throw r.error;blob=r.data}else{const r=await fetch(im.url);if(!r.ok)throw new Error('Yükləmə xətası');blob=await r.blob()}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='zedstore-mehsul-'+index+'.'+(blob.type.split('/')[1]||'jpg');document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}catch(err){say('Şəkli yükləmək olmadı: '+err.message)}}
- async function saveProduct(e){e.preventDefault();const pricing=calculateProductPayout(p);const tariffInputsChanged=!editing||p.category!==editing.category||Number(p.birmarket_price)!==Number(editing.birmarket_price);if(+p.birmarket_price>0&&!pricing.ready&&tariffInputsChanged){say('Birmarket qiymətini hesablamaq üçün tarif siyahısından uyğun kateqoriyanı seç.');return}B(true);const oldPaths=editing?.image_paths?.length?editing.image_paths:(editing?.image_path?[editing.image_path]:[]);const keep=productImages.map(x=>x.path).filter(Boolean);const removed=oldPaths.filter(x=>!keep.includes(x));const uploaded=[];for(const item of newImages){const file=item.file;if(file.size>5*1024*1024||!['image/jpeg','image/png','image/webp'].includes(file.type)){say('JPG, PNG və WebP; maksimum 5 MB');B(false);return}const path=user.id+'/'+crypto.randomUUID()+'.'+file.name.split('.').pop().toLowerCase();const up=await sb.storage.from('zedstore-products').upload(path,file);if(up.error){if(uploaded.length)await sb.storage.from('zedstore-products').remove(uploaded);say(up.error.message);B(false);return}uploaded.push(path)}const paths=[...keep,...uploaded],urls=paths.map(path=>sb.storage.from('zedstore-products').getPublicUrl(path).data.publicUrl);const payload={...p,supplier_id:p.supplier_id||null,cost_price:+p.cost_price,sale_price:pricing.ready?pricing.payout:+p.sale_price,birmarket_price:+p.birmarket_price,weight_kg:+p.weight_kg,stock_qty:+p.stock_qty,low_stock_threshold:+p.low_stock_threshold,image_paths:paths,image_urls:urls,image_path:paths[0]||null,image_url:urls[0]||null};const r=editing?await sb.from('products').update(payload).eq('id',editing.id).select().single():await sb.from('products').insert(payload).select().single();if(r.error){if(uploaded.length)await sb.storage.from('zedstore-products').remove(uploaded);say(r.error.message)}else{const diff=+r.data.stock_qty-(+editing?.stock_qty||0);if(diff)await sb.from('stock_movements').insert({product_id:r.data.id,movement_type:editing?'adjustment':'opening',quantity_delta:diff,unit_cost:+p.cost_price,note:'Əl ilə stok dəyişiklik'});if(removed.length)await sb.storage.from('zedstore-products').remove(removed);MO('');say('Məhsul və şəkillər yadda saxlandı');load()}B(false)}
+ async function saveProduct(e){
+ e.preventDefault();
+ const pricing=calculateProductPayout(p);
+ const tariffInputsChanged=!editing||p.category!==editing.category||Number(p.birmarket_price)!==Number(editing.birmarket_price);
+ if(+p.birmarket_price>0&&!pricing.ready&&tariffInputsChanged){say('Birmarket qiymətini hesablamaq üçün tarif siyahısından uyğun kateqoriyanı seç.');return}
+ if(!Number.isFinite(Number(p.stock_qty))||Number(p.stock_qty)<0){say('Anbar qalığı düzgün deyil');return}
+ B(true);
+ const oldPaths=editing?.image_paths?.length?editing.image_paths:(editing?.image_path?[editing.image_path]:[]);
+ const keep=productImages.map(x=>x.path).filter(Boolean);
+ const removed=oldPaths.filter(x=>!keep.includes(x));
+ const uploaded=[];
+ let productSaved=false;
+ try{
+  for(const item of newImages){
+   const file=item.file;
+   if(file.size>5*1024*1024||!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('JPG, PNG və WebP; maksimum 5 MB');
+   const path=user.id+'/'+crypto.randomUUID()+'.'+file.name.split('.').pop().toLowerCase();
+   const up=await sb.storage.from('zedstore-products').upload(path,file);
+   if(up.error)throw up.error;
+   uploaded.push(path);
+  }
+  const paths=[...keep,...uploaded],urls=paths.map(path=>sb.storage.from('zedstore-products').getPublicUrl(path).data.publicUrl);
+  const desiredStock=Number(p.stock_qty);
+  const payload={...p,supplier_id:p.supplier_id||null,cost_price:+p.cost_price,sale_price:pricing.ready?pricing.payout:+p.sale_price,birmarket_price:+p.birmarket_price,weight_kg:+p.weight_kg,stock_qty:editing?Number(editing.stock_qty||0):0,low_stock_threshold:+p.low_stock_threshold,image_paths:paths,image_urls:urls,image_path:paths[0]||null,image_url:urls[0]||null};
+  const saved=editing?await sb.from('products').update(payload).eq('id',editing.id).select().single():await sb.from('products').insert(payload).select().single();
+  if(saved.error)throw saved.error;
+  productSaved=true;
+  const currentStock=Number(saved.data.stock_qty||0);
+  if(desiredStock!==currentStock){
+   const stock=await sb.rpc('set_product_stock',{p_product_id:saved.data.id,p_new_qty:desiredStock,p_note:'Məhsul kartından əl ilə stok düzəlişi'});
+   if(stock.error){
+    say('Məhsul məlumatları saxlandı, lakin anbar qalığı dəyişdirilmədi. Yenidən cəhd et: '+stock.error.message);
+    await load();
+    return;
+   }
+  }
+  if(removed.length){const rm=await sb.storage.from('zedstore-products').remove(removed);if(rm.error)console.error('Old product images cleanup failed:',rm.error)}
+  MO('');
+  say('Məhsul, şəkillər və anbar tarixçəsi yadda saxlandı');
+  await load();
+ }catch(err){
+  if(!productSaved&&uploaded.length){const cleanup=await sb.storage.from('zedstore-products').remove(uploaded);if(cleanup.error)console.error('Uploaded image cleanup failed:',cleanup.error)}
+  console.error('ZED STORE product save failed:',err);
+  say(err?.message||'Məhsulu yadda saxlamaq olmadı');
+ }finally{B(false)}
+}
  function productOpen(x){ED(x);SP(x?{...x,barcode:x.barcode||''}:{name:'',sku:'',barcode:'',category:'',brand:'',cost_price:0,sale_price:0,birmarket_price:0,weight_kg:0,stock_qty:0,low_stock_threshold:1,notes:''});PI((x?.image_urls?.length?x.image_urls:(x?.image_url?[x.image_url]:[])).map((url,i)=>({url,path:(x?.image_paths||[])[i]||(i===0?x?.image_path:null)})));NI([]);CO(false);MO('product')}
  async function archive(x){AT(x)}
  async function confirmArchive(){if(!archiveTarget)return;B(true);const r=await sb.from('products').update({is_active:false,archived_at:new Date().toISOString()}).eq('id',archiveTarget.id);B(false);if(r.error){say(r.error.message);return}AT(null);say('Məhsul anbardan silindi');load()}
@@ -223,7 +268,38 @@ function App(){
   }finally{B(false)}
  }
  function openOrderEditor(order){OET(order);OEP(order.payment_method||'card');OEM(order.installment_months||3);OEN(order.order_number||'');MO('editOrder')}
- async function saveOrderPayment(e){e.preventDefault();if(!orderEditTarget)return;if(orderEditTarget.delivery_status==='cancelled'){B(true);const numberOnly=await sb.from('orders').update({order_number:cleanOrderNumber(orderEditNumber)}).eq('id',orderEditTarget.id);if(numberOnly.error)say('Sifariş nömrəsi saxlanmadı: '+numberOnly.error.message);else{say('Ləğv edilmiş sifarişin nömrəsi yadda saxlandı');MO('');OET(null);await load()}B(false);return}const months=orderEditPayment==='installment'?Number(orderEditMonths):null;if(orderEditPayment==='installment'&&![3,6,9,12,18,24].includes(months))return say('Taksit müddətini seç');const rate=orderEditPayment==='installment'?ORDER_BANK_RATES.installment[months]:ORDER_BANK_RATES[orderEditPayment];const items=orderEditTarget.order_items||[];if(!items.length)return say('Sifarişdə məhsul tapılmadı');const itemUpdates=items.map(item=>{const total=Number(item.birmarket_price||0)*Number(item.quantity||1);const bankFee=Math.round((total*rate/100+Number.EPSILON)*100)/100;const payout=Math.round((total-Number(item.marketplace_commission||0)-Number(item.logistics_fee||0)-bankFee+Number.EPSILON)*100)/100;return {id:item.id,bank_fee:bankFee,transferred_amount:Math.max(0,payout)}});B(true);const numberResult=await sb.from('orders').update({order_number:orderEditNumber.trim()||null}).eq('id',orderEditTarget.id);if(numberResult.error){say('Sifariş nömrəsi saxlanmadı: '+numberResult.error.message);B(false);return}const r=await sb.rpc('update_order_payment_details',{p_order_id:orderEditTarget.id,p_payment_method:orderEditPayment,p_installment_months:months,p_item_updates:itemUpdates});if(r.error)say('Ödəniş məlumatları saxlanmadı: '+r.error.message);else{say('Sifariş nömrəsi və ödəniş məlumatları yeniləndi');MO('');OET(null);await load()}B(false)}
+ async function saveOrderPayment(e){
+ e.preventDefault();
+ if(!orderEditTarget)return;
+ B(true);
+ try{
+  if(orderEditTarget.delivery_status==='cancelled'){
+   const numberOnly=await sb.from('orders').update({order_number:cleanOrderNumber(orderEditNumber)}).eq('id',orderEditTarget.id);
+   if(numberOnly.error)throw numberOnly.error;
+   say('Ləğv edilmiş sifarişin nömrəsi yadda saxlandı');
+   MO('');OET(null);await load();return;
+  }
+  const months=orderEditPayment==='installment'?Number(orderEditMonths):null;
+  if(orderEditPayment==='installment'&&![3,6,9,12,18,24].includes(months))throw new Error('Taksit müddətini seç');
+  const rate=orderEditPayment==='installment'?ORDER_BANK_RATES.installment[months]:ORDER_BANK_RATES[orderEditPayment];
+  if(!Number.isFinite(Number(rate)))throw new Error('Ödəniş komissiyası tapılmadı');
+  const items=orderEditTarget.order_items||[];
+  if(!items.length)throw new Error('Sifarişdə məhsul tapılmadı');
+  const itemUpdates=items.map(item=>{
+   const total=Number(item.birmarket_price||0)*Number(item.quantity||1);
+   const bankFee=Math.round((total*rate/100+Number.EPSILON)*100)/100;
+   const payout=Math.round((total-Number(item.marketplace_commission||0)-Number(item.logistics_fee||0)-bankFee+Number.EPSILON)*100)/100;
+   return {id:item.id,bank_fee:bankFee,transferred_amount:Math.max(0,payout)};
+  });
+  const r=await sb.rpc('save_order_payment_details',{p_order_id:orderEditTarget.id,p_order_number:cleanOrderNumber(orderEditNumber),p_payment_method:orderEditPayment,p_installment_months:months,p_item_updates:itemUpdates});
+  if(r.error)throw r.error;
+  say('Sifariş nömrəsi və ödəniş məlumatları birlikdə yadda saxlandı');
+  MO('');OET(null);await load();
+ }catch(err){
+  console.error('ZED STORE order payment save failed:',err);
+  say('Məlumatlar saxlanmadı: '+(err?.message||'Naməlum xəta'));
+ }finally{B(false)}
+}
  async function status(x,s){if(s===x.delivery_status)return;if(s==='cancelled'){CT(x);CR('');return}const patch={delivery_status:s};if(s==='delivered'){patch.payment_status='unpaid';patch.paid_at=null}const r=await sb.from('orders').update(patch).eq('id',x.id);if(r.error)say(r.error.message);else{say(s==='delivered'?'Sifariş təhvil verildi və Satışlar bölməsinə keçirildi':'Sifariş statusu yeniləndi');load()}}
  async function confirmCancellation(e){e.preventDefault();if(!cancelTarget)return;const reason=cancelReason.trim();if(!reason)return say('Ləğv səbəbini mütləq qeyd et');B(true);const r=await sb.from('orders').update({delivery_status:'cancelled',cancelled_by:'ZED STORE',cancellation_reason:reason}).eq('id',cancelTarget.id);if(r.error)say('Ləğv etmək olmadı: '+r.error.message);else{say('Sifariş ləğv edildi, stok bərpa olundu və arxivə yazıldı');CT(null);CR('');load()}B(false)}
  async function paid(sale){if(!sale?.order_id)return say('Bu satış sifarişlə əlaqələndirilməyib');const v=sale.paid_at?'unpaid':'paid';const r=await sb.from('orders').update({payment_status:v,paid_at:v==='paid'?new Date().toISOString():null}).eq('id',sale.order_id).select('id').single();if(r.error)say('Ödəniş statusunu dəyişmək olmadı: '+r.error.message);else{say(v==='paid'?'Ödənilib ✅':'Ödəniş təsdiqi geri götürüldü');load()}}
