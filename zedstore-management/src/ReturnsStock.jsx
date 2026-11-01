@@ -51,5 +51,6 @@ export function ReturnsPanel({sb,user,rows,products,orders,sales=[],say,load}){
  <button className="primary" disabled={busy||!item}>{busy?'Yadda saxlanılır…':<><Plus size={16}/> Qaytarmanı təsdiqlə</>}</button>
  </form>}
  {searched&&matches.length===1&&soldItems.length===0&&<p className="empty">Bu sifarişdə qaytarıla bilən məhsul qalmayıb.</p>}
+ </section>
  <section className="panel return-history-panel"><div className="return-history-head"><div><b>Qaytarma tarixçəsi</b><small>Bütün qeydə alınmış əməliyyatlar</small></div><div className="search"><Search/><input placeholder="Məhsul və səbəb axtar" value={search} onChange={e=>S(e.target.value)}/></div></div><div className="tablewrap"><table><thead><tr><th>Tarix</th><th>Məhsul</th><th>Miqdar</th><th>Vəziyyət</th><th>Geri ödəniş</th><th>Səbəb</th></tr></thead><tbody>{visible.map(r=><tr key={r.id}><td>{date(r.created_at)}</td><td>{productById.get(r.product_id)?.name||'Məhsul arxivdədir'}</td><td>{r.quantity}</td><td><span className={'badge '+(r.item_condition==='restock'?'green':'yellow')}>{r.item_condition==='restock'?'Stoka qaytarılıb':'Zədəlidir'}</span></td><td>{money(r.refund_amount)}</td><td>{r.reason}</td></tr>)}</tbody></table>{!visible.length&&<p className="empty">Hələ qaytarma qeydi yoxdur.</p>}</div></section></section></div></>;
 }
