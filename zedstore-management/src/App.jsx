@@ -140,7 +140,8 @@ function App(){
     sb.from('purchases').select('*').order('purchased_at',{ascending:false}).limit(1000),
     sb.from('suppliers').select('*').order('name',{ascending:true}).limit(500),
     sb.from('login_events').select('*').order('created_at',{ascending:false}).limit(100),
-    sb.from('birmarket_sms_events').select('*').order('received_at',{ascending:false})
+    sb.from('birmarket_sms_events').select('*').order('received_at',{ascending:false}),
+    loadAllRows('stock_movements','*','created_at')
    ]);
    const results=[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o];
    const labels=['Məhsullar','Sifarişlər','Satışlar','Ləğvlər','Tənzimləmələr','API bağlantısı','Bildirişlər','Fəaliyyət tarixçəsi','Qaytarmalar','Maliyyə qeydləri','Mal qəbulu','Təchizatçılar','Giriş tarixçəsi','Birmarket SMS','Stok hərəkətləri'];
