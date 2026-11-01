@@ -73,7 +73,7 @@ function calculateOrderCosts(product,quantity,payment='card',months=3){
  return {ready:true,category,rate:Number(category.rate),total,commission,logistics,bankRate,bank,payout,parcelName:['Paket','Standart','KQT','KQT+'][cls]};
 }
 
-const dateValue=d=>{if(!d)return null;if(typeof d==='string'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(d)){const [y,m,day]=d.split('-').map(Number);return new Date(y,m-1,day)}const x=new Date(d);return Number.isNaN(x.getTime())?null:x};
+const dateValue=d=>{if(!d)return null;if(typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)){const [y,m,day]=d.split('-').map(Number);return new Date(y,m-1,day)}const x=new Date(d);return Number.isNaN(x.getTime())?null:x};
 const formatDate=d=>{const x=dateValue(d);if(!x)return '—';return String(x.getDate()).padStart(2,'0')+'.'+String(x.getMonth()+1).padStart(2,'0')+'.'+x.getFullYear()};
 const dt=d=>{const x=dateValue(d);if(!x)return '—';return formatDate(x)+', '+String(x.getHours()).padStart(2,'0')+':'+String(x.getMinutes()).padStart(2,'0')};
 const cleanOrderNumber=value=>String(value||'').trim().replace(/^#+/,'')||null;
