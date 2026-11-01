@@ -121,7 +121,52 @@ function App(){
   }
   return {data:rows,error:null};
  }
- async function load(){if(!user)return;B(true);const [a,b,c,d,e,f,g,h,i,j,k,l,m,n]=await Promise.all([sb.from('products').select('*').order('created_at',{ascending:false}),loadAllRows('orders','*,order_items(*)','ordered_at'),loadAllRows('sales','*','sold_at'),sb.from('cancellations').select('*').order('cancelled_at',{ascending:false}),sb.from('store_settings').select('*').maybeSingle(),sb.from('chatgpt_api_keys').select('id,created_at,last_used_at,revoked_at').is('revoked_at',null).maybeSingle(),sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(100),sb.from('activity_logs').select('*').order('created_at',{ascending:false}).limit(100),loadAllRows('returns','*','created_at'),loadAllRows('finance_entries','*','created_at'),sb.from('purchases').select('*').order('purchased_at',{ascending:false}).limit(1000),sb.from('suppliers').select('*').order('name',{ascending:true}).limit(500),sb.from('login_events').select('*').order('created_at',{ascending:false}).limit(100),sb.from('birmarket_sms_events').select('*').order('received_at',{ascending:false})]);const err=[a,b,c,d,e,f,g,h,i,j,k,l,m,n].find(x=>x.error)?.error;if(err)say(err.message);D({products:a.data||[],orders:b.data||[],sales:c.data||[],cancel:d.data||[],settings:e.data,apiKey:f.data,notifications:g.data||[],activity:h.data||[],returns:i.data||[],financeEntries:j.data||[],purchases:k.data||[],suppliers:l.data||[],loginEvents:m.data||[],birmarket:n.data||[]});if(e.data)SS(e.data);B(false)}
+ async function load(){
+  if(!user)return;
+  B(true);
+  try{
+   const [a,b,c,d,e,f,g,h,i,j,k,l,m,n]=await Promise.all([
+    sb.from('products').select('*').order('created_at',{ascending:false}),
+    loadAllRows('orders','*,order_items(*)','ordered_at'),
+    loadAllRows('sales','*','sold_at'),
+    sb.from('cancellations').select('*').order('cancelled_at',{ascending:false}),
+    sb.from('store_settings').select('*').maybeSingle(),
+    sb.from('chatgpt_api_keys').select('id,created_at,last_used_at,revoked_at').is('revoked_at',null).maybeSingle(),
+    sb.from('notifications').select('*').order('created_at',{ascending:false}).limit(100),
+    sb.from('activity_logs').select('*').order('created_at',{ascending:false}).limit(100),
+    loadAllRows('returns','*','created_at'),
+    loadAllRows('finance_entries','*','created_at'),
+    sb.from('purchases').select('*').order('purchased_at',{ascending:false}).limit(1000),
+    sb.from('suppliers').select('*').order('name',{ascending:true}).limit(500),
+    sb.from('login_events').select('*').order('created_at',{ascending:false}).limit(100),
+    sb.from('birmarket_sms_events').select('*').order('received_at',{ascending:false})
+   ]);
+   const results=[a,b,c,d,e,f,g,h,i,j,k,l,m,n];
+   const labels=['Məhsullar','Sifarişlər','Satışlar','Ləğvlər','Tənzimləmələr','API bağlantısı','Bildirişlər','Fəaliyyət tarixçəsi','Qaytarmalar','Maliyyə qeydləri','Mal qəbulu','Təchizatçılar','Giriş tarixçəsi','Birmarket SMS'];
+   const failed=results.map((x,index)=>x.error?labels[index]+': '+x.error.message:null).filter(Boolean);
+   if(failed.length)say('Bəzi məlumatlar yenilənmədi; əvvəlki məlumatlar saxlanıldı. '+failed.join(' · '));
+   D(prev=>({
+    products:a.error?prev.products:(a.data||[]),
+    orders:b.error?prev.orders:(b.data||[]),
+    sales:c.error?prev.sales:(c.data||[]),
+    cancel:d.error?prev.cancel:(d.data||[]),
+    settings:e.error?prev.settings:e.data,
+    apiKey:f.error?prev.apiKey:f.data,
+    notifications:g.error?prev.notifications:(g.data||[]),
+    activity:h.error?prev.activity:(h.data||[]),
+    returns:i.error?prev.returns:(i.data||[]),
+    financeEntries:j.error?prev.financeEntries:(j.data||[]),
+    purchases:k.error?prev.purchases:(k.data||[]),
+    suppliers:l.error?prev.suppliers:(l.data||[]),
+    loginEvents:m.error?prev.loginEvents:(m.data||[]),
+    birmarket:n.error?prev.birmarket:(n.data||[])
+   }));
+   if(!e.error&&e.data)SS(e.data);
+  }catch(error){
+   console.error('ZED STORE data loading failed:',error);
+   say('Məlumatları yeniləmək olmadı. Ekrandakı əvvəlki məlumatlar saxlanıldı.');
+  }finally{B(false)}
+ }
  async function refreshOrders(){if(!user)return;const result=await loadAllRows('orders','*,order_items(*)','ordered_at');if(!result.error)D(prev=>({...prev,orders:result.data||[]}))}
  useEffect(()=>{if(!user||tab!=="home")return;const channel=sb.channel("zed-overview-orders-"+user.id).on("postgres_changes",{event:"*",schema:"public",table:"orders"},()=>refreshOrders()).subscribe();const timer=setInterval(()=>{if(document.visibilityState==="visible")refreshOrders()},10000);return()=>{clearInterval(timer);sb.removeChannel(channel)}},[user,tab]);
  useEffect(()=>{load()},[user]);
