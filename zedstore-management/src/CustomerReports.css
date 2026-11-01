@@ -300,29 +300,29 @@
 }
 
 
-/* Keep the report full-width, but reduce the table equally from both sides */
+/* Center the narrowed monthly report table precisely on the A4 page */
 @media print{
- #monthly-print-report{
-  zoom:1!important;
+ .monthly-report-page #monthly-print-report{
   width:100%!important;
   max-width:100%!important;
   margin-left:auto!important;
   margin-right:auto!important;
   box-sizing:border-box!important;
  }
- #monthly-print-report .monthly-print-table-group{
+ .monthly-report-page #monthly-print-report .monthly-print-table-group{
   width:100%!important;
   max-width:100%!important;
   margin-left:auto!important;
   margin-right:auto!important;
+  text-align:center!important;
   box-sizing:border-box!important;
  }
- #monthly-print-report .monthly-print-table{
+ .monthly-report-page #monthly-print-report .monthly-print-table{
   display:table!important;
   width:84%!important;
   max-width:84%!important;
-  margin-left:auto!important;
-  margin-right:auto!important;
+  margin:0 auto!important;
+  float:none!important;
   table-layout:fixed!important;
   box-sizing:border-box!important;
  }
