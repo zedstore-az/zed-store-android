@@ -3,8 +3,8 @@ import './InventoryTools.css';
 import {ScanBarcode,Camera,CameraOff,PackageCheck,RotateCcw,ArrowLeftRight,AlertTriangle,CheckCircle2} from 'lucide-react';
 
 const money=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).format(Number(n||0));
-const dateValue=d=>{if(!d)return null;if(typeof d==='string'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(d)){const [y,m,day]=d.split('-').map(Number);return new Date(y,m-1,day)}const x=new Date(d);return Number.isNaN(x.getTime())?null:x};
-const dateText=d=>{const x=dateValue(d);if(!x)return '—';const day=String(x.getDate()).padStart(2,'0'),month=String(x.getMonth()+1).padStart(2,'0'),year=x.getFullYear();const date=day+'.'+month+'.'+year;return typeof d==='string'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(d)?date:date+', '+String(x.getHours()).padStart(2,'0')+':'+String(x.getMinutes()).padStart(2,'0')};
+const dateValue=d=>{if(!d)return null;if(typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)){const [y,m,day]=d.split('-').map(Number);return new Date(y,m-1,day)}const x=new Date(d);return Number.isNaN(x.getTime())?null:x};
+const dateText=d=>{const x=dateValue(d);if(!x)return '—';const day=String(x.getDate()).padStart(2,'0'),month=String(x.getMonth()+1).padStart(2,'0'),year=x.getFullYear();const date=day+'.'+month+'.'+year;return typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)?date:date+', '+String(x.getHours()).padStart(2,'0')+':'+String(x.getMinutes()).padStart(2,'0')};
 
 export function BarcodePanel({products}){
  const [code,setCode]=useState(''),[streaming,setStreaming]=useState(false),[cameraError,setCameraError]=useState(''),[selected,setSelected]=useState(null);
