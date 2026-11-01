@@ -402,3 +402,51 @@
  body.zed-print-documents .cr-pl-grid b{font-size:11px!important}
  body.zed-print-documents .cr-page{color:#111!important}
 }
+/* User-selectable dark theme */
+:root[data-theme="dark"]{color-scheme:dark;background:#0b1220;color:#e5edf7}
+:root[data-theme="dark"] body,:root[data-theme="dark"] main{background:#0b1220;color:#e5edf7}
+:root[data-theme="dark"] .top{background:#111c2d;border-color:#26354a;color:#e5edf7}
+:root[data-theme="dark"] .top h1,:root[data-theme="dark"] h2,:root[data-theme="dark"] h3,:root[data-theme="dark"] h4{color:#edf4ff}
+:root[data-theme="dark"] .top small,:root[data-theme="dark"] .intro p,:root[data-theme="dark"] .toolbar p{color:#93a5bd}
+:root[data-theme="dark"] .topright{color:#9aabc1}
+:root[data-theme="dark"] .topright button,:root[data-theme="dark"] .menubtn{background:#18263a;border-color:#31435c;color:#dce8f7}
+:root[data-theme="dark"] .body{color:#dce6f3}
+:root[data-theme="dark"] .panel,:root[data-theme="dark"] .stat,:root[data-theme="dark"] .cancel-metric,:root[data-theme="dark"] .repeat-section,:root[data-theme="dark"] .repeat-customer,:root[data-theme="dark"] .repeat-customer-detail,:root[data-theme="dark"] .ai-manager{background:#131f31;border-color:#293a51;color:#dce6f3}
+:root[data-theme="dark"] .stat b,:root[data-theme="dark"] .panel b,:root[data-theme="dark"] td b,:root[data-theme="dark"] .cancel-metric b{color:#e5edf7}
+:root[data-theme="dark"] .stat small,:root[data-theme="dark"] .stat span,:root[data-theme="dark"] .panel p,:root[data-theme="dark"] .cancel-metric small,:root[data-theme="dark"] .cancel-metric span,:root[data-theme="dark"] .muted{color:#9aabc0}
+:root[data-theme="dark"] th{background:#1a2940;border-color:#2b3b52;color:#a8b8cc}
+:root[data-theme="dark"] td{border-color:#26364c;color:#bdcadd}
+:root[data-theme="dark"] .search,:root[data-theme="dark"] .tools select,:root[data-theme="dark"] .toolbar input[type=month],:root[data-theme="dark"] .outline{background:#17263a;border-color:#31435a;color:#dce6f3}
+:root[data-theme="dark"] .search input{background:transparent;color:#e5edf7}
+:root[data-theme="dark"] input,:root[data-theme="dark"] select,:root[data-theme="dark"] textarea{background:#17263a!important;border-color:#35465e!important;color:#e5edf7!important}
+:root[data-theme="dark"] input::placeholder,:root[data-theme="dark"] textarea::placeholder{color:#8497b0}
+:root[data-theme="dark"] label,:root[data-theme="dark"] .fields label,:root[data-theme="dark"] .formmodal>label,:root[data-theme="dark"] .settings label{color:#b4c2d4}
+:root[data-theme="dark"] .modal{background:#131f31;border-color:#30415a;color:#e5edf7}
+:root[data-theme="dark"] .modal header{border-color:#2a3a50}
+:root[data-theme="dark"] .modal header b{color:#edf4ff}
+:root[data-theme="dark"] .modal header button{background:#1b2b41;color:#dce6f3;border-color:#35465e}
+:root[data-theme="dark"] .order-product-picker,:root[data-theme="dark"] .order-payment,:root[data-theme="dark"] .order-edit-summary,:root[data-theme="dark"] .order-edit-note,:root[data-theme="dark"] .cancel-confirm-card,:root[data-theme="dark"] .repeat-order-meta,:root[data-theme="dark"] .repeat-empty,:root[data-theme="dark"] .repeat-customer-head{background:#19283d;border-color:#31445d;color:#dce6f3}
+:root[data-theme="dark"] .order-product-card,:root[data-theme="dark"] .order-selected-product,:root[data-theme="dark"] .order-selected-thumb,:root[data-theme="dark"] .order-months button,:root[data-theme="dark"] .choice,:root[data-theme="dark"] .category-option,:root[data-theme="dark"] .image-tile,:root[data-theme="dark"] .repeat-customer-card{background:#1a2a40;border-color:#35475f;color:#dce6f3}
+:root[data-theme="dark"] .order-product-info b,:root[data-theme="dark"] .order-selected-product b,:root[data-theme="dark"] .order-payment>b,:root[data-theme="dark"] .repeat-customer-title b,:root[data-theme="dark"] .repeat-customer-card-info b,:root[data-theme="dark"] .repeat-detail-head h4{color:#e5edf7}
+:root[data-theme="dark"] .order-product-info small,:root[data-theme="dark"] .order-selected-product small,:root[data-theme="dark"] .repeat-customer-title small,:root[data-theme="dark"] .repeat-customer-card-info small{color:#9aabc0}
+:root[data-theme="dark"] .order-product-thumb,:root[data-theme="dark"] .image-tile img,:root[data-theme="dark"] .repeat-product img,:root[data-theme="dark"] .repeat-product-placeholder{background:#24344a}
+:root[data-theme="dark"] .category-suggestions{background:#17263a;border-color:#35465e}
+:root[data-theme="dark"] .category-option:hover,:root[data-theme="dark"] .category-option.active{background:#243a56}
+:root[data-theme="dark"] .selected-category,:root[data-theme="dark"] .pricing-preview,:root[data-theme="dark"] .api-key-active{background:#172b43;border-color:#314b6b;color:#dce6f3}
+:root[data-theme="dark"] .selected-category b,:root[data-theme="dark"] .pricing-preview-head span,:root[data-theme="dark"] .pricing-preview-details b{color:#e5edf7}
+:root[data-theme="dark"] .pricing-preview-details>span{background:#1a2a40;border-color:#35475f;color:#9aabc0}
+:root[data-theme="dark"] .ai-head h2{color:#e5edf7}
+:root[data-theme="dark"] .ai-head,:root[data-theme="dark"] .ai-compose,:root[data-theme="dark"] .repeat-events,:root[data-theme="dark"] .repeat-event{border-color:#2a3a50}
+:root[data-theme="dark"] .ai-message p{background:#1c2d44;color:#dce6f3}
+:root[data-theme="dark"] .ai-shortcuts button{background:#1a2a40;border-color:#35475f;color:#c3d0e0}
+:root[data-theme="dark"] .repeat-order-meta b,:root[data-theme="dark"] .cancel-product>b,:root[data-theme="dark"] .cancel-reason,:root[data-theme="dark"] .repeat-event-top b{color:#dce6f3}
+:root[data-theme="dark"] .cancel-date-add>label{color:#b4c2d4}
+:root[data-theme="dark"] .login{background:radial-gradient(ellipse at 50% 0%,#123d80 0%,#10294e 42%,#080f1c 100%)}
+:root[data-theme="dark"] .login form{background:#131f31;border-color:#30415a;color:#e5edf7}
+:root[data-theme="dark"] .login form h1{color:#edf4ff}
+:root[data-theme="dark"] .login form p{color:#9aabc0}
+:root[data-theme="dark"] .theme-toggle{background:#17263a;border-color:#35465e;color:#f5c96a}
+:root[data-theme="dark"] .stat-clickable:hover,:root[data-theme="dark"] .repeat-customer-card:hover,:root[data-theme="dark"] .repeat-customer-card.active{background:#20334d;border-color:#5276a3}
+:root[data-theme="dark"] .empty,:root[data-theme="dark"] .report-empty{color:#9aabc0}
+.theme-toggle{flex:none}
+@media(prefers-reduced-motion:no-preference){.theme-toggle{transition:background .2s ease,color .2s ease,border-color .2s ease}}
