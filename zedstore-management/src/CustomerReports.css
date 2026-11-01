@@ -276,3 +276,25 @@
 .order-weekday-grid b{font:800 16px Manrope;color:#1e4775}
 @media(max-width:720px){.order-dynamics-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.order-weekday-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.order-day-row{grid-template-columns:72px minmax(0,1fr) 22px;gap:7px}.order-day-row>span{font-size:9px}}
 @media print{.order-dynamics-panel{break-inside:avoid}}
+
+
+/* Restore the monthly print table to the previous full-width centered layout */
+@media print{
+ #monthly-print-report{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin:0 auto!important;
+  left:auto!important;
+  right:auto!important;
+  box-sizing:border-box!important;
+ }
+ #monthly-print-report .monthly-print-table-group,
+ #monthly-print-report .monthly-print-table{
+  width:100%!important;
+  max-width:100%!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  box-sizing:border-box!important;
+ }
+}
