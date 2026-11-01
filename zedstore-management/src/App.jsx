@@ -73,8 +73,9 @@ function calculateOrderCosts(product,quantity,payment='card',months=3){
  return {ready:true,category,rate:Number(category.rate),total,commission,logistics,bankRate,bank,payout,parcelName:['Paket','Standart','KQT','KQT+'][cls]};
 }
 
-const formatDate=d=>{if(!d)return '—';const x=new Date(d);if(Number.isNaN(x.getTime()))return '—';return x.getDate()+'.'+(x.getMonth()+1)+'.'+x.getFullYear()};
-const dt=d=>{if(!d)return '—';const x=new Date(d);if(Number.isNaN(x.getTime()))return '—';return formatDate(x)+', '+String(x.getHours()).padStart(2,'0')+':'+String(x.getMinutes()).padStart(2,'0')};
+const dateValue=d=>{if(!d)return null;if(typeof d==='string'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(d)){const [y,m,day]=d.split('-').map(Number);return new Date(y,m-1,day)}const x=new Date(d);return Number.isNaN(x.getTime())?null:x};
+const formatDate=d=>{const x=dateValue(d);if(!x)return '—';return String(x.getDate()).padStart(2,'0')+'.'+String(x.getMonth()+1).padStart(2,'0')+'.'+x.getFullYear()};
+const dt=d=>{const x=dateValue(d);if(!x)return '—';return formatDate(x)+', '+String(x.getHours()).padStart(2,'0')+':'+String(x.getMinutes()).padStart(2,'0')};
 const cleanOrderNumber=value=>String(value||'').trim().replace(/^#+/,'')||null;
 const monthKey=d=>{if(!d)return '';const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')};
 const menu=[['home','İcmal',LayoutDashboard],['stock','Anbarım',Boxes],['purchases','Mal qəbulu',ArrowDownToLine],['barcode','Barkod skaneri',ScanBarcode],['receipts','Qəbzlər',FileText],['orders','Sifarişlər',ShoppingCart],['birmarket','Birmarket SMS',MessageSquareText],['sales','Satışlar',BadgeDollarSign],['customers','Müştəri analitikası',Users],['calc','Kalkulyator',Calculator],['cancel','Ləğv edilənlər',Ban],['reports','Hesabatlar',ChartNoAxesCombined],['documents','Sənədlər',FileText],['performance','Məhsul performansı',ChartNoAxesCombined],['analytics','Analitika',TrendingUp],['notifications','Bildirişlər',Bell],['activity','Fəaliyyət tarixçəsi',History],['ai','AI Manager',Bot],['security','Təhlükəsizlik',Settings],['settings','Tənzimləmələr',Settings]];
