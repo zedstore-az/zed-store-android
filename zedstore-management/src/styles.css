@@ -543,3 +543,62 @@
 :root[data-theme="dark"] .theme-toggle,
 :root[data-theme="dark"] .topright button,
 :root[data-theme="dark"] .menubtn { border-color:#343b45; }
+
+
+/* Dark theme repair — Ləğv edilənlər / Bütün ləğv qeydləri */
+:root[data-theme="dark"] .cancellation-archive{
+ background:#252b33!important;
+ border:1px solid #303741!important;
+ border-radius:14px!important;
+ color:#dce4ed!important;
+ overflow:hidden;
+ box-shadow:none!important;
+}
+:root[data-theme="dark"] .cancellation-archive-head h3,
+:root[data-theme="dark"] .repeat-section-head h3{color:#e5edf5!important}
+:root[data-theme="dark"] .cancellation-archive-head p,
+:root[data-theme="dark"] .repeat-section-head p{color:#a4afbd!important}
+:root[data-theme="dark"] .cancellation-archive-head>span{
+ background:#20262e!important;border:1px solid #343c46;color:#b9c5d2!important;
+}
+:root[data-theme="dark"] .cancel-date-filter,
+:root[data-theme="dark"] .cancel-date-add,
+:root[data-theme="dark"] .cancel-month-filter{
+ background:transparent!important;
+}
+:root[data-theme="dark"] .cancel-date-add>label,
+:root[data-theme="dark"] .cancel-month-filter,
+:root[data-theme="dark"] .cancel-month-filter b,
+:root[data-theme="dark"] .cancel-month-filter small{color:#b7c2cf!important}
+:root[data-theme="dark"] .cancel-date-add input{
+ background:#20262e!important;border:1px solid #39424e!important;color:#e0e6ed!important;
+}
+:root[data-theme="dark"] .cancel-month-filter{
+ background:#20262e!important;border:1px solid #343c46!important;border-radius:11px!important;
+}
+:root[data-theme="dark"] .cancel-month-filter .month-filter-head,
+:root[data-theme="dark"] .cancel-month-filter .month-chips{color:#c5cfda}
+:root[data-theme="dark"] .cancel-day-chip{
+ background:#263a4a!important;border-color:#385568!important;color:#a9d5f3!important;
+}
+:root[data-theme="dark"] .cancel-month-filter .month-empty{color:#9eacbc}
+:root[data-theme="dark"] .cancellation-archive .tablewrap{
+ width:100%;max-width:100%;overflow-x:auto!important;
+ border:1px solid #303741;border-radius:10px;background:#20262e;
+}
+:root[data-theme="dark"] .cancellation-archive table{
+ min-width:760px;width:100%;border-collapse:separate;border-spacing:0;background:#252b33;
+}
+:root[data-theme="dark"] .cancellation-archive th{
+ background:#20262e!important;color:#aebac8!important;border-color:#343c46!important;
+}
+:root[data-theme="dark"] .cancellation-archive td{
+ background:#252b33!important;color:#cbd4de!important;border-color:#303741!important;
+}
+:root[data-theme="dark"] .cancellation-archive tbody tr:hover td{background:#2b333d!important}
+:root[data-theme="dark"] .cancellation-archive .cancel-product>b{color:#e0e6ed!important}
+:root[data-theme="dark"] .cancellation-archive .cancel-product-thumb{
+ background:#20262e!important;border-color:#39424e!important;color:#9eacbc!important;
+}
+:root[data-theme="dark"] .cancellation-archive .cancel-reason{color:#b7c2cf!important}
+:root[data-theme="dark"] .cancellation-archive .empty{color:#a4afbd!important}

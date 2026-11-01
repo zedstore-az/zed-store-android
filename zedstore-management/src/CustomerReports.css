@@ -372,3 +372,106 @@
   font-style:normal!important;
  }
 }
+
+
+/* Dark theme — Hesabatlar, Sənədlər və Müştəri analitikası */
+:root[data-theme="dark"] .cr-page{color:#dce4ed}
+:root[data-theme="dark"] .cr-page .cr-panel,
+:root[data-theme="dark"] .cr-page .panel,
+:root[data-theme="dark"] .cr-page .monthly-selector,
+:root[data-theme="dark"] .cr-page .monthly-expense-panel,
+:root[data-theme="dark"] .cr-page .successful-summary,
+:root[data-theme="dark"] .cr-page .report-print,
+:root[data-theme="dark"] .cr-page .sales-ledger-panel,
+:root[data-theme="dark"] .cr-page .order-dynamics-panel{
+ background:#252b33!important;
+ border:1px solid #303741!important;
+ color:#dce4ed!important;
+ box-shadow:none!important;
+}
+:root[data-theme="dark"] .cr-page .cr-stat,
+:root[data-theme="dark"] .cr-page .cr-pl-grid>div,
+:root[data-theme="dark"] .cr-page .monthly-print-summary>div,
+:root[data-theme="dark"] .cr-page .monthly-selector-head>span,
+:root[data-theme="dark"] .cr-page .monthly-detail-tabs,
+:root[data-theme="dark"] .cr-page .monthly-expense-notes,
+:root[data-theme="dark"] .cr-page .monthly-expense-list,
+:root[data-theme="dark"] .cr-page .sales-ledger-metric,
+:root[data-theme="dark"] .cr-page .order-dynamics-kpis>div,
+:root[data-theme="dark"] .cr-page .order-weekday-grid>div{
+ background:#292f37!important;
+ border:1px solid #343c46!important;
+ color:#dce4ed!important;
+ box-shadow:none!important;
+}
+:root[data-theme="dark"] .cr-page .cr-stat small,
+:root[data-theme="dark"] .cr-page .cr-pl-grid small,
+:root[data-theme="dark"] .cr-page .monthly-selector-head small,
+:root[data-theme="dark"] .cr-page .monthly-selector-head>span,
+:root[data-theme="dark"] .cr-page .monthly-report-note,
+:root[data-theme="dark"] .cr-page .cr-range-note,
+:root[data-theme="dark"] .cr-page .sales-ledger-heading p,
+:root[data-theme="dark"] .cr-page .sales-ledger-metric small,
+:root[data-theme="dark"] .cr-page .sales-ledger-metric>span,
+:root[data-theme="dark"] .cr-page .order-dynamics-kpis small,
+:root[data-theme="dark"] .cr-page .order-dynamics-kpis span,
+:root[data-theme="dark"] .cr-page .order-weekday-grid small,
+:root[data-theme="dark"] .cr-page .order-weekday-grid span,
+:root[data-theme="dark"] .cr-page .cr-toolbar>span{
+ color:#a4afbd!important;
+}
+:root[data-theme="dark"] .cr-page .cr-stat b,
+:root[data-theme="dark"] .cr-page .cr-pl-grid b,
+:root[data-theme="dark"] .cr-page .monthly-print-summary b,
+:root[data-theme="dark"] .cr-page .monthly-selector-head b,
+:root[data-theme="dark"] .cr-page .sales-ledger-metric>b,
+:root[data-theme="dark"] .cr-page .sales-ledger-bottom b,
+:root[data-theme="dark"] .cr-page .order-dynamics-kpis b,
+:root[data-theme="dark"] .cr-page .order-weekday-grid b{
+ color:#e5edf5!important;
+}
+:root[data-theme="dark"] .cr-page .cr-stat svg{color:#55cbb2}
+:root[data-theme="dark"] .cr-page .sales-ledger-kicker,
+:root[data-theme="dark"] .cr-page .sales-ledger-bottom>div:nth-child(3) b{color:#62d4b5!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-metric:nth-child(2){background:#203b39!important;border-color:#315b54!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-metric:nth-child(2)>b{color:#70d9bd!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-metric:nth-child(3){background:#293543!important;border-color:#3b4c60!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-period,
+:root[data-theme="dark"] .cr-page .sales-ledger-note,
+:root[data-theme="dark"] .cr-page .order-day-track,
+:root[data-theme="dark"] .cr-page .order-weekday-grid>div{
+ background:#20262e!important;
+ border-color:#343c46!important;
+ color:#aeb9c7!important;
+}
+:root[data-theme="dark"] .cr-page .order-dynamics-title b,
+:root[data-theme="dark"] .cr-page .order-day-row>span,
+:root[data-theme="dark"] .cr-page .order-day-row>b,
+:root[data-theme="dark"] .cr-page .sales-ledger-product b,
+:root[data-theme="dark"] .cr-page .sales-ledger-empty b{color:#dce4ed!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-product img,
+:root[data-theme="dark"] .cr-page .sales-ledger-product-placeholder{background:#20262e;border-color:#39424e;color:#9eacbc}
+:root[data-theme="dark"] .cr-page .monthly-add-row input,
+:root[data-theme="dark"] .cr-page .cr-date-filters input,
+:root[data-theme="dark"] .cr-page input,
+:root[data-theme="dark"] .cr-page select{
+ background:#20262e!important;border-color:#39424e!important;color:#e0e6ed!important;
+}
+:root[data-theme="dark"] .cr-page .monthly-add-row label,
+:root[data-theme="dark"] .cr-page .cr-date-filters label{color:#b5c0ce!important}
+:root[data-theme="dark"] .cr-page .tablewrap{background:transparent!important;border-color:#303741!important}
+:root[data-theme="dark"] .cr-page table{background:#252b33!important;color:#dce4ed!important}
+:root[data-theme="dark"] .cr-page th{background:#20262e!important;border-color:#343c46!important;color:#aebac8!important}
+:root[data-theme="dark"] .cr-page td{background:transparent!important;border-color:#303741!important;color:#c7d0db!important}
+:root[data-theme="dark"] .cr-page tfoot th{background:#202a33!important;color:#e1e8ef!important}
+:root[data-theme="dark"] .cr-page .cr-footnote,
+:root[data-theme="dark"] .cr-page .cr-print-foot{color:#9caaba!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-bottom{border-color:#343c46!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-empty{color:#a4afbd!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-empty svg{color:#62d4b5}
+:root[data-theme="dark"] .cr-page .report-empty{color:#a4afbd!important}
+@media(max-width:720px){
+ :root[data-theme="dark"] .cr-page .cr-stat,
+ :root[data-theme="dark"] .cr-page .cr-pl-grid>div,
+ :root[data-theme="dark"] .cr-page .sales-ledger-metric{border-radius:11px}
+}
