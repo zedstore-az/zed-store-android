@@ -339,31 +339,29 @@
 }
 
 
-/* Give long product names room; quantity values need only a narrow column */
+/* Final explicit widths for the six-column printed sales table */
 @media print{
- html body .monthly-report-page #monthly-print-report .monthly-print-products{
-  table-layout:fixed!important;
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products{
   width:100%!important;
+  table-layout:fixed!important;
+  border-collapse:collapse!important;
  }
- html body .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(1),
- html body .monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(1){width:13%!important}
- html body .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(2),
- html body .monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(2){
-  width:42%!important;
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tr > :nth-child(1){width:12%!important}
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tr > :nth-child(2){
+  width:48%!important;
+  min-width:48%!important;
+  max-width:48%!important;
   text-align:left!important;
-  overflow-wrap:anywhere!important;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
   word-break:normal!important;
  }
- html body .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(3),
- html body .monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(3){width:6%!important}
- html body .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(4),
- html body .monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(4){width:13%!important}
- html body .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(5),
- html body .monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(5){width:13%!important}
- html body .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(6),
- html body .monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(6){width:13%!important}
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tr > :nth-child(3){width:5%!important;min-width:5%!important;max-width:5%!important;white-space:nowrap!important}
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tr > :nth-child(4){width:12%!important}
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tr > :nth-child(5){width:12%!important}
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tr > :nth-child(6){width:11%!important}
 }
-
+ 
 /* Highest-specificity print font override: beats earlier html body #monthly-print-report rules */
 @media print{
  html body .monthly-report-page #monthly-print-report,
