@@ -3,7 +3,9 @@ import {Download,FileSpreadsheet,FileText,Search,Users,Repeat2,CalendarDays,Prin
 import './CustomerReports.css';
 
 const money=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).format(Number(n||0));
-const date=d=>d?new Date(d).toLocaleDateString('az-AZ'):'—';
+const dateValue=d=>{if(!d)return null;if(typeof d==='string'&&/^\\d{4}-\\d{2}-\\d{2}$/.test(d)){const [y,m,day]=d.split('-').map(Number);return new Date(y,m-1,day)}const x=new Date(d);return Number.isNaN(x.getTime())?null:x};
+const date=d=>{const x=dateValue(d);return x?String(x.getDate()).padStart(2,'0')+'.'+String(x.getMonth()+1).padStart(2,'0')+'.'+x.getFullYear():'—'};
+const dateTime=d=>{const x=dateValue(d);return x?date(d)+', '+String(x.getHours()).padStart(2,'0')+':'+String(x.getMinutes()).padStart(2,'0'):'—'};
 const dayKey=d=>{if(!d)return '';const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
 const monthKey=d=>dayKey(d).slice(0,7);
 const norm=s=>String(s||'').normalize('NFKC').toLocaleLowerCase('az-AZ').replace(/[^\p{L}\p{N}]/gu,'');
@@ -106,7 +108,7 @@ export function BusinessReportsPanel({sales=[],orders=[],products=[],purchases=[
   <section className="panel cr-panel report-print"><SectionTitle title="Anbar hesabatı" description="Mövcud qalıq və maya dəyəri əsasında hesablanır."/><div className="tablewrap"><table><thead><tr><th>Məhsul</th><th>SKU</th><th>Kateqoriya</th><th>Qalıq</th><th>Vahid maya</th><th>Anbar dəyəri</th></tr></thead><tbody>{stockRows.map((x,i)=><tr key={i}><td>{x.Məhsul}</td><td>{x.SKU||'—'}</td><td>{x.Kateqoriya||'—'}</td><td>{x.Qalıq}</td><td>{money(x.Maya)}</td><td>{money(x.Anbar_dəyəri)}</td></tr>)}</tbody></table></div></section>
   <section className="panel cr-panel report-print"><SectionTitle title="Alış hesabatı" description="Seçilmiş tarix aralığında qeydə alınmış məhsul alışları."/><div className="tablewrap"><table><thead><tr><th>Tarix</th><th>Məhsul</th><th>Təchizatçı</th><th>Miqdar</th><th>Vahid maya</th><th>Cəmi</th><th>Ödənilib</th><th>Status</th></tr></thead><tbody>{purchaseRows.map((x,i)=><tr key={i}><td>{x.Tarix}</td><td>{x.Məhsul}</td><td>{x.Təchizatçı}</td><td>{x.Miqdar}</td><td>{money(x.Vahid_maya)}</td><td>{money(x.Cəmi)}</td><td>{money(x.Ödənilib)}</td><td>{x.Status}</td></tr>)}</tbody></table>{!purchaseRows.length&&<p className="empty">Bu tarix aralığında alış yoxdur.</p>}</div></section>
   <section className="panel cr-panel report-print"><SectionTitle title="Xərc hesabatı" description="Yalnız ödənilmiş maliyyə xərcləri."/><div className="tablewrap"><table><thead><tr><th>Tarix</th><th>Kateqoriya</th><th>Məbləğ</th><th>Hesab</th><th>Qeyd</th></tr></thead><tbody>{expenseRows.map((x,i)=><tr key={i}><td>{x.Tarix}</td><td>{x.Kateqoriya}</td><td>{money(x.Məbləğ)}</td><td>{x.Hesab}</td><td>{x.Qeyd}</td></tr>)}</tbody></table>{!expenseRows.length&&<p className="empty">Bu tarix aralığında xərc yoxdur.</p>}</div></section>
-  <div className="cr-print-foot">ZED STORE · Hesabat yaradılma tarixi: {new Date().toLocaleString('az-AZ')}</div>
+  <div className="cr-print-foot">ZED STORE · Hesabat yaradılma tarixi: {dateTime(new Date())}</div>
  </div>;
 }
 
@@ -175,7 +177,7 @@ export function MonthlyReportsPanel({orders=[],adjustedSales=[],products=[]}){
    <p className="sales-ledger-note">Hesabatda Birmarket komissiyası, bank faizi və logistika haqqı çıxıldıqdan sonra qalan satış məbləği göstərilir. Məhsulun maya dəyəri çıxıldıqdan sonra mənfəət hesablanır. Qaytarılmış məhsul miqdarı və geri ödənişlər nəzərə alınır.</p>
   </section>:<section className="panel report-empty"><b>Tarix aralığı düzgün seçilməyib</b><p>Başlanğıc tarix son tarixdən gec ola bilməz.</p></section>}
   <div id="monthly-print-report" aria-hidden="true">
-   <header className="monthly-print-header"><div className="monthly-print-brand">ZED STORE</div><div className="monthly-print-title">UĞURLU SİFARİŞLƏR ÜZRƏ SATIŞ HESABATI</div><div className="monthly-print-subtitle">Tarix aralığı: {rangeLabel} · Yalnız təhvil verilmiş və ödənişi təsdiqlənmiş sifarişlər · {new Date().toLocaleDateString('az-AZ')}</div></header>
+   <header className="monthly-print-header"><div className="monthly-print-brand">ZED STORE</div><div className="monthly-print-title">UĞURLU SİFARİŞLƏR ÜZRƏ SATIŞ HESABATI</div><div className="monthly-print-subtitle">Tarix aralığı: {rangeLabel} · Yalnız təhvil verilmiş və ödənişi təsdiqlənmiş sifarişlər · {date(new Date())}</div></header>
    <section className="monthly-print-month">
     <div className="monthly-print-summary"><div><small>Ümumi maya</small><b>{printMoney(totals.cost)}</b></div><div><small>Xalis satış dövriyyəsi</small><b>{printMoney(totals.sale)}</b></div><div><small>Ümumi mənfəət</small><b>{printMoney(totals.profit)}</b></div><div><small>Məhsul sayı</small><b>{totals.quantity} ədəd</b></div></div>
     <table className="monthly-print-table monthly-print-products"><thead><tr><th>Sifariş №</th><th>Məhsul</th><th>Miqdar</th><th>Maya</th><th>Satış</th><th>Mənfəət</th></tr></thead><tbody>{rows.map(row=><tr key={row.id}><td>#{row.orderNumber}</td><td>{row.product}</td><td>{row.quantity}</td><td>{printMoney(row.unitCost)}</td><td>{printMoney(row.unitSale)}</td><td>{printMoney(row.unitProfit)}</td></tr>)}</tbody><tfoot><tr><th colSpan="2">YEKUN</th><th>{totals.quantity}</th><th>{printMoney(totals.cost)}</th><th>{printMoney(totals.sale)}</th><th>{printMoney(totals.profit)}</th></tr></tfoot></table>
