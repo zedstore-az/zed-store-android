@@ -8,6 +8,19 @@ FastAPI backend deployed on Render.
 - `GET /health`: deployment and Birmarket configuration status.
 - `GET /api/products`: fetches the seller's active product offers from Birmarket, including product images, prices, quantities, SKU and categories. Requires `Authorization: Bearer <ZED_APP_API_KEY>`.
 
+## Order integration preparation
+
+- `order_mapping.py` contains pure, network-free mapping helpers for the observed Birmarket delivery and payment states.
+- `test_order_mapping.py` covers known/unknown states and verifies that a cancellation reason alone does not mark an order cancelled.
+- No order endpoint, scheduled synchronization, database write, or Seller Cabinet session access has been added.
+- A supported and authorized Birmarket server-to-server order access method is required before implementing the live order importer.
+
+Run the mapping tests from this directory with:
+
+```sh
+python -m unittest test_order_mapping.py
+```
+
 ## Render environment variables
 
 Set these in the Render service's Environment page. Never commit secrets to GitHub or put them in the Android app.
