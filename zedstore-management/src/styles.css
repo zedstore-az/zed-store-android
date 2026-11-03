@@ -893,3 +893,72 @@
  .stock-movement-content{padding:8px}
  .stock-movement-details{gap:6px}
 }
+
+
+/* Sifariş, satış, qəbz və ləğv bölmələri — Anbarım ilə eyni kart görünüşü */
+.record-card-list{display:flex;flex-direction:column;gap:11px;width:100%;min-width:0}
+.record-card{display:grid;grid-template-columns:170px minmax(0,1fr);width:100%;min-width:0;overflow:hidden;border:1px solid #e4e9ef;border-radius:13px;background:#fff;box-shadow:0 2px 9px rgba(20,35,55,.045)}
+.record-card-media{position:relative;display:grid;place-items:center;width:170px;min-height:158px;padding:10px;background:#f7f9fb}
+.record-card-media>img{display:block;width:100%;height:100%;min-height:138px;max-height:180px;object-fit:contain;object-position:center;border-radius:8px}
+.record-card-placeholder{display:grid;place-items:center;width:100%;min-height:138px;color:#91a0b2}
+.record-card-status{position:absolute;left:9px;right:9px;bottom:9px;width:max-content;max-width:calc(100% - 18px);padding:5px 8px;border-radius:7px;font-size:9px;font-weight:800}
+.record-card-status.is-good{background:#e6f7ef;color:#07845f}
+.record-card-status.is-wait{background:#fff5df;color:#9b6a0b}
+.record-card-status.is-bad{background:#fff0ef;color:#c64e55}
+.record-card-body{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:12px 15px}
+.record-card-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}
+.record-card-heading>div{min-width:0}
+.record-card-heading small{display:block;color:#8b98a9;font-size:9px;font-weight:800;letter-spacing:.07em}
+.record-card-heading h3{margin:3px 0 0;color:#243247;font:750 14px/1.35 Manrope;overflow-wrap:anywhere}
+.record-card-heading>strong{font-size:13px;white-space:nowrap}
+.record-card-payment{flex:none;padding:6px 8px;border-radius:7px;font-size:9px;font-weight:800}
+.record-card-payment.is-good{background:#e6f7ef;color:#07845f}
+.record-card-payment.is-wait{background:#fff5df;color:#9b6a0b}
+.record-card-products{display:grid;gap:5px;padding:9px 0;margin-top:8px;border-top:1px solid #edf0f4;border-bottom:1px solid #edf0f4}
+.record-card-product-line{display:flex;justify-content:space-between;gap:10px;min-width:0;color:#536176;font-size:10px;line-height:1.4}
+.record-card-product-line span{min-width:0;overflow-wrap:anywhere}
+.record-card-product-line b{flex:none;color:#243247}
+.record-card-product-title{margin:8px 0 0;color:#243247;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+.record-card-quantity{flex:none;padding:6px 8px;border-radius:7px;background:#fff0ef;color:#c64e55;font-size:10px}
+.record-card-details{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px 12px;padding-top:10px;margin-top:9px;border-top:1px solid #edf0f4}
+.record-card-products+.record-card-details{border-top:0;margin-top:0}
+.record-card-details>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.record-card-details small{color:#8c99a9;font-size:9px}
+.record-card-details b{color:#334257;font-size:10px;line-height:1.4;overflow-wrap:anywhere}
+.record-card-actions{display:flex;align-items:flex-end;justify-content:flex-end;gap:9px;padding-top:10px;margin-top:9px;border-top:1px solid #edf0f4}
+.record-card-actions .outline,.record-card-actions .primary{min-height:32px;padding:6px 11px;font-size:10px}
+.record-status-control{display:grid;gap:4px;min-width:150px;margin-right:auto;color:#8c99a9;font-size:9px}
+.record-status-control select{min-height:32px}
+.sales-record-details{grid-template-columns:repeat(4,minmax(0,1fr))}
+.receipt-total{color:#0a8b69}
+:root[data-theme="dark"] .record-card{background:#252b33;border-color:#39424e;box-shadow:none}
+:root[data-theme="dark"] .record-card-media{background:#20262e}
+:root[data-theme="dark"] .record-card-heading h3,:root[data-theme="dark"] .record-card-product-title,:root[data-theme="dark"] .record-card-product-line b,:root[data-theme="dark"] .record-card-details b{color:#e0e7ef}
+:root[data-theme="dark"] .record-card-products,:root[data-theme="dark"] .record-card-details,:root[data-theme="dark"] .record-card-actions{border-color:#39424e}
+:root[data-theme="dark"] .record-card-product-line{color:#b5c0ce}
+@media(max-width:650px){
+ .record-card{grid-template-columns:118px minmax(0,1fr);border-radius:11px}
+ .record-card-media{width:118px;min-height:145px;padding:7px}
+ .record-card-media>img,.record-card-placeholder{min-height:130px;max-height:160px}
+ .record-card-status{left:6px;right:6px;bottom:6px;padding:4px 5px;font-size:8px}
+ .record-card-body{padding:9px 10px}
+ .record-card-heading{gap:6px}
+ .record-card-heading h3{font-size:12px}
+ .record-card-heading>strong{font-size:11px}
+ .record-card-payment{padding:5px 6px;font-size:8px}
+ .record-card-product-line{font-size:9px}
+ .record-card-details,.sales-record-details{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 8px;padding-top:8px;margin-top:7px}
+ .record-card-details small{font-size:8px}
+ .record-card-details b{font-size:9px}
+ .record-card-actions{gap:6px;padding-top:7px;margin-top:7px;flex-wrap:wrap}
+ .record-card-actions .outline,.record-card-actions .primary{min-height:29px;padding:5px 8px;font-size:9px}
+ .record-status-control{min-width:100%;margin:0}
+ .record-card-product-title{font-size:11px}
+}
+@media(max-width:390px){
+ .record-card{grid-template-columns:100px minmax(0,1fr)}
+ .record-card-media{width:100px;min-height:140px;padding:6px}
+ .record-card-media>img,.record-card-placeholder{min-height:128px}
+ .record-card-body{padding:8px}
+ .record-card-details,.sales-record-details{gap:6px}
+}
