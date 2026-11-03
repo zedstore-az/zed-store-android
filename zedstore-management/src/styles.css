@@ -796,3 +796,24 @@
  .stock-swipe-hint{font-size:9px;line-height:1.5}
 }
 @media(max-width:390px){.stock-product-card{flex-basis:88vw}.stock-card-gallery,.stock-card-image{height:160px}}
+
+
+/* Anbarım: məhsul kartları yuxarıdan aşağıya bir sütunda düzülür */
+.stock-card-rail{
+ display:flex;
+ flex-direction:column;
+ overflow-x:visible;
+ overflow-y:visible;
+ scroll-snap-type:none;
+ padding:3px 2px 15px;
+}
+.stock-product-card{
+ flex:0 0 auto;
+ width:100%;
+ max-width:none;
+ scroll-snap-align:none;
+}
+@media(max-width:720px){
+ .stock-card-rail{display:flex;flex-direction:column;overflow:visible}
+ .stock-product-card{width:100%;flex-basis:auto}
+}
