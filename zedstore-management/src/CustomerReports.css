@@ -887,3 +887,12 @@
   font-size:5.8pt!important;
  }
 }
+
+
+/* Move the complete printed sales document down by exactly 0.5 mm */
+@media print{
+ html body .monthly-report-page #monthly-print-report{
+  position:relative!important;
+  top:0.5mm!important;
+ }
+}
