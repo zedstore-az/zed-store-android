@@ -798,22 +798,54 @@
 @media(max-width:390px){.stock-product-card{flex-basis:88vw}.stock-card-gallery,.stock-card-image{height:160px}}
 
 
-/* Anbarım: məhsul kartları yuxarıdan aşağıya bir sütunda düzülür */
-.stock-card-rail{
- display:flex;
- flex-direction:column;
- overflow-x:visible;
- overflow-y:visible;
- scroll-snap-type:none;
- padding:3px 2px 15px;
+/* Anbarım — kompakt, səliqəli məhsul kartları */
+.stock-card-rail{display:flex;flex-direction:column;gap:10px;overflow:visible;padding:2px 1px 14px}
+.stock-product-card{display:grid;grid-template-columns:170px minmax(0,1fr);width:100%;max-width:100%;min-width:0;flex:0 0 auto;overflow:hidden;border:1px solid #e4e9ef;border-radius:13px;background:#fff;box-shadow:0 2px 9px rgba(20,35,55,.045);transition:box-shadow .18s ease}
+.stock-product-card:hover{transform:none;box-shadow:0 5px 16px rgba(20,35,55,.08)}
+.stock-card-gallery{display:flex;gap:0;width:170px;height:100%;min-height:156px;max-height:176px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;background:#f7f9fb;scrollbar-width:thin}
+.stock-card-image{flex:0 0 100%;height:156px;display:grid;place-items:center;scroll-snap-align:start;padding:9px}
+.stock-card-image img{display:block;width:100%;height:100%;object-fit:contain;object-position:center;border-radius:7px}
+.stock-card-no-image{color:#9aa7b6;gap:7px;align-content:center;font-size:10px}
+.stock-card-content{min-width:0;padding:11px 14px}
+.stock-card-title{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;min-height:0}
+.stock-card-title>div{min-width:0}
+.stock-card-title h3{margin:0;color:#243247;font:750 13px/1.35 Manrope;overflow-wrap:anywhere}
+.stock-card-title small{display:block;margin-top:4px;color:#8b98a9;font-size:9px;line-height:1.35;overflow-wrap:anywhere}
+.stock-card-quantity{flex:none;padding:5px 7px;border-radius:7px;background:#eaf8f1;color:#0a916f;font-size:9px;font-weight:800;white-space:nowrap}
+.stock-card-quantity.low{background:#fff0ef;color:#ce555b}
+.stock-card-details{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px;padding:10px 0;border-top:1px solid #edf0f4;border-bottom:1px solid #edf0f4;margin-top:9px}
+.stock-card-details>div{min-width:0;display:flex;flex-direction:column;gap:3px}
+.stock-card-details small{color:#8c99a9;font-size:9px}
+.stock-card-details b{color:#334257;font-size:10px;line-height:1.35;overflow-wrap:anywhere}
+.stock-card-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding-top:9px}
+.stock-card-actions .outline{min-height:31px;padding:5px 10px;font-size:10px}
+.stock-card-actions .tiny{width:31px;height:31px;margin:0}
+.stock-swipe-hint{padding:2px 4px 0;color:#8996a7;font-size:10px;line-height:1.45}
+:root[data-theme="dark"] .stock-product-card{background:#252b33;border-color:#39424e;box-shadow:none}
+:root[data-theme="dark"] .stock-card-gallery{background:#20262e}
+:root[data-theme="dark"] .stock-card-title h3,:root[data-theme="dark"] .stock-card-details b{color:#e0e7ef}
+:root[data-theme="dark"] .stock-card-details{border-color:#39424e}
+:root[data-theme="dark"] .stock-card-quantity{background:#193d30;color:#8ce0b7}
+:root[data-theme="dark"] .stock-card-quantity.low{background:#492b2a;color:#ffad9f}
+@media(max-width:650px){
+ .stock-product-card{grid-template-columns:118px minmax(0,1fr);border-radius:11px}
+ .stock-card-gallery{width:118px;min-height:145px;max-height:160px}
+ .stock-card-image{height:145px;padding:7px}
+ .stock-card-content{padding:9px 10px}
+ .stock-card-title h3{font-size:12px}
+ .stock-card-title small{font-size:8px}
+ .stock-card-quantity{font-size:8px;padding:4px 5px}
+ .stock-card-details{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 8px;padding:8px 0;margin-top:7px}
+ .stock-card-details small{font-size:8px}
+ .stock-card-details b{font-size:9px}
+ .stock-card-actions{padding-top:7px;gap:6px}
+ .stock-card-actions .outline{min-height:29px;padding:4px 8px;font-size:9px}
+ .stock-card-actions .tiny{width:29px;height:29px}
 }
-.stock-product-card{
- flex:0 0 auto;
- width:100%;
- max-width:none;
- scroll-snap-align:none;
-}
-@media(max-width:720px){
- .stock-card-rail{display:flex;flex-direction:column;overflow:visible}
- .stock-product-card{width:100%;flex-basis:auto}
+@media(max-width:390px){
+ .stock-product-card{grid-template-columns:100px minmax(0,1fr)}
+ .stock-card-gallery{width:100px;min-height:140px;max-height:150px}
+ .stock-card-image{height:140px;padding:6px}
+ .stock-card-content{padding:8px}
+ .stock-card-details{gap:6px}
 }
