@@ -728,3 +728,74 @@
  #monthly-print-report .monthly-print-total small{font-size:5pt!important}
  #monthly-print-report .monthly-print-total b{font-size:11pt!important}
 }
+
+
+/* Final print readability: Azerbaijani glyph-safe font and clear order number column */
+@media print{
+ html body .monthly-report-page #monthly-print-report,
+ html body .monthly-report-page #monthly-print-report *{
+  font-family:"Noto Sans","DejaVu Sans",Arial,sans-serif!important;
+  font-synthesis:none!important;
+ }
+ #monthly-print-report .monthly-print-title{
+  color:#102f4d!important;font-weight:800!important;
+ }
+ #monthly-print-report .monthly-print-subtitle,
+ #monthly-print-report .monthly-print-subtitle b{
+  color:#344b63!important;
+ }
+ #monthly-print-report .monthly-print-summary small{color:#40556d!important}
+ #monthly-print-report .monthly-print-summary b{color:#102f4d!important}
+ #monthly-print-report .monthly-print-table-heading b{color:#102f4d!important}
+ #monthly-print-report .monthly-print-table-heading span{color:#52657a!important}
+ #monthly-print-report table.monthly-print-products{
+  border:1px solid #9aabba!important;
+  border-collapse:collapse!important;
+  font-size:6pt!important;
+ }
+ #monthly-print-report table.monthly-print-products th{
+  background:#244d70!important;color:#fff!important;
+  border:1px solid #8ca2b7!important;
+  padding:1.8mm 1.2mm!important;
+  font-size:5.5pt!important;font-weight:800!important;
+  line-height:1.15!important;text-align:center!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;
+ }
+ #monthly-print-report table.monthly-print-products th:first-child{
+  width:17%!important;text-align:center!important;
+  background:#173b5b!important;color:#fff!important;
+ }
+ #monthly-print-report table.monthly-print-products td{
+  color:#20364d!important;border:1px solid #c4d0db!important;
+  padding:1.6mm 1.2mm!important;font-size:5.8pt!important;
+  line-height:1.18!important;vertical-align:middle!important;
+ }
+ #monthly-print-report table.monthly-print-products td:first-child{
+  width:17%!important;text-align:center!important;
+  background:#e7eff7!important;color:#123b60!important;
+  font-weight:900!important;white-space:normal!important;
+  overflow-wrap:anywhere!important;word-break:break-word!important;
+  border-right:1.5px solid #8ca2b7!important;
+ }
+ #monthly-print-report table.monthly-print-products td:nth-child(2){
+  text-align:left!important;color:#20364d!important;font-weight:700!important;
+ }
+ #monthly-print-report table.monthly-print-products tbody tr:nth-child(even) td{
+  background:#f2f6fa!important;
+ }
+ #monthly-print-report table.monthly-print-products tbody tr:nth-child(even) td:first-child{
+  background:#dce8f3!important;color:#123b60!important;
+ }
+ #monthly-print-report table.monthly-print-products td.print-profit-cell{
+  color:#08764f!important;font-weight:800!important;
+ }
+ #monthly-print-report table.monthly-print-products tfoot th{
+  background:#dce6ef!important;color:#173b5b!important;
+  border:1px solid #9aabba!important;font-weight:900!important;
+ }
+ #monthly-print-report .monthly-print-total{
+  border-color:#8db9a8!important;background:#f1f8f4!important;
+ }
+ #monthly-print-report .monthly-print-total span{color:#145b46!important}
+ #monthly-print-report .monthly-print-total b{color:#086b49!important}
+}
