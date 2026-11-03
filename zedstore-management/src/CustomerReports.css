@@ -631,3 +631,47 @@
  #monthly-print-report .monthly-print-footer-page b{color:#173553!important}
  #monthly-print-report .monthly-print-footer-note{border-color:#159b83!important}
 }
+
+
+/* Minimal report-only print sheet: retain original A4 dimensions, remove branding */
+@media print{
+ @page{size:A4 portrait;margin:12mm}
+ html body .monthly-report-page #monthly-print-report{
+  width:100%!important;max-width:100%!important;margin:0!important;
+  padding:0!important;background:#fff!important;color:#172b45!important;
+ }
+ #monthly-print-report .monthly-print-header{
+  display:block!important;text-align:left!important;
+  padding:0 0 4mm!important;margin:0 0 5mm!important;
+  border:0!important;border-bottom:1.5px solid #173b59!important;
+ }
+ #monthly-print-report .monthly-print-title{
+  margin:0!important;padding:0 0 2mm!important;border:0!important;
+  color:#173b59!important;font-size:15pt!important;font-weight:800!important;
+  letter-spacing:.2px!important;
+ }
+ #monthly-print-report .monthly-print-subtitle{
+  display:flex!important;justify-content:space-between!important;gap:8px!important;
+  margin:0!important;color:#66778a!important;font-size:7pt!important;
+ }
+ #monthly-print-report .monthly-print-subtitle b{color:#344b63!important}
+ #monthly-print-report .monthly-print-summary>div{
+  background:#fff!important;border:1px solid #dce4eb!important;
+  border-top:2px solid #526b83!important;border-radius:3px!important;
+ }
+ #monthly-print-report .monthly-print-summary .print-kpi-sales{border-top-color:#168c79!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-profit{border-top-color:#21845e!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-quantity{border-top-color:#b8873c!important}
+ #monthly-print-report .monthly-print-table-heading{border-color:#dce4eb!important}
+ #monthly-print-report .monthly-print-table-heading b{color:#233d58!important}
+ #monthly-print-report table.monthly-print-products th{background:#29445f!important;color:#fff!important}
+ #monthly-print-report table.monthly-print-products td{background:#fff!important}
+ #monthly-print-report table.monthly-print-products tbody tr:nth-child(even){background:#f7f9fb!important}
+ #monthly-print-report table.monthly-print-products tfoot th{background:#edf1f5!important;color:#29445f!important}
+ #monthly-print-report .monthly-print-total{
+  background:#fff!important;border:1px solid #cbded7!important;
+  border-left:3px solid #168c79!important;border-radius:3px!important;
+ }
+ #monthly-print-report .monthly-print-total b{color:#167653!important}
+ #monthly-print-report .monthly-print-footer{display:none!important}
+}
