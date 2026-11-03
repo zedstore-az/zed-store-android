@@ -865,8 +865,8 @@
   display:flex!important;align-items:center!important;gap:3mm!important;
  }
  #monthly-print-report .monthly-print-logo{
-  display:block!important;flex:0 0 20mm!important;
-  width:20mm!important;height:20mm!important;object-fit:contain!important;
+  display:block!important;flex:0 0 25mm!important;
+  width:25mm!important;height:25mm!important;object-fit:contain!important;
   background:#000!important;border-radius:2mm!important;
  }
  #monthly-print-report .monthly-print-brand-copy{
@@ -918,5 +918,15 @@
  #monthly-print-report .monthly-print-month{
   position:relative!important;
   top:5mm!important;
+ }
+}
+
+
+/* Requested: make the printed “ÜMUMİ YEKUN” label white */
+@media print{
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tfoot th[colspan="2"]{
+  background:#173b59!important;
+  color:#ffffff!important;
+  -webkit-text-fill-color:#ffffff!important;
  }
 }
