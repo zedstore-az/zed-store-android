@@ -675,3 +675,56 @@
  #monthly-print-report .monthly-print-total b{color:#167653!important}
  #monthly-print-report .monthly-print-footer{display:none!important}
 }
+
+
+/* Final print fit: reduce report sheet footprint and typography without changing A4 paper */
+@media print{
+ @page{size:A4 portrait;margin:8mm}
+ html body .monthly-report-page #monthly-print-report{
+  width:92%!important;max-width:92%!important;
+  margin:0 auto!important;padding:0!important;
+  font-size:6pt!important;box-sizing:border-box!important;
+ }
+ #monthly-print-report .monthly-print-header{
+  padding-bottom:2.5mm!important;margin-bottom:3mm!important;
+ }
+ #monthly-print-report .monthly-print-title{
+  font-size:11pt!important;line-height:1.15!important;
+  padding-bottom:1.5mm!important;
+ }
+ #monthly-print-report .monthly-print-subtitle{
+  font-size:5.8pt!important;gap:5px!important;
+ }
+ #monthly-print-report .monthly-print-summary{
+  gap:2mm!important;margin-bottom:3mm!important;
+ }
+ #monthly-print-report .monthly-print-summary>div{
+  padding:2mm 1.5mm!important;gap:1mm!important;
+ }
+ #monthly-print-report .monthly-print-summary small{font-size:5pt!important}
+ #monthly-print-report .monthly-print-summary b{font-size:8pt!important;line-height:1.05!important}
+ #monthly-print-report .monthly-print-summary b em{font-size:5.5pt!important}
+ #monthly-print-report .monthly-print-summary span{font-size:4.8pt!important}
+ #monthly-print-report .monthly-print-table-heading{
+  margin-bottom:1.5mm!important;padding-bottom:1.5mm!important;
+ }
+ #monthly-print-report .monthly-print-table-heading b{font-size:7.5pt!important}
+ #monthly-print-report .monthly-print-table-heading span,
+ #monthly-print-report .monthly-print-table-heading>small{font-size:5pt!important}
+ #monthly-print-report table.monthly-print-products{font-size:5.7pt!important}
+ #monthly-print-report table.monthly-print-products th{
+  padding:1.6mm 1mm!important;font-size:5pt!important;line-height:1.1!important;
+ }
+ #monthly-print-report table.monthly-print-products td{
+  padding:1.4mm 1mm!important;font-size:5.4pt!important;line-height:1.12!important;
+ }
+ #monthly-print-report table.monthly-print-products tfoot th{
+  padding:1.6mm 1mm!important;font-size:5.2pt!important;
+ }
+ #monthly-print-report .monthly-print-total{
+  margin-top:3mm!important;padding:2.5mm 3mm!important;gap:6px!important;
+ }
+ #monthly-print-report .monthly-print-total span{font-size:5.8pt!important}
+ #monthly-print-report .monthly-print-total small{font-size:5pt!important}
+ #monthly-print-report .monthly-print-total b{font-size:11pt!important}
+}
