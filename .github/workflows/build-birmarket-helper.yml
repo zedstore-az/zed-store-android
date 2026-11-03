@@ -27,6 +27,16 @@ jobs:
       - name: Build helper APK
         run: gradle assembleDebug
         working-directory: android-birmarket-helper
+      - name: Install and launch on Android 15 emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_6
+          script: |
+            adb install -r android-birmarket-helper/app/build/outputs/apk/debug/app-debug.apk
+            adb shell monkey -p az.zedstore.birmarket 1
+            adb shell pm path az.zedstore.birmarket
       - uses: actions/upload-artifact@v4
         with:
           name: zed-store-birmarket-helper
