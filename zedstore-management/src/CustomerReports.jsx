@@ -178,10 +178,8 @@ export function MonthlyReportsPanel({orders=[],adjustedSales=[],products=[]}){
   </section>:<section className="panel report-empty"><b>Tarix aralığı düzgün seçilməyib</b><p>Başlanğıc tarix son tarixdən gec ola bilməz.</p></section>}
   <div id="monthly-print-report" aria-hidden="true">
    <header className="monthly-print-header">
-    <div className="monthly-print-brand-row"><div className="monthly-print-brand-mark">Z</div><div><div className="monthly-print-brand">ZED STORE</div><div className="monthly-print-brand-caption">ADMINISTRATİV İDARƏETMƏ SİSTEMİ</div></div><div className="monthly-print-document-badge"><span>RƏSMİ SƏNƏD</span><b>SALES REPORT</b></div></div>
-    <div className="monthly-print-title">SATIŞLAR ÜZRƏ MALİYYƏ HESABATI</div>
-    <div className="monthly-print-subtitle">Hesabat dövrü: <b>{rangeLabel}</b><span>Hazırlanma tarixi: {date(new Date())}</span></div>
-    <div className="monthly-print-header-rule"></div>
+    <div className="monthly-print-title">SATIŞ HESABATI</div>
+    <div className="monthly-print-subtitle"><span>Hesabat dövrü: <b>{rangeLabel}</b></span><span>Tarix: {date(new Date())}</span></div>
    </header>
    <section className="monthly-print-month">
     <div className="monthly-print-summary"><div className="print-kpi-cost"><small>ÜMUMİ MAYA DƏYƏRİ</small><b>{printMoney(totals.cost)}</b><span>Satılmış məhsulların maya dəyəri</span></div><div className="print-kpi-sales"><small>XALİS SATIŞ DÖVRİYYƏSİ</small><b>{printMoney(totals.sale)}</b><span>Komissiyalar çıxıldıqdan sonra</span></div><div className="print-kpi-profit"><small>ÜMUMİ MƏNFƏƏT</small><b>{printMoney(totals.profit)}</b><span>Yekun maliyyə nəticəsi</span></div><div className="print-kpi-quantity"><small>MƏHSUL MİQDARI</small><b>{totals.quantity} <em>ədəd</em></b><span>Satış sətirləri: {rows.length}</span></div></div>
@@ -190,7 +188,7 @@ export function MonthlyReportsPanel({orders=[],adjustedSales=[],products=[]}){
     {!rows.length&&<p className="monthly-print-empty">Seçilmiş tarix aralığında uğurlu satış qeydi yoxdur.</p>}
     <div className="monthly-print-total"><div><span>HESABAT DÖVRÜ ÜZRƏ XALİS MƏNFƏƏT</span><small>Satış dövriyyəsindən maya dəyəri çıxıldıqdan sonra</small></div><b>{printMoney(totals.profit)}</b></div>
    </section>
-   <footer className="monthly-print-footer"><div className="monthly-print-footer-brand"><b>ZED STORE</b><span>Satış və maliyyə hesabatı</span></div><div className="monthly-print-footer-note">Satış məbləği: Birmarket qiyməti − komissiya − bank faizi − logistika haqqı.<br/>Xalis mənfəət: satış məbləği − məhsulun maya dəyəri.</div><div className="monthly-print-footer-page">DAXİLİ HESABAT<br/><b>{new Date().toLocaleDateString('az-AZ')}</b></div></footer>
+
   </div>
  </div>;
 }
