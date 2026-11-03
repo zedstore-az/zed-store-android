@@ -555,3 +555,79 @@
  #monthly-print-report .monthly-print-footer-page b{font-size:7pt;color:#173553}
  #monthly-print-report tr{break-inside:avoid;page-break-inside:avoid}
 }
+
+
+/* ZED STORE — refined premium palette on a pure white A4 sheet */
+@media print{
+ html body .monthly-report-page #monthly-print-report{
+  background:#ffffff!important;
+  color:#172b45!important;
+ }
+ #monthly-print-report .monthly-print-header{background:#fff!important}
+ #monthly-print-report .monthly-print-brand-mark{
+  background:#123452!important;
+  color:#fff!important;
+  box-shadow:inset 0 -3px 0 #159b83!important;
+ }
+ #monthly-print-report .monthly-print-brand{color:#123452!important}
+ #monthly-print-report .monthly-print-brand-caption{color:#718096!important}
+ #monthly-print-report .monthly-print-document-badge span{
+  background:#e8f5f1!important;color:#087c68!important;
+  border:1px solid #cce8df!important;
+ }
+ #monthly-print-report .monthly-print-title{color:#123452!important;border-color:#dce5ec!important}
+ #monthly-print-report .monthly-print-subtitle,
+ #monthly-print-report .monthly-print-subtitle b{color:#62748a!important}
+ #monthly-print-report .monthly-print-header-rule{
+  background:linear-gradient(90deg,#123452 0%,#123452 72%,#159b83 72%,#159b83 100%)!important;
+ }
+ #monthly-print-report .monthly-print-summary>div{
+  background:#fff!important;border:1px solid #dfe7ed!important;
+  border-top:3px solid #45627e!important;border-radius:5px!important;
+ }
+ #monthly-print-report .monthly-print-summary .print-kpi-sales{
+  background:#fff!important;border-top-color:#159b83!important;
+ }
+ #monthly-print-report .monthly-print-summary .print-kpi-profit{
+  background:#fff!important;border-top-color:#21845e!important;
+ }
+ #monthly-print-report .monthly-print-summary .print-kpi-quantity{
+  background:#fff!important;border-top-color:#bd8a3e!important;
+ }
+ #monthly-print-report .monthly-print-summary small{color:#718096!important}
+ #monthly-print-report .monthly-print-summary b{color:#173553!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-sales b{color:#087c70!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-profit b{color:#16734f!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-quantity b{color:#94651f!important}
+ #monthly-print-report .monthly-print-table-heading{border-color:#dce5ec!important}
+ #monthly-print-report .monthly-print-table-heading b{color:#173553!important}
+ #monthly-print-report .monthly-print-table-heading>small{color:#0b8b78!important}
+ #monthly-print-report table.monthly-print-products th{
+  background:#173b59!important;color:#fff!important;
+ }
+ #monthly-print-report table.monthly-print-products td{
+  background:#fff!important;color:#35485e!important;
+  border-bottom:1px solid #e5ebf0!important;
+ }
+ #monthly-print-report table.monthly-print-products tbody tr:nth-child(even){
+  background:#f7f9fb!important;
+ }
+ #monthly-print-report table.monthly-print-products td:nth-child(2){color:#1d334c!important}
+ #monthly-print-report table.monthly-print-products td.print-profit-cell{color:#087c59!important}
+ #monthly-print-report table.monthly-print-products tfoot th{
+  background:#eef2f5!important;color:#173553!important;
+  border-top:2px solid #45627e!important;
+ }
+ #monthly-print-report .monthly-print-total{
+  background:#fff!important;border:1px solid #b9ded2!important;
+  border-left:5px solid #159b83!important;
+ }
+ #monthly-print-report .monthly-print-total span{color:#17634f!important}
+ #monthly-print-report .monthly-print-total b{color:#087c59!important}
+ #monthly-print-report .monthly-print-footer{
+  background:#fff!important;border-color:#dce5ec!important;color:#718096!important;
+ }
+ #monthly-print-report .monthly-print-footer-brand b,
+ #monthly-print-report .monthly-print-footer-page b{color:#173553!important}
+ #monthly-print-report .monthly-print-footer-note{border-color:#159b83!important}
+}
