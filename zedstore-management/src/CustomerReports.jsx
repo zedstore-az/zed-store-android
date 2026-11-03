@@ -156,7 +156,25 @@ export function MonthlyReportsPanel({orders=[],adjustedSales=[],products=[]}){
   downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),'zed-store-satis-hesabati.csv');
  }
  const printMoney=n=>money(n);
- const printMonthlyReport=()=>window.print();
+ const printMonthlyReport=()=>{
+  const report=document.getElementById('monthly-print-report');
+  if(!report){window.alert('Çap hesabatı tapılmadı. Səhifəni yenilə və yenidən yoxla.');return}
+  // Open the print document synchronously from the tap so mobile browsers do not block it.
+  const win=window.open('','_blank');
+  if(!win){window.alert('Çap pəncərəsi bloklandı. Brauzerdə pop-up icazəsini aktiv et və yenidən yoxla.');return}
+  let css='';
+  for(const sheet of Array.from(document.styleSheets)){
+   try{css+=Array.from(sheet.cssRules).map(rule=>rule.cssText).join('\\n')+'\\n'}catch(_){}
+  }
+  const content=report.cloneNode(true);
+  content.removeAttribute('aria-hidden');
+  win.document.open();
+  win.document.write('<!doctype html><html lang="az"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZED STORE — Satış hesabatı</title><style>'+css+'\\n@page{size:A4 portrait;margin:12mm}html,body{margin:0;background:#fff!important;font-family:"Noto Sans",sans-serif!important}body{padding:0}.monthly-report-page{display:block!important;width:100%!important}.monthly-report-page #monthly-print-report{display:block!important;visibility:visible!important;position:static!important;width:100%!important;margin:0!important;padding:0!important}.monthly-report-page #monthly-print-report *{visibility:visible!important;font-family:"Noto Sans",sans-serif!important}@media screen{body{padding:12px}.monthly-print-month{max-width:210mm;margin:auto}}</style></head><body><main class="monthly-report-page"><div id="monthly-print-report">'+content.innerHTML+'</div></main></body></html>');
+  win.document.close();
+  const doPrint=()=>{try{win.focus();win.print()}catch(_){win.alert('Bu brauzerdə çap funksiyası dəstəklənmir. Səhifəni Chrome-da açaraq yoxla.')}};
+  win.onload=()=>setTimeout(doPrint,500);
+  setTimeout(()=>{if(!win.closed&&win.document.readyState==='complete')doPrint()},1200);
+ };
  return <div className="cr-page monthly-report-page sales-ledger-page">
   <div className="toolbar"><div><h2>Hesabatlar</h2><p>Yalnız təhvil verilmiş və ödənişi təsdiqlənmiş sifarişlər üzrə satış hesabatı.</p></div><div className="monthly-report-actions"><button className="outline" onClick={exportCsv} disabled={!validRange}><Download size={16}/> Excel / CSV yüklə</button><button className="primary" onClick={printMonthlyReport} disabled={!validRange}><Printer size={16}/> PDF / Çap</button></div></div>
   <section className="panel monthly-selector"><div className="monthly-selector-head"><div><b>Hesabat dövrü</b><small>Tarix aralığını seçərək uğurlu sifarişlərin siyahısını süzgəcdən keçir.</small></div><span>{rangeLabel}</span></div><div className="monthly-add-row"><label>Başlanğıc tarix<input type="date" value={fromDate} max={toDate||undefined} onChange={e=>setFromDate(e.target.value)}/></label><label>Son tarix<input type="date" value={toDate} min={fromDate||undefined} onChange={e=>setToDate(e.target.value)}/></label><button className="outline" type="button" onClick={()=>{setFromDate(currentMonth+'-01');setToDate(today)}}>Bu ay</button><button className="outline" type="button" onClick={()=>{setFromDate(today);setToDate(today)}}>Bu gün</button><button className="outline" type="button" onClick={()=>{const d=new Date();setFromDate(dayKey(new Date(d.getFullYear(),d.getMonth(),d.getDate()-29)));setToDate(today)}}>Son 30 gün</button></div><small className="cr-range-note">Hesabat dövrü: {rangeLabel}</small></section>
