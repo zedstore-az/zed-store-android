@@ -1,5 +1,11 @@
 name: Build Birmarket Helper
 on:
+  push:
+    branches:
+      - birmarket-notification-helper
+    paths:
+      - 'android-birmarket-helper/**'
+      - '.github/workflows/build-birmarket-helper.yml'
   workflow_dispatch:
 jobs:
   build:
