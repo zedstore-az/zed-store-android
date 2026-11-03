@@ -1,0 +1,11 @@
+package az.zedstore.birmarket;
+import android.app.Notification;import android.os.Bundle;import android.service.notification.*;import android.content.SharedPreferences;import org.json.JSONObject;import java.net.*;import java.io.*;import java.nio.charset.StandardCharsets;import java.util.concurrent.*;import java.util.regex.*;import java.util.Locale;
+public class BirmarketNotificationListener extends NotificationListenerService {
+ static final String URL_API="https://xisqlegehabwjjrjvimj.supabase.co/functions/v1/birmarket-sms-ingest";
+ static final Pattern ORDER=Pattern.compile("(?<!\\d)\\d{11}(?!\\d)"); ExecutorService ex=Executors.newSingleThreadExecutor();
+ public void onNotificationPosted(StatusBarNotification n){if(n==null)return;String pkg=n.getPackageName()==null?"":n.getPackageName().toLowerCase(Locale.ROOT);Bundle b=n.getNotification().extras;if(b==null)return;
+ String title=s(b.getCharSequence(Notification.EXTRA_TITLE)),body=s(b.getCharSequence(Notification.EXTRA_BIG_TEXT));if(body.isEmpty())body=s(b.getCharSequence(Notification.EXTRA_TEXT));boolean sender=title.toLowerCase(Locale.ROOT).contains("birmarket")||pkg.contains("birmarket")||pkg.contains("umico");if(!sender)return;
+ String msg=title+"\n"+body;if(!msg.toLowerCase(Locale.ROOT).replace('ı','i').contains("zed store"))return;Matcher m=ORDER.matcher(msg);if(!m.find())return;String id=m.group();SharedPreferences p=getSharedPreferences("zed",0);String key=p.getString("key","");if(key.isEmpty())return;ex.execute(()->post(id,msg,key));}
+ static String s(CharSequence c){return c==null?"":c.toString();}
+ void post(String id,String msg,String key){HttpURLConnection c=null;try{JSONObject j=new JSONObject();j.put("order_id",id);j.put("message_text",msg);c=(HttpURLConnection)new URL(URL_API).openConnection();c.setRequestMethod("POST");c.setConnectTimeout(10000);c.setReadTimeout(10000);c.setDoOutput(true);c.setRequestProperty("Content-Type","application/json");c.setRequestProperty("x-zed-birmarket-key",key);try(OutputStream o=c.getOutputStream()){o.write(j.toString().getBytes(StandardCharsets.UTF_8));}c.getResponseCode();}catch(Exception ignored){}finally{if(c!=null)c.disconnect();}}
+}
