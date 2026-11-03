@@ -206,7 +206,7 @@ function App(){
   }
   const paths=[...keep,...uploaded],urls=paths.map(path=>sb.storage.from('zedstore-products').getPublicUrl(path).data.publicUrl);
   const desiredStock=Number(p.stock_qty);
-  const payload={...p,supplier_id:p.supplier_id||null,cost_price:+p.cost_price,sale_price:pricing.ready?pricing.payout:+p.sale_price,birmarket_price:+p.birmarket_price,weight_kg:+p.weight_kg,stock_qty:editing?Number(editing.stock_qty||0):0,low_stock_threshold:+p.low_stock_threshold,image_paths:paths,image_urls:urls,image_path:paths[0]||null,image_url:urls[0]||null};
+  const payload={...p,sku:String(p.sku??'').trim()||null,supplier_id:p.supplier_id||null,cost_price:+p.cost_price,sale_price:pricing.ready?pricing.payout:+p.sale_price,birmarket_price:+p.birmarket_price,weight_kg:+p.weight_kg,stock_qty:editing?Number(editing.stock_qty||0):0,low_stock_threshold:+p.low_stock_threshold,image_paths:paths,image_urls:urls,image_path:paths[0]||null,image_url:urls[0]||null};
   const saved=editing?await sb.from('products').update(payload).eq('id',editing.id).select().single():await sb.from('products').insert(payload).select().single();
   if(saved.error)throw saved.error;
   productSaved=true;
@@ -226,7 +226,7 @@ function App(){
  }catch(err){
   if(!productSaved&&uploaded.length){const cleanup=await sb.storage.from('zedstore-products').remove(uploaded);if(cleanup.error)console.error('Uploaded image cleanup failed:',cleanup.error)}
   console.error('ZED STORE product save failed:',err);
-  say(err?.message||'Məhsulu yadda saxlamaq olmadı');
+  if(err?.code==='23505'&&String(err?.message||'').includes('products_owner_id_sku_key'))say('Bu SKU kodu artıq istifadə olunur. Başqa SKU daxil et və ya SKU sahəsini boş saxla.');else say(err?.message||'Məhsulu yadda saxlamaq olmadı');
  }finally{B(false)}
 }
  function productOpen(x){ED(x);SP(x?{...x,barcode:x.barcode||''}:{name:'',sku:'',barcode:'',category:'',brand:'',cost_price:0,sale_price:0,birmarket_price:0,weight_kg:0,stock_qty:0,low_stock_threshold:1,notes:''});PI((x?.image_urls?.length?x.image_urls:(x?.image_url?[x.image_url]:[])).map((url,i)=>({url,path:(x?.image_paths||[])[i]||(i===0?x?.image_path:null)})));NI([]);CO(false);MO('product')}
