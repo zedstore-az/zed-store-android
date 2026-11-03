@@ -849,3 +849,47 @@
  .stock-card-content{padding:8px}
  .stock-card-details{gap:6px}
 }
+
+
+/* Stok hərəkətləri — Anbarım ilə eyni kompakt kart standartı */
+.stock-movement-catalog{width:100%;min-width:0}
+.stock-movement-card-list{display:flex;flex-direction:column;gap:10px}
+.stock-movement-card{display:grid;grid-template-columns:170px minmax(0,1fr);width:100%;min-width:0;overflow:hidden;border:1px solid #e4e9ef;border-radius:13px;background:#fff;box-shadow:0 2px 9px rgba(20,35,55,.045);transition:box-shadow .18s ease}
+.stock-movement-card:hover{box-shadow:0 5px 16px rgba(20,35,55,.08)}
+.stock-movement-visual{display:grid;place-items:center;width:170px;min-height:156px;padding:10px;background:#f7f9fb}
+.stock-movement-visual>img{display:block;width:100%;height:100%;min-height:136px;max-height:176px;object-fit:contain;object-position:center;border-radius:8px}
+.stock-movement-visual .stock-movement-product-placeholder{width:100%;height:100%;min-height:136px;border:0;background:transparent}
+.stock-movement-content{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:11px 14px}
+.stock-movement-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.stock-movement-name{min-width:0}
+.stock-movement-name h3{margin:0;color:#243247;font:750 13px/1.35 Manrope;overflow-wrap:anywhere}
+.stock-movement-name small{display:block;margin-top:4px;color:#8b98a9;font-size:9px;line-height:1.35;overflow-wrap:anywhere}
+.stock-movement-heading .stock-movement-in,.stock-movement-heading .stock-movement-out{flex:none;padding:6px 8px;font-size:10px}
+.stock-movement-details{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 12px;padding-top:11px;margin-top:10px;border-top:1px solid #edf0f4}
+.stock-movement-details>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.stock-movement-details small{color:#8c99a9;font-size:9px}
+.stock-movement-details b{color:#334257;font-size:10px;line-height:1.4;overflow-wrap:anywhere}
+:root[data-theme="dark"] .stock-movement-card{background:#252b33;border-color:#39424e;box-shadow:none}
+:root[data-theme="dark"] .stock-movement-visual{background:#20262e}
+:root[data-theme="dark"] .stock-movement-name h3,:root[data-theme="dark"] .stock-movement-details b{color:#e0e7ef}
+:root[data-theme="dark"] .stock-movement-details{border-color:#39424e}
+@media(max-width:650px){
+ .stock-movement-card{grid-template-columns:118px minmax(0,1fr);border-radius:11px}
+ .stock-movement-visual{width:118px;min-height:145px;padding:7px}
+ .stock-movement-visual>img,.stock-movement-visual .stock-movement-product-placeholder{min-height:130px;max-height:160px}
+ .stock-movement-content{padding:9px 10px}
+ .stock-movement-name h3{font-size:12px}
+ .stock-movement-name small{font-size:8px}
+ .stock-movement-heading{gap:6px}
+ .stock-movement-heading .stock-movement-in,.stock-movement-heading .stock-movement-out{font-size:8px;padding:5px 6px}
+ .stock-movement-details{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 8px;padding-top:8px;margin-top:7px}
+ .stock-movement-details small{font-size:8px}
+ .stock-movement-details b{font-size:9px}
+}
+@media(max-width:390px){
+ .stock-movement-card{grid-template-columns:100px minmax(0,1fr)}
+ .stock-movement-visual{width:100px;min-height:140px;padding:6px}
+ .stock-movement-visual>img,.stock-movement-visual .stock-movement-product-placeholder{min-height:128px}
+ .stock-movement-content{padding:8px}
+ .stock-movement-details{gap:6px}
+}
