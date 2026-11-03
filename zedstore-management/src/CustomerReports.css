@@ -799,3 +799,28 @@
  #monthly-print-report .monthly-print-total span{color:#145b46!important}
  #monthly-print-report .monthly-print-total b{color:#086b49!important}
 }
+
+/* Final adjustment: move the complete printed statement down by 1 cm
+   and make every order number strongly legible. */
+@media print{
+ html body .monthly-report-page #monthly-print-report{
+  margin:10mm auto 0!important;
+ }
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products td:first-child{
+  color:#071f38!important;
+  background:#d5e3f0!important;
+  font-size:7pt!important;
+  font-weight:900!important;
+  letter-spacing:.15px!important;
+  text-shadow:0 0 .01px #071f38!important;
+  border-right:2px solid #718ba4!important;
+ }
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tbody tr:nth-child(even) td:first-child{
+  background:#cbdceb!important;
+  color:#071f38!important;
+ }
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tfoot th:first-child{
+  color:#071f38!important;
+  font-weight:900!important;
+ }
+}
