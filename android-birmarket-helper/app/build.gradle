@@ -2,5 +2,5 @@ plugins { id 'com.android.application' }
 android {
  namespace 'az.zedstore.birmarket'
  compileSdk 35
- defaultConfig { applicationId 'az.zedstore.birmarket'; minSdk 23; targetSdk 35; versionCode 2; versionName '1.0.1' }
+ defaultConfig { applicationId 'az.zedstore.birmarket'; minSdk 23; targetSdk 28; versionCode 3; versionName '1.0.2' }
 }
