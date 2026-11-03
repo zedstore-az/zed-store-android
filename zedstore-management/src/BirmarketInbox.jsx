@@ -2,14 +2,22 @@ import React from 'react';
 import { MessageSquareText, RefreshCw } from 'lucide-react';
 
 const dt = value => value ? new Date(value).toLocaleString('az-AZ') : '—';
+const labels = {
+  new_order: 'Yeni sifariş',
+  cancelled: 'Ləğv edilib',
+  delivered: 'Təhvil edilib',
+  status_update: 'Status yenilənib',
+  legacy: 'Əvvəlki qeyd',
+};
+const badgeClass = type => type === 'new_order' ? 'green' : type === 'cancelled' ? 'red' : type === 'delivered' ? 'blue' : 'yellow';
 
 export default function BirmarketInbox({ rows = [], onRefresh, busy = false }) {
   return (
     <>
       <div className="toolbar">
         <div>
-          <h2>Birmarket SMS sifarişləri</h2>
-          <p>Telefonuna gələn Birmarket SMS-lərindən alınan sifariş nömrələri.</p>
+          <h2>Birmarket sifariş bildirişləri</h2>
+          <p>Birmarket-dən gələn Azərbaycan və rus dilində sifariş bildirişlərinin tarixçəsi.</p>
         </div>
         <button className="outline" type="button" onClick={onRefresh} disabled={busy}>
           <RefreshCw size={16} /> Yenilə
@@ -17,30 +25,32 @@ export default function BirmarketInbox({ rows = [], onRefresh, busy = false }) {
       </div>
       <section className="panel">
         <div style={{ padding: '18px 20px', borderBottom: '1px solid #e8eaf0' }}>
-          <b>{rows.length} sifariş nömrəsi</b>
+          <b>{rows.length} bildiriş qeydi</b>
           <p className="muted" style={{ margin: '6px 0 0' }}>
-            Burada yalnız SMS-dən gələn nömrələr görünür. Məhsul, miqdar və Birmarket statusu hələ əldə edilmir.
+            Eyni sifarişin fərqli status bildirişləri ayrıca tarixçə qeydi kimi saxlanılır.
           </p>
         </div>
         <div className="tablewrap">
           <table>
-            <thead><tr><th>Birmarket sifariş nömrəsi</th><th>SMS-in qəbul vaxtı</th><th>Mərhələ</th></tr></thead>
+            <thead><tr><th>Bildiriş mətni</th><th>Sifariş kodu</th><th>Bildiriş növü</th><th>Qəbul vaxtı</th></tr></thead>
             <tbody>{rows.map(row => <tr key={row.id}>
-              <td><b>{row.order_id}</b></td><td>{dt(row.received_at)}</td>
-              <td><span className="badge yellow">SMS qəbul edilib</span></td>
+              <td style={{ minWidth: 260, whiteSpace: 'normal' }}>{row.message_text || 'Əvvəlki SMS qeydi'}</td>
+              <td><b>{row.order_id}</b></td>
+              <td><span className={`badge ${badgeClass(row.event_type)}`}>{labels[row.event_type] || 'Sifariş bildirişi'}</span></td>
+              <td>{dt(row.received_at)}</td>
             </tr>)}</tbody>
           </table>
           {!rows.length && <div className="empty">
-            <MessageSquareText size={28} /><p>Hələ Birmarket SMS sifarişi qeydə alınmayıb.</p>
-            <small>İlk uyğun SMS gəldikdən sonra sifariş nömrəsi burada görünəcək.</small>
+            <MessageSquareText size={28} /><p>Hələ Birmarket sifariş bildirişi qeydə alınmayıb.</p>
+            <small>Telefon bildirişləri yönləndirildikdən sonra burada görünəcək.</small>
           </div>}
         </div>
       </section>
       <section className="panel" style={{ marginTop: 16, padding: 18 }}>
         <b>Vacib məlumat</b>
         <p className="muted" style={{ marginBottom: 0 }}>
-          Bu siyahı Birmarket hesabından canlı sifariş detalları oxumur və anbar qalığını dəyişmir.
-          Məhsul və status məlumatlarının alınması ayrıca inteqrasiya mərhələsidir.
+          Bu tarixçə Birmarket hesabından məhsul və sifariş detalları oxumur, anbar qalığını dəyişmir və sifarişi avtomatik yaratmır.
+          Yalnız telefon bildirişində olan sifariş mətnini və kodunu qeydə alır.
         </p>
       </section>
     </>
