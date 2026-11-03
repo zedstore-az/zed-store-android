@@ -909,3 +909,14 @@
   top:0.5mm!important;
  }
 }
+
+
+/* Final requested offset: from the company name onward, move content down 1 cm */
+@media print{
+ html body .monthly-report-page #monthly-print-report{top:0!important}
+ #monthly-print-report .monthly-print-brand-copy,
+ #monthly-print-report .monthly-print-month{
+  position:relative!important;
+  top:10mm!important;
+ }
+}
