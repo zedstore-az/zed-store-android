@@ -844,3 +844,16 @@
   text-shadow:none!important;
  }
 }
+
+
+/* Force the actual order-number text (nested <b>) to print in black */
+@media print{
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tbody td:first-child,
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tbody td:first-child b{
+  color:#000000!important;
+  -webkit-text-fill-color:#000000!important;
+  font-weight:900!important;
+  text-shadow:none!important;
+ }
+}
+.sales-ledger-table .sales-ledger-order{color:#000000!important;-webkit-text-fill-color:#000000!important}
