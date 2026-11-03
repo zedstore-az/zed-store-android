@@ -948,3 +948,13 @@
 #monthly-print-report .monthly-print-summary .print-kpi-profit b{color:#21845e!important;}
 #monthly-print-report .monthly-print-summary .print-kpi-quantity{border-top-color:#b8873c!important;}
 #monthly-print-report .monthly-print-summary .print-kpi-quantity b{color:#b8873c!important;}
+
+
+/* Ensure every element in the printed A4 statement uses Azerbaijani-compatible Noto Sans. */
+@media print{
+ html body .monthly-report-page #monthly-print-report,
+ html body .monthly-report-page #monthly-print-report *{
+  font-family:'Noto Sans',sans-serif!important;
+  font-synthesis:none!important;
+ }
+}
