@@ -753,3 +753,46 @@
  .stock-table .prod img,.stock-table .prod .placeholder{width:50px;height:50px;flex-basis:50px}
  .stock-table .prod b{font-size:12px}
 }
+
+
+/* Anbarım product cards: swipeable card rail + swipeable image gallery */
+.stock-catalog{width:100%;min-width:0}
+.stock-card-rail{display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;padding:3px 2px 15px;scroll-snap-type:x mandatory;scroll-padding:4px;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;scrollbar-width:thin}
+.stock-card-rail::-webkit-scrollbar,.stock-card-gallery::-webkit-scrollbar{height:6px}
+.stock-card-rail::-webkit-scrollbar-thumb,.stock-card-gallery::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:20px}
+.stock-product-card{flex:0 0 clamp(270px,31%,340px);min-width:0;overflow:hidden;border:1px solid #e5eaf0;border-radius:16px;background:#fff;box-shadow:0 4px 15px rgba(20,35,55,.055);scroll-snap-align:start;transition:transform .18s ease,box-shadow .18s ease}
+.stock-product-card:hover{transform:translateY(-2px);box-shadow:0 9px 24px rgba(20,35,55,.1)}
+.stock-card-gallery{display:flex;gap:0;width:100%;height:190px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;background:#f6f8fb;scrollbar-width:thin}
+.stock-card-image{flex:0 0 100%;height:190px;display:grid;place-items:center;scroll-snap-align:start;padding:12px}
+.stock-card-image img{display:block;width:100%;height:100%;object-fit:contain;border-radius:9px}
+.stock-card-no-image{color:#9aa7b6;gap:8px;align-content:center;font-size:11px}
+.stock-card-content{padding:15px}
+.stock-card-title{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-height:58px}
+.stock-card-title>div{min-width:0}
+.stock-card-title h3{margin:0;color:#243247;font:750 14px/1.4 Manrope;overflow-wrap:anywhere}
+.stock-card-title small{display:block;margin-top:5px;color:#8b98a9;font-size:10px;line-height:1.4;overflow-wrap:anywhere}
+.stock-card-quantity{flex:none;padding:6px 8px;border-radius:8px;background:#eaf8f1;color:#0a916f;font-size:10px;font-weight:800;white-space:nowrap}
+.stock-card-quantity.low{background:#fff0ef;color:#ce555b}
+.stock-card-details{display:grid;grid-template-columns:1fr 1fr;gap:12px 10px;padding:14px 0;border-top:1px solid #edf0f4;border-bottom:1px solid #edf0f4;margin-top:12px}
+.stock-card-details>div{min-width:0;display:flex;flex-direction:column;gap:5px}
+.stock-card-details small{color:#8c99a9;font-size:10px}
+.stock-card-details b{color:#334257;font-size:11px;overflow-wrap:anywhere}
+.stock-card-actions{display:flex;align-items:center;justify-content:space-between;gap:9px;padding-top:13px}
+.stock-card-actions .outline{min-height:36px}
+.stock-card-actions .tiny{width:36px;height:36px;margin:0}
+.stock-swipe-hint{padding:2px 4px 0;color:#8996a7;font-size:10px}
+:root[data-theme="dark"] .stock-product-card{background:#252b33;border-color:#39424e;box-shadow:none}
+:root[data-theme="dark"] .stock-card-gallery{background:#20262e}
+:root[data-theme="dark"] .stock-card-title h3,:root[data-theme="dark"] .stock-card-details b{color:#e0e7ef}
+:root[data-theme="dark"] .stock-card-details{border-color:#39424e}
+:root[data-theme="dark"] .stock-card-quantity{background:#193d30;color:#8ce0b7}
+:root[data-theme="dark"] .stock-card-quantity.low{background:#492b2a;color:#ffad9f}
+@media(max-width:720px){
+ .stock-card-rail{gap:12px;padding:2px 1px 13px}
+ .stock-product-card{flex-basis:min(84vw,350px);border-radius:14px}
+ .stock-card-gallery,.stock-card-image{height:175px}
+ .stock-card-content{padding:13px}
+ .stock-card-title h3{font-size:13px}
+ .stock-swipe-hint{font-size:9px;line-height:1.5}
+}
+@media(max-width:390px){.stock-product-card{flex-basis:88vw}.stock-card-gallery,.stock-card-image{height:160px}}
