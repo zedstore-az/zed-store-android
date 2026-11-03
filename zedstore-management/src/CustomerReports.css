@@ -937,3 +937,14 @@
 #monthly-print-report .monthly-print-summary .print-kpi-sales b{color:#123452!important;}
 #monthly-print-report .monthly-print-summary .print-kpi-cost{border-top-color:#c62828!important;}
 #monthly-print-report .monthly-print-summary .print-kpi-cost b{color:#c62828!important;}
+
+
+/* KPI colors requested: blue, red, green, gold. */
+#monthly-print-report .monthly-print-summary .print-kpi-sales{border-top-color:#1976d2!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-sales b{color:#1976d2!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-cost{border-top-color:#c62828!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-cost b{color:#c62828!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-profit{border-top-color:#21845e!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-profit b{color:#21845e!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-quantity{border-top-color:#b8873c!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-quantity b{color:#b8873c!important;}
