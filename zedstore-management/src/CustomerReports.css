@@ -824,3 +824,23 @@
   font-weight:900!important;
  }
 }
+
+/* Print table palette refinement only — preserve all existing dimensions and spacing */
+@media print{
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products thead th{
+  background:#e7edf4!important;
+  color:#102f4d!important;
+  border-color:#aab9c8!important;
+  font-weight:900!important;
+ }
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products thead th:first-child{
+  background:#dce6f0!important;
+  color:#102f4d!important;
+ }
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tbody td:first-child,
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tbody tr:nth-child(even) td:first-child{
+  color:#000000!important;
+  font-weight:900!important;
+  text-shadow:none!important;
+ }
+}
