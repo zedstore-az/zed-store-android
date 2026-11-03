@@ -178,8 +178,12 @@ export function MonthlyReportsPanel({orders=[],adjustedSales=[],products=[]}){
   </section>:<section className="panel report-empty"><b>Tarix aralığı düzgün seçilməyib</b><p>Başlanğıc tarix son tarixdən gec ola bilməz.</p></section>}
   <div id="monthly-print-report" aria-hidden="true">
    <header className="monthly-print-header">
-    <div className="monthly-print-title">SATIŞ HESABATI</div>
-    <div className="monthly-print-subtitle"><span>Hesabat dövrü: <b>{rangeLabel}</b></span><span>Tarix: {date(new Date())}</span></div>
+    <img className="monthly-print-logo" src="/zed-store-logo.jpg" alt="ZED STORE logo"/>
+    <div className="monthly-print-brand-copy">
+     <div className="monthly-print-company">ZED STORE</div>
+     <div className="monthly-print-title">SATIŞ HESABATI</div>
+     <div className="monthly-print-subtitle"><span>Hesabat dövrü: <b>{rangeLabel}</b></span><span>Tarix: {date(new Date())}</span></div>
+    </div>
    </header>
    <section className="monthly-print-month">
     <div className="monthly-print-summary"><div className="print-kpi-cost"><small>ÜMUMİ MAYA DƏYƏRİ</small><b>{printMoney(totals.cost)}</b><span>Satılmış məhsulların maya dəyəri</span></div><div className="print-kpi-sales"><small>XALİS SATIŞ DÖVRİYYƏSİ</small><b>{printMoney(totals.sale)}</b><span>Komissiyalar çıxıldıqdan sonra</span></div><div className="print-kpi-profit"><small>ÜMUMİ MƏNFƏƏT</small><b>{printMoney(totals.profit)}</b><span>Yekun maliyyə nəticəsi</span></div><div className="print-kpi-quantity"><small>MƏHSUL MİQDARI</small><b>{totals.quantity} <em>ədəd</em></b><span>Satış sətirləri: {rows.length}</span></div></div>

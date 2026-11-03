@@ -857,3 +857,33 @@
  }
 }
 .sales-ledger-table .sales-ledger-order{color:#000000!important;-webkit-text-fill-color:#000000!important}
+
+
+/* Sales report identity: compact brand lockup; preserve A4/table/column dimensions */
+@media print{
+ #monthly-print-report .monthly-print-header{
+  display:flex!important;align-items:center!important;gap:3mm!important;
+ }
+ #monthly-print-report .monthly-print-logo{
+  display:block!important;flex:0 0 15mm!important;
+  width:15mm!important;height:15mm!important;object-fit:contain!important;
+  background:#000!important;border-radius:2mm!important;
+ }
+ #monthly-print-report .monthly-print-brand-copy{
+  display:flex!important;flex:1 1 auto!important;min-width:0!important;
+  flex-direction:column!important;justify-content:center!important;
+ }
+ #monthly-print-report .monthly-print-company{
+  margin:0 0 .5mm!important;color:#123b60!important;
+  font-size:9pt!important;font-weight:900!important;letter-spacing:1.2px!important;
+  line-height:1!important;
+ }
+ #monthly-print-report .monthly-print-title{
+  margin:0!important;padding:0 0 1mm!important;
+  font-size:11pt!important;line-height:1.1!important;
+ }
+ #monthly-print-report .monthly-print-subtitle{
+  display:flex!important;justify-content:space-between!important;gap:5px!important;
+  font-size:5.8pt!important;
+ }
+}
