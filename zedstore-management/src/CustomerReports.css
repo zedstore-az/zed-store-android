@@ -930,3 +930,10 @@
   -webkit-text-fill-color:#ffffff!important;
  }
 }
+
+
+/* Requested KPI card order colors: net sales navy, total cost red. */
+#monthly-print-report .monthly-print-summary .print-kpi-sales{border-top-color:#123452!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-sales b{color:#123452!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-cost{border-top-color:#c62828!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-cost b{color:#c62828!important;}
