@@ -162,18 +162,23 @@ export function MonthlyReportsPanel({orders=[],adjustedSales=[],products=[]}){
   // Open the print document synchronously from the tap so mobile browsers do not block it.
   const win=window.open('','_blank');
   if(!win){window.alert('Çap pəncərəsi bloklandı. Brauzerdə pop-up icazəsini aktiv et və yenidən yoxla.');return}
-  let css='';
-  for(const sheet of Array.from(document.styleSheets)){
-   try{css+=Array.from(sheet.cssRules).map(rule=>rule.cssText).join('\\n')+'\\n'}catch(_){}
-  }
   const content=report.cloneNode(true);
   content.removeAttribute('aria-hidden');
+  const styles=Array.from(document.styleSheets).map(sheet=>sheet.href
+   ? '<link rel="stylesheet" href="'+sheet.href.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'">'
+   : (()=>{try{return '<style>'+Array.from(sheet.cssRules).map(rule=>rule.cssText).join('\\n')+'</style>'}catch(_){return ''}})()
+  ).join('');
   win.document.open();
-  win.document.write('<!doctype html><html lang="az"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZED STORE — Satış hesabatı</title><style>'+css+'\\n@page{size:A4 portrait;margin:12mm}html,body{margin:0;background:#fff!important;font-family:"Noto Sans",sans-serif!important}body{padding:0}.monthly-report-page{display:block!important;width:100%!important}.monthly-report-page #monthly-print-report{display:block!important;visibility:visible!important;position:static!important;width:100%!important;margin:0!important;padding:0!important}.monthly-report-page #monthly-print-report *{visibility:visible!important;font-family:"Noto Sans",sans-serif!important}@media screen{body{padding:12px}.monthly-print-month{max-width:210mm;margin:auto}}</style></head><body><main class="monthly-report-page"><div id="monthly-print-report">'+content.innerHTML+'</div></main></body></html>');
+  win.document.write('<!doctype html><html lang="az"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZED STORE — Satış hesabatı</title>'+styles+'</head><body><main class="monthly-report-page"><div id="monthly-print-report">'+content.innerHTML+'</div></main></body></html>');
   win.document.close();
-  const doPrint=()=>{try{win.focus();win.print()}catch(_){win.alert('Bu brauzerdə çap funksiyası dəstəklənmir. Səhifəni Chrome-da açaraq yoxla.')}};
-  win.onload=()=>setTimeout(doPrint,500);
-  setTimeout(()=>{if(!win.closed&&win.document.readyState==='complete')doPrint()},1200);
+  let printed=false;
+  const doPrint=()=>{if(printed||win.closed)return;printed=true;try{win.focus();win.print()}catch(_){win.alert('Bu brauzerdə çap funksiyası dəstəklənmir. Səhifəni Chrome-da açaraq yoxla.')}};
+  const waitForAssets=()=>Promise.all([
+   win.document.fonts?.ready||Promise.resolve(),
+   ...Array.from(win.document.images).map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.onload=resolve;img.onerror=resolve}))
+  ]).then(()=>setTimeout(doPrint,250));
+  win.onload=waitForAssets;
+  setTimeout(()=>{if(!printed&&win.document.readyState==='complete')waitForAssets()},1500);
  };
  return <div className="cr-page monthly-report-page sales-ledger-page">
   <div className="toolbar"><div><h2>Hesabatlar</h2><p>Yalnız təhvil verilmiş və ödənişi təsdiqlənmiş sifarişlər üzrə satış hesabatı.</p></div><div className="monthly-report-actions"><button className="outline" onClick={exportCsv} disabled={!validRange}><Download size={16}/> Excel / CSV yüklə</button><button className="primary" onClick={printMonthlyReport} disabled={!validRange}><Printer size={16}/> PDF / Çap</button></div></div>
