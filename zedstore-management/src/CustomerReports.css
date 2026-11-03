@@ -865,8 +865,8 @@
   display:flex!important;align-items:center!important;gap:3mm!important;
  }
  #monthly-print-report .monthly-print-logo{
-  display:block!important;flex:0 0 15mm!important;
-  width:15mm!important;height:15mm!important;object-fit:contain!important;
+  display:block!important;flex:0 0 20mm!important;
+  width:20mm!important;height:20mm!important;object-fit:contain!important;
   background:#000!important;border-radius:2mm!important;
  }
  #monthly-print-report .monthly-print-brand-copy{
