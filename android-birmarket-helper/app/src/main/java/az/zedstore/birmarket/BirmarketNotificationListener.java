@@ -14,7 +14,7 @@ import java.util.Locale;
 
 public class BirmarketNotificationListener extends NotificationListenerService {
  static final String URL_API="https://xisqlegehabwjjrjvimj.supabase.co/functions/v1/birmarket-sms-ingest";
- static final Pattern ORDER=Pattern.compile("(?<!\\\\d)\\\\d{11}(?!\\\\d)");
+ static final Pattern ORDER=Pattern.compile("(?<!\\d)\\d{11}(?!\\d)");
  private final ExecutorService ex=Executors.newSingleThreadExecutor();
 
  @Override public void onNotificationPosted(StatusBarNotification n) {
