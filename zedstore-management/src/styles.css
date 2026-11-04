@@ -968,3 +968,22 @@
 html,body{font-family:'Noto Sans',sans-serif!important;font-synthesis:none}
 html body,html body *{font-family:'Noto Sans',sans-serif!important}
 @media print{html,body,html body *{font-family:'Noto Sans',sans-serif!important;font-synthesis:none!important}}
+
+
+/* Anbarım — ayrıca kateqoriya kataloqu */
+.stock-toolbar-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.stock-category-catalog{width:100%;min-width:0}
+.stock-category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:13px}
+.stock-category-card{display:grid;grid-template-columns:78px minmax(0,1fr) 22px;align-items:center;gap:12px;min-width:0;padding:12px;border:1px solid #e3e9f0;border-radius:14px;background:#fff;text-align:left;cursor:pointer;box-shadow:0 2px 9px rgba(20,35,55,.045);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.stock-category-card:hover{transform:translateY(-2px);border-color:#b9c9db;box-shadow:0 7px 18px rgba(20,35,55,.08)}
+.stock-category-cover{display:grid;place-items:center;width:78px;height:72px;overflow:hidden;border-radius:10px;background:#f3f6f9;color:#8292a5}
+.stock-category-cover img{width:100%;height:100%;object-fit:contain;padding:5px}
+.stock-category-info{display:flex;flex-direction:column;gap:6px;min-width:0}
+.stock-category-info b{color:#26364b;font-size:13px;line-height:1.35;overflow-wrap:anywhere}
+.stock-category-info small{color:#8a97a8;font-size:10px;line-height:1.4}
+.stock-category-arrow{color:#8b99aa;font-size:20px;font-weight:700;text-align:center}
+:root[data-theme="dark"] .stock-category-card{background:#252b33;border-color:#39424e;box-shadow:none}
+:root[data-theme="dark"] .stock-category-cover{background:#20262e}
+:root[data-theme="dark"] .stock-category-info b{color:#e0e7ef}
+@media(max-width:650px){.stock-toolbar-actions{width:100%;justify-content:flex-start}.stock-category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stock-category-card{grid-template-columns:55px minmax(0,1fr);gap:8px;padding:9px;border-radius:11px}.stock-category-cover{width:55px;height:58px}.stock-category-info b{font-size:10px}.stock-category-info small{font-size:8px}.stock-category-arrow{display:none}}
+@media(max-width:390px){.stock-category-grid{grid-template-columns:1fr}.stock-category-card{grid-template-columns:64px minmax(0,1fr) 18px}.stock-category-cover{width:64px;height:60px}.stock-category-arrow{display:block}}
