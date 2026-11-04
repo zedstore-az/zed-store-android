@@ -10,7 +10,9 @@ public class MainActivity extends Activity {
  Button notif=new Button(this);notif.setText("Bildiriş icazəsini aktiv et");notif.setOnClickListener(v->startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)));root.addView(notif);
  Button key=new Button(this);key.setText("Server açarını daxil et");key.setOnClickListener(v->showKey());root.addView(key);
  TextView note=new TextView(this);note.setText("Birmarket SMS-ləri birbaşa qəbul edilir. Göndərici Birmarket/Umico, mətn ZED STORE və 11 rəqəmli sifariş kodu olduqda serverə ötürülür. SMS icazəsini telefonda təsdiqlə.");note.setPadding(0,24,0,0);root.addView(note);setContentView(root);refresh();}
- void refresh(){String x=Settings.Secure.getString(getContentResolver(),"enabled_notification_listeners");boolean ok=x!=null&&x.contains(getPackageName());String k=getSharedPreferences("zed",0).getString("key","");String last=getSharedPreferences("zed",0).getString("last_seen","Hələ Birmarket bildirişi qəbul edilməyib");status.setText("Bildiriş icazəsi: "+(ok?"AKTİVDİR":"AKTİV DEYİL")+"\\nServer açarı: "+(k.isEmpty()?"yoxdur":"saxlanılıb")+"\\nSon vəziyyət: "+last);}
+ void refresh(){String x=Settings.Secure.getString(getContentResolver(),"enabled_notification_listeners");boolean ok=x!=null&&x.contains(getPackageName());String k=getSharedPreferences("zed",0).getString("key","");String last=getSharedPreferences("zed",0).getString("last_seen","Hələ Birmarket bildirişi qəbul edilməyib");status.setText("Bildiriş icazəsi: "+(ok?"AKTİVDİR":"AKTİV DEYİL")+"
+Server açarı: "+(k.isEmpty()?"yoxdur":"saxlanılıb")+"
+Son vəziyyət: "+last);}
  void showKey(){EditText e=new EditText(this);e.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD);new AlertDialog.Builder(this).setTitle("Server açarı").setMessage("Supabase BIRM_SMS_WEBHOOK_SECRET dəyərini daxil et. Heç kimlə paylaşma.").setView(e).setPositiveButton("Saxla",(d,w)->{getSharedPreferences("zed",0).edit().putString("key",e.getText().toString().trim()).apply();refresh();}).setNegativeButton("Ləğv",null).show();}
  protected void onResume(){super.onResume();if(status!=null)refresh();}
 }
