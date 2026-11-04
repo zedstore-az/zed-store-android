@@ -34,7 +34,18 @@ jobs:
           arch: x86_64
           profile: pixel_6
           script: |
-            adb install -r android-birmarket-helper/app/build/outputs/apk/debug/app-debug.apk
+            adb wait-for-device
+            sleep 15
+            for attempt in 1 2 3; do
+              if adb install -r android-birmarket-helper/app/build/outputs/apk/debug/app-debug.apk; then
+                break
+              fi
+              if [ "$attempt" = "3" ]; then exit 1; fi
+              adb kill-server || true
+              adb start-server
+              adb wait-for-device
+              sleep 10
+            done
             adb shell monkey -p az.zedstore.birmarket 1
             adb shell pm path az.zedstore.birmarket
       - uses: actions/upload-artifact@v4
