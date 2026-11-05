@@ -74,7 +74,8 @@ begin
 
   if p_amount is null
      or p_amount <= 0
-     or p_amount::text in ('NaN', 'Infinity', '-Infinity') then
+     or p_amount::text in ('NaN', 'Infinity', '-Infinity')
+     or p_amount <> round(p_amount, 2) then
     raise exception using errcode = '22023', message = 'Ödəniş məbləği düzgün deyil';
   end if;
 
@@ -194,7 +195,7 @@ begin
     raise exception using errcode = 'P0001',
       message = 'Bu alış üçün birdən çox borc qeydi tapıldı; maliyyə tarixçəsi yoxlanmalıdır';
   elsif v_payable_count = 1 then
-    select fe.id, fe.counterparty
+    select fe.id, coalesce(fe.counterparty, v_counterparty)
       into v_payable_id, v_counterparty
       from public.finance_entries as fe
      where fe.owner_id = v_user_id
