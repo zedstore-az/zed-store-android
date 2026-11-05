@@ -10,12 +10,17 @@ export default function OperationsCenter({products=[],orders=[],sales=[],onNavig
  const [q,Q]=useState(''),[range,R]=useState(30),[movementFrom,MF]=useState(''),[movementTo,MT]=useState(''),[loading,L]=useState(false),[error,E]=useState('');
  const [browserPermission,BP]=useState(typeof Notification==='undefined'?'unsupported':Notification.permission);
  const seenNotificationIds=useRef(new Set());
+ const [ownerId,setOwnerId]=useState(null);
  const firstNotificationLoad=useRef(true);
  const [supplierForm,SF]=useState({name:'',phone:'',email:'',notes:''}),[supplierEdit,SEdit]=useState(null),[supplierOpen,SO]=useState(false),[savingSupplier,SSave]=useState(false);
  async function load(quiet=false){
   if(!quiet)L(true);E('');
+  const auth=await db.auth.getUser();
+  const currentOwner=auth.data?.user?.id;
+  if(auth.error||!currentOwner){E('Admin sessiyası təsdiqlənmədi.');if(!quiet)L(false);return}
+  setOwnerId(currentOwner);
   const names=['suppliers','stock_movements','activity_logs','notifications','purchases','login_events'];
-  const rs=await Promise.all(names.map(t=>db.from(t).select('*').order('created_at',{ascending:false}).limit(250)));
+  const rs=await Promise.all(names.map(t=>db.from(t).select('*').eq('owner_id',currentOwner).order('created_at',{ascending:false}).limit(250)));
   const failed=rs.find(x=>x.error);if(failed)E(failed.error.message);
   const next=Object.fromEntries(names.map((n,i)=>[n,rs[i].data||[]]));
   const incoming=next.notifications||[];
@@ -49,9 +54,9 @@ export default function OperationsCenter({products=[],orders=[],sales=[],onNavig
   else if(permission==='denied')E('Brauzer bildirişlərinə icazə verilmədi. Telefonun sayt icazələrindən dəyişə bilərsən.');
  }
  useEffect(()=>{load();const timer=setInterval(()=>load(true),30000);return()=>clearInterval(timer)},[]);
- async function saveSupplier(e){e.preventDefault();if(!supplierForm.name.trim())return;SSave(true);const payload={name:supplierForm.name.trim(),phone:supplierForm.phone.trim()||null,email:supplierForm.email.trim()||null,notes:supplierForm.notes.trim()||null};const result=supplierEdit?await db.from('suppliers').update(payload).eq('id',supplierEdit):await db.from('suppliers').insert(payload);SSave(false);if(result.error){E('Təchizatçı saxlanmadı: '+result.error.message);return}SF({name:'',phone:'',email:'',notes:''});SEdit(null);SO(false);await load()}
+ async function saveSupplier(e){e.preventDefault();if(!supplierForm.name.trim())return;SSave(true);const auth=await db.auth.getUser();const currentOwner=auth.data?.user?.id;if(auth.error||!currentOwner){SSave(false);E('Admin sessiyası təsdiqlənmədi.');return}const payload={owner_id:currentOwner,name:supplierForm.name.trim(),phone:supplierForm.phone.trim()||null,email:supplierForm.email.trim()||null,notes:supplierForm.notes.trim()||null};const result=supplierEdit?await db.from('suppliers').update(payload).eq('id',supplierEdit).eq('owner_id',currentOwner):await db.from('suppliers').insert(payload);SSave(false);if(result.error){E('Təchizatçı saxlanmadı: '+result.error.message);return}SF({name:'',phone:'',email:'',notes:''});SEdit(null);SO(false);await load()}
  function editSupplier(item){SF({name:item.name||'',phone:item.phone||'',email:item.email||'',notes:item.notes||''});SEdit(item.id);SO(true)}
- async function markAllRead(){const result=await db.from('notifications').update({read_at:new Date().toISOString()}).is('read_at',null);if(result.error){E('Bildirişləri yeniləmək mümkün olmadı: '+result.error.message);return}await load()}
+ async function markAllRead(){if(!ownerId){E('Admin sessiyası təsdiqlənmədi.');return}const result=await db.from('notifications').update({read_at:new Date().toISOString()}).eq('owner_id',ownerId).is('read_at',null);if(result.error){E('Bildirişləri yeniləmək mümkün olmadı: '+result.error.message);return}await load()}
  const active=products.filter(p=>p.is_active),low=active.filter(p=>Number(p.stock_qty)<=Number(p.low_stock_threshold||0)),zero=active.filter(p=>Number(p.stock_qty)<=0);
  const cutoff=Date.now()-range*86400000;
  const filteredMovements=extra.movements.filter(m=>{const day=(m.occurred_at||m.created_at||'').slice(0,10);return (!movementFrom||day>=movementFrom)&&(!movementTo||day<=movementTo)});
