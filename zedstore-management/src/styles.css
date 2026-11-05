@@ -162,3 +162,5 @@
   .report-print-button,.report-toolbar,.month-filter,.stats,.topbar,.sidebar,.busy,.toast{display:none!important}
   .report-print-area .empty{color:#444!important}
 }
+
+.stat-clickable{cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}.stat-clickable:hover,.stat-clickable:focus-visible{transform:translateY(-2px);border-color:#c8d8e5;box-shadow:0 8px 22px rgba(25,45,65,.08);outline:none}.intro+.stats{grid-template-columns:repeat(2,minmax(0,1fr))}
