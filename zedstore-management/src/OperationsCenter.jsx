@@ -1,11 +1,9 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
-import {createClient} from '@supabase/supabase-js';
 import {Search,Boxes,TrendingUp,AlertTriangle,Bell,Users,History,PackageSearch,RefreshCw,ArrowDownRight,ArrowUpRight} from 'lucide-react';
 import './operations.css';
-const db=createClient(import.meta.env.VITE_SUPABASE_URL,import.meta.env.VITE_SUPABASE_ANON_KEY);
 const money=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).format(Number(n||0));
 const date=d=>d?new Date(d).toLocaleDateString('az-AZ'):'—';
-export default function OperationsCenter({products=[],orders=[],sales=[],onNavigate=()=>{}}){
+export default function OperationsCenter({products=[],orders=[],sales=[],onNavigate=()=>{},sb}){
  const [extra,setExtra]=useState({suppliers:[],movements:[],logs:[],notifications:[],purchases:[],login_events:[]});
  const [q,Q]=useState(''),[range,R]=useState(30),[movementFrom,MF]=useState(''),[movementTo,MT]=useState(''),[loading,L]=useState(false),[error,E]=useState('');
  const [browserPermission,BP]=useState(typeof Notification==='undefined'?'unsupported':Notification.permission);
@@ -15,12 +13,12 @@ export default function OperationsCenter({products=[],orders=[],sales=[],onNavig
  const [supplierForm,SF]=useState({name:'',phone:'',email:'',notes:''}),[supplierEdit,SEdit]=useState(null),[supplierOpen,SO]=useState(false),[savingSupplier,SSave]=useState(false);
  async function load(quiet=false){
   if(!quiet)L(true);E('');
-  const auth=await db.auth.getUser();
+  const auth=await sb.auth.getUser();
   const currentOwner=auth.data?.user?.id;
   if(auth.error||!currentOwner){E('Admin sessiyası təsdiqlənmədi.');if(!quiet)L(false);return}
   setOwnerId(currentOwner);
   const names=['suppliers','stock_movements','activity_logs','notifications','purchases','login_events'];
-  const rs=await Promise.all(names.map(t=>db.from(t).select('*').eq('owner_id',currentOwner).order('created_at',{ascending:false}).limit(250)));
+  const rs=await Promise.all(names.map(t=>sb.from(t).select('*').eq('owner_id',currentOwner).order('created_at',{ascending:false}).limit(250)));
   const failed=rs.find(x=>x.error);if(failed)E(failed.error.message);
   const next=Object.fromEntries(names.map((n,i)=>[n,rs[i].data||[]]));
   const incoming=next.notifications||[];
@@ -54,9 +52,9 @@ export default function OperationsCenter({products=[],orders=[],sales=[],onNavig
   else if(permission==='denied')E('Brauzer bildirişlərinə icazə verilmədi. Telefonun sayt icazələrindən dəyişə bilərsən.');
  }
  useEffect(()=>{load();const timer=setInterval(()=>load(true),30000);return()=>clearInterval(timer)},[]);
- async function saveSupplier(e){e.preventDefault();if(!supplierForm.name.trim())return;SSave(true);const auth=await db.auth.getUser();const currentOwner=auth.data?.user?.id;if(auth.error||!currentOwner){SSave(false);E('Admin sessiyası təsdiqlənmədi.');return}const payload={owner_id:currentOwner,name:supplierForm.name.trim(),phone:supplierForm.phone.trim()||null,email:supplierForm.email.trim()||null,notes:supplierForm.notes.trim()||null};const result=supplierEdit?await db.from('suppliers').update(payload).eq('id',supplierEdit).eq('owner_id',currentOwner):await db.from('suppliers').insert(payload);SSave(false);if(result.error){E('Təchizatçı saxlanmadı: '+result.error.message);return}SF({name:'',phone:'',email:'',notes:''});SEdit(null);SO(false);await load()}
+ async function saveSupplier(e){e.preventDefault();if(!supplierForm.name.trim())return;SSave(true);const auth=await sb.auth.getUser();const currentOwner=auth.data?.user?.id;if(auth.error||!currentOwner){SSave(false);E('Admin sessiyası təsdiqlənmədi.');return}const payload={owner_id:currentOwner,name:supplierForm.name.trim(),phone:supplierForm.phone.trim()||null,email:supplierForm.email.trim()||null,notes:supplierForm.notes.trim()||null};const result=supplierEdit?await sb.from('suppliers').update(payload).eq('id',supplierEdit).eq('owner_id',currentOwner):await sb.from('suppliers').insert(payload);SSave(false);if(result.error){E('Təchizatçı saxlanmadı: '+result.error.message);return}SF({name:'',phone:'',email:'',notes:''});SEdit(null);SO(false);await load()}
  function editSupplier(item){SF({name:item.name||'',phone:item.phone||'',email:item.email||'',notes:item.notes||''});SEdit(item.id);SO(true)}
- async function markAllRead(){if(!ownerId){E('Admin sessiyası təsdiqlənmədi.');return}const result=await db.from('notifications').update({read_at:new Date().toISOString()}).eq('owner_id',ownerId).is('read_at',null);if(result.error){E('Bildirişləri yeniləmək mümkün olmadı: '+result.error.message);return}await load()}
+ async function markAllRead(){if(!ownerId){E('Admin sessiyası təsdiqlənmədi.');return}const result=await sb.from('notifications').update({read_at:new Date().toISOString()}).eq('owner_id',ownerId).is('read_at',null);if(result.error){E('Bildirişləri yeniləmək mümkün olmadı: '+result.error.message);return}await load()}
  const active=products.filter(p=>p.is_active),low=active.filter(p=>Number(p.stock_qty)<=Number(p.low_stock_threshold||0)),zero=active.filter(p=>Number(p.stock_qty)<=0);
  const cutoff=Date.now()-range*86400000;
  const filteredMovements=extra.movements.filter(m=>{const day=(m.occurred_at||m.created_at||'').slice(0,10);return (!movementFrom||day>=movementFrom)&&(!movementTo||day<=movementTo)});
