@@ -1,7 +1,9 @@
 -- Atomic, owner-scoped supplier payment settlement.
--- SECURITY DEFINER is required because the idempotency ledger is intentionally
--- not writable by clients. The function checks auth.uid() and explicitly scopes
--- every purchase, supplier, and finance row by owner_id.
+-- The privileged implementation lives in the non-exposed private schema.
+-- The public RPC is SECURITY INVOKER and delegates to that owner-checked helper.
+create schema if not exists private;
+revoke all on schema private from public, anon;
+grant usage on schema private to authenticated;
 -- Draft migration for review; this file is not applied to the live Supabase project.
 
 create table if not exists public.purchase_payment_events (
@@ -39,7 +41,7 @@ drop policy if exists purchase_payment_events_owner_insert
 revoke all on table public.purchase_payment_events from anon, public, authenticated;
 grant select on table public.purchase_payment_events to authenticated;
 
-create or replace function public.settle_purchase_payment(
+create or replace function private.settle_purchase_payment_impl(
   p_purchase_id uuid,
   p_amount numeric,
   p_request_id uuid
@@ -262,6 +264,24 @@ begin
   );
 end;
 $function$;
+
+revoke all on function private.settle_purchase_payment_impl(uuid, numeric, uuid)
+  from public, anon, authenticated;
+grant execute on function private.settle_purchase_payment_impl(uuid, numeric, uuid)
+  to authenticated;
+
+create or replace function public.settle_purchase_payment(
+  p_purchase_id uuid,
+  p_amount numeric,
+  p_request_id uuid
+)
+returns jsonb
+language sql
+security invoker
+set search_path = ''
+as $wrapper$
+  select private.settle_purchase_payment_impl(p_purchase_id, p_amount, p_request_id);
+$wrapper$;
 
 revoke all on function public.settle_purchase_payment(uuid, numeric, uuid)
   from public, anon, authenticated;
