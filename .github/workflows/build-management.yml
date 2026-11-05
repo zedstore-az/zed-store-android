@@ -1,0 +1,32 @@
+name: Build ZED STORE Management
+on:
+  pull_request:
+    paths:
+      - 'zedstore-management/**'
+      - '.github/workflows/build-management.yml'
+  push:
+    branches:
+      - main
+      - 'feature/**'
+    paths:
+      - 'zedstore-management/**'
+      - '.github/workflows/build-management.yml'
+permissions:
+  contents: read
+jobs:
+  build-management:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: zedstore-management
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Build management website
+        run: npm run build
