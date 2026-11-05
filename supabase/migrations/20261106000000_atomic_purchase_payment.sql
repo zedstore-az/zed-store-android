@@ -1,4 +1,7 @@
 -- Atomic, owner-scoped supplier payment settlement.
+-- SECURITY DEFINER is required because the idempotency ledger is intentionally
+-- not writable by clients. The function checks auth.uid() and explicitly scopes
+-- every purchase, supplier, and finance row by owner_id.
 -- Draft migration for review; this file is not applied to the live Supabase project.
 
 create table if not exists public.purchase_payment_events (
@@ -28,15 +31,13 @@ create policy purchase_payment_events_owner_select
   for select to authenticated
   using ((select auth.uid()) = owner_id);
 
+-- The event ledger is read-only to the client. Writes are performed only by
+-- the owner-checked RPC below, so clients cannot forge an idempotency receipt.
 drop policy if exists purchase_payment_events_owner_insert
   on public.purchase_payment_events;
-create policy purchase_payment_events_owner_insert
-  on public.purchase_payment_events
-  for insert to authenticated
-  with check ((select auth.uid()) = owner_id);
 
-revoke all on table public.purchase_payment_events from anon, public;
-grant select, insert on table public.purchase_payment_events to authenticated;
+revoke all on table public.purchase_payment_events from anon, public, authenticated;
+grant select on table public.purchase_payment_events to authenticated;
 
 create or replace function public.settle_purchase_payment(
   p_purchase_id uuid,
@@ -45,7 +46,7 @@ create or replace function public.settle_purchase_payment(
 )
 returns jsonb
 language plpgsql
-security invoker
+security definer
 set search_path = ''
 as $function$
 declare
@@ -158,6 +159,16 @@ begin
       'payment_status', v_existing.payment_status_after,
       'request_id', v_existing.request_id
     );
+  end if;
+
+  -- If a legacy purchase has no payable row, retain the supplier name when
+  -- reconstructing its outstanding balance.
+  if v_counterparty is null and v_purchase.supplier_id is not null then
+    select s.name
+      into v_counterparty
+      from public.suppliers as s
+     where s.id = v_purchase.supplier_id
+       and s.owner_id = v_user_id;
   end if;
 
   -- Lock and validate the existing payable entry before changing the ledger.
