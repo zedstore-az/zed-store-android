@@ -1,0 +1,960 @@
+.cr-page{display:grid;gap:16px}.cr-panel{padding:20px}.cr-section-title{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}.cr-section-title h3{font:700 15px Manrope;margin:0 0 5px;color:#23344b}.cr-section-title p{font-size:11px;color:#8b98a8;margin:0;line-height:1.5}.cr-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}.cr-stat{background:#fff;border:1px solid #e8edf2;border-radius:13px;padding:16px;display:flex;flex-direction:column;gap:7px;min-width:0}.cr-stat svg{width:30px;height:30px;padding:6px;border-radius:9px;background:#edf5ff;color:#0865f5}.cr-stat small{font-size:10px;color:#8793a4}.cr-stat b{font:800 19px Manrope;overflow-wrap:anywhere;color:#20324a}.cr-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:14px}.cr-toolbar>span{font-size:11px;color:#8492a3;white-space:nowrap}.cr-detail-button{padding:7px 10px;font-size:10px}.cr-footnote,.cr-range-note{font-size:10px;color:#8997a8;line-height:1.5}.cr-export-actions{display:flex;gap:8px;flex-wrap:wrap}.cr-export-actions button{white-space:nowrap}.cr-date-filters{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}.cr-date-filters label{display:grid;gap:6px;font-size:11px;color:#69788c}.cr-date-filters input{border:1px solid #dce5ed;border-radius:8px;padding:10px;background:white;color:#25334a}.cr-range-note{display:block;margin-top:12px}.cr-pl-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.cr-pl-grid>div{padding:16px;border-radius:10px;background:#f5f8fc;display:grid;gap:8px}.cr-pl-grid small{font-size:10px;color:#8492a3}.cr-pl-grid b{font:800 19px Manrope;color:#24364c}.cr-print-foot{font-size:10px;color:#8b98a8;text-align:right;padding:8px}.cr-filter-panel{padding:17px 20px}
+@media(max-width:900px){.cr-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.cr-pl-grid{grid-template-columns:1fr}}@media(max-width:620px){.cr-panel{padding:14px}.cr-toolbar{align-items:stretch;flex-direction:column}.cr-toolbar .search{max-width:none}.cr-date-filters{align-items:stretch}.cr-date-filters label{width:100%}.cr-date-filters button{flex:1}.cr-export-actions{width:100%}.cr-export-actions button{flex:1;justify-content:center}.cr-stats{gap:8px}.cr-stat{padding:12px}.cr-stat b{font-size:15px}.cr-pl-grid{grid-template-columns:1fr}}
+@media print{@page{size:A4;margin:12mm}body{background:white!important;color:#111!important}.sidebar,.top,.overlay,.menubtn,.cr-export-actions,.cr-filter-panel,.toolbar .month-add,.toast{display:none!important}main{margin:0!important}.body{padding:0!important;max-width:none!important}.cr-page{gap:10px}.cr-stats{grid-template-columns:repeat(4,1fr)}.cr-stat,.panel{box-shadow:none!important;border:1px solid #ddd!important;break-inside:avoid}.cr-stat{padding:8px}.cr-stat b{font-size:12px}.cr-stat small{font-size:8px}.cr-stat svg{display:none}.cr-section-title h3{font-size:12px}.cr-section-title p{font-size:8px}.cr-page table{font-size:8px;white-space:normal}.cr-page th,.cr-page td{padding:5px 4px}.cr-print-foot{display:block!important}.cr-reports>.toolbar{display:block!important}.cr-reports>.toolbar h2{font-size:17px}.cr-reports>.toolbar p{font-size:9px}.report-print{break-inside:avoid}.cr-pl-grid b{font-size:13px}.cr-pl-grid small{font-size:8px}}
+
+
+/* Professional monthly reports */
+.monthly-report-page{gap:18px}
+.monthly-report-actions{display:flex;gap:8px;flex-wrap:wrap}
+.monthly-report-actions button{display:inline-flex;align-items:center;gap:7px}
+.monthly-selector{padding:18px 20px}
+.monthly-selector-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.monthly-selector-head>div{display:grid;gap:5px}
+.monthly-selector-head b{font:800 13px Manrope;color:#25364d}
+.monthly-selector-head small{font-size:10px;color:#8997a8}
+.monthly-selector-head>span{font-size:10px;font-weight:800;color:#1764c8;background:#edf5ff;padding:7px 10px;border-radius:20px;white-space:nowrap}
+.monthly-add-row{display:flex;align-items:flex-end;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+.monthly-add-row label{display:grid;gap:5px;font-size:10px;font-weight:700;color:#63748b}
+.monthly-add-row input{height:37px;min-width:160px;padding:0 10px;border:1px solid #dce5ed;border-radius:8px;background:#fff;color:#25364d}
+.monthly-add-row button{height:37px;display:inline-flex;align-items:center;gap:6px;padding:0 11px;font-size:10px}
+.monthly-kpis .cr-stat{min-height:130px}
+.monthly-kpis .cr-stat>span{font-size:9px;line-height:1.45;color:#8997a8}
+.monthly-kpis .cr-stat b{font-size:21px}
+.monthly-kpis .cr-stat b.good{color:#0a9673}
+.monthly-kpis .cr-stat b.bad{color:#c24b4b}
+.monthly-report-page .cr-panel{padding:19px}
+.monthly-report-page table tfoot th{padding-top:12px;border-top:2px solid #dbe5ef;background:#f6f9fc;color:#25364d;font-weight:800}
+.monthly-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:15px}
+.monthly-detail-head h3{margin:0 0 5px;font:800 15px Manrope;color:#25364d}
+.monthly-detail-head p{margin:0;font-size:10px;color:#8997a8}
+.monthly-detail-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.monthly-detail-tabs button{padding:8px 11px;border:1px solid #dfe7f0;border-radius:8px;background:#fff;color:#617187;font-size:10px;font-weight:700}
+.monthly-detail-tabs button.active{border-color:#a8c9f5;background:#edf5ff;color:#1764c8}
+.monthly-report-note{padding:14px 16px;border:1px solid #dce8f6;border-radius:11px;background:#f5f9ff}
+.monthly-report-note b{font:800 11px Manrope;color:#2b4b72}
+.monthly-report-note p{margin:6px 0 0;font-size:10px;line-height:1.65;color:#6e7f94}
+@media(max-width:720px){
+ .monthly-selector{padding:14px}
+ .monthly-add-row{display:grid;grid-template-columns:1fr 1fr}
+ .monthly-add-row label{grid-column:1/-1}
+ .monthly-add-row input{width:100%}
+ .monthly-add-row button{justify-content:center;padding:0 7px}
+ .monthly-detail-head{display:grid}
+ .monthly-detail-tabs{display:grid;grid-template-columns:1fr}
+ .monthly-detail-tabs button{text-align:left}
+ .monthly-report-page .cr-panel{padding:13px}
+ .monthly-report-actions{width:100%}
+ .monthly-report-actions button{flex:1;justify-content:center}
+}
+@media print{
+ .monthly-selector,.monthly-report-actions,.monthly-detail-tabs{display:none!important}
+ .monthly-report-page{gap:10px}
+ .monthly-report-note{break-inside:avoid}
+ .monthly-report-page .cr-panel{break-inside:avoid}
+}
+
+
+.monthly-expense-panel{display:grid;gap:14px}
+.monthly-expense-form{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end;padding:13px;border:1px solid #e5edf5;border-radius:11px;background:#f9fbfe}
+.monthly-expense-form label{display:grid;gap:5px;min-width:0;font-size:10px;font-weight:700;color:#65768b}
+.monthly-expense-form input,.monthly-expense-form select{width:100%;min-width:0;height:36px;padding:0 9px;border:1px solid #dce5ed;border-radius:8px;background:#fff;color:#26364d;font-size:11px}
+.monthly-expense-form .monthly-expense-notes{grid-column:span 2}
+.monthly-expense-form button{height:36px;white-space:nowrap;font-size:10px}
+.monthly-expense-list{display:grid;gap:9px}
+.monthly-expense-list-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.monthly-expense-list-head b{font:800 11px Manrope;color:#31435a}
+.monthly-expense-list-head strong{font:800 13px Manrope;color:#c24b4b}
+@media(max-width:720px){
+ .monthly-expense-form{grid-template-columns:1fr 1fr;padding:10px}
+ .monthly-expense-form .monthly-expense-notes{grid-column:1/-1}
+ .monthly-expense-form button{grid-column:1/-1}
+ .monthly-expense-list-head{align-items:flex-start;flex-direction:column}
+}
+@media print{.monthly-expense-form{display:none!important}}
+
+
+/* Dedicated print-only monthly statement: split wide data into readable tables */
+.monthly-report-page #monthly-print-report{display:none}
+@media print{
+ .monthly-report-page *{visibility:hidden!important}
+ .monthly-report-page>*:not(#monthly-print-report){display:none!important}
+ .monthly-report-page #monthly-print-report,.monthly-report-page #monthly-print-report *{visibility:visible!important}
+ .monthly-report-page #monthly-print-report{display:block!important;position:absolute!important;left:0!important;top:0!important;width:100%!important;margin:0!important;padding:0!important;background:#fff!important;color:#172033!important;font-family:Arial,sans-serif!important}
+ .monthly-report-page #monthly-print-report .monthly-print-header{text-align:center;border-bottom:2px solid #233a59;padding:0 0 5px;margin-bottom:7px}
+ .monthly-report-page #monthly-print-report .monthly-print-brand{font-size:16px;font-weight:900;letter-spacing:3px;color:#173b67}
+ .monthly-report-page #monthly-print-report .monthly-print-title{font-size:11px;font-weight:800;letter-spacing:1px;margin-top:4px}
+ .monthly-report-page #monthly-print-report .monthly-print-subtitle{font-size:8px;color:#68778a;margin-top:4px}
+ .monthly-report-page #monthly-print-report .monthly-print-month{break-after:page;page-break-after:always}
+ .monthly-report-page #monthly-print-report .monthly-print-month:last-of-type{break-after:auto;page-break-after:auto}
+ .monthly-report-page #monthly-print-report .monthly-print-month-head{display:flex;align-items:end;justify-content:space-between;border-bottom:1px solid #d8e0e9;padding:0 0 4px;margin-bottom:6px}
+ .monthly-report-page #monthly-print-report .monthly-print-month-head h2{margin:0;font-size:12px;font-weight:800;text-transform:capitalize;color:#193b63}
+ .monthly-report-page #monthly-print-report .monthly-print-month-head span{font-size:9px;color:#6e7c8e}
+ .monthly-report-page #monthly-print-report .monthly-print-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;margin:0 0 8px}
+ .monthly-report-page #monthly-print-report .monthly-print-summary>div{border:1px solid #dce4ed;border-radius:3px;padding:4px;min-width:0}
+ .monthly-report-page #monthly-print-report .monthly-print-summary small{display:block;font-size:6.5pt;line-height:1.15;color:#64748b;margin-bottom:2px}
+ .monthly-report-page #monthly-print-report .monthly-print-summary b{display:block;font-size:8pt;line-height:1.15;color:#172b46;overflow-wrap:anywhere}
+ .monthly-report-page #monthly-print-report .monthly-print-table-group{width:100%;max-width:100%}
+ .monthly-report-page #monthly-print-report .monthly-print-table-title{font-size:8pt;font-weight:800;color:#193b63;margin:7px 0 3px;padding-bottom:2px;border-bottom:1px solid #cbd5e1}
+ .monthly-report-page #monthly-print-report .monthly-print-table{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;font-size:7pt}
+ .monthly-report-page #monthly-print-report .monthly-print-table th{background:#edf2f7!important;color:#34465d;font-size:6.5pt;line-height:1.15;font-weight:800;overflow-wrap:anywhere;word-break:break-word}
+ .monthly-report-page #monthly-print-report .monthly-print-table th,.monthly-report-page #monthly-print-report .monthly-print-table td{border:1px solid #dce3eb;padding:3px 2px;text-align:center;white-space:normal;overflow-wrap:anywhere;word-break:break-word;vertical-align:middle;min-width:0}
+ .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(1),.monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(1){width:12%}
+ .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(2),.monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(2){width:14%}
+ .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(3),.monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(3){width:34%;text-align:left}
+ .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(4),.monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(4){width:8%}
+ .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(5),.monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(5){width:15%}
+ .monthly-report-page #monthly-print-report .monthly-print-products th:nth-child(6),.monthly-report-page #monthly-print-report .monthly-print-products td:nth-child(6){width:17%}
+ .monthly-report-page #monthly-print-report .monthly-print-fees th:nth-child(1),.monthly-report-page #monthly-print-report .monthly-print-fees td:nth-child(1){width:12%}
+ .monthly-report-page #monthly-print-report .monthly-print-fees th:nth-child(2),.monthly-report-page #monthly-print-report .monthly-print-fees td:nth-child(2){width:14%}
+ .monthly-report-page #monthly-print-report .monthly-print-fees th:nth-child(3),.monthly-report-page #monthly-print-report .monthly-print-fees td:nth-child(3){width:16%}
+ .monthly-report-page #monthly-print-report .monthly-print-fees th:nth-child(4),.monthly-report-page #monthly-print-report .monthly-print-fees td:nth-child(4){width:14%}
+ .monthly-report-page #monthly-print-report .monthly-print-fees th:nth-child(5),.monthly-report-page #monthly-print-report .monthly-print-fees td:nth-child(5){width:14%}
+ .monthly-report-page #monthly-print-report .monthly-print-fees th:nth-child(6),.monthly-report-page #monthly-print-report .monthly-print-fees td:nth-child(6){width:10%}
+ .monthly-report-page #monthly-print-report .monthly-print-fees th:nth-child(7),.monthly-report-page #monthly-print-report .monthly-print-fees td:nth-child(7){width:20%}
+ .monthly-report-page #monthly-print-report .monthly-print-table tbody tr{break-inside:avoid;page-break-inside:avoid}
+ .monthly-report-page #monthly-print-report .monthly-print-table tbody tr:nth-child(even){background:#f8fafc!important}
+ .monthly-report-page #monthly-print-report .monthly-print-table tfoot th{background:#e5ebf2!important;font-weight:900;border-top:1.5px solid #334155}
+ .monthly-report-page #monthly-print-report .monthly-print-empty{font-size:10px;color:#69778a;text-align:center;padding:22px;border:1px dashed #cbd5e1}
+ .monthly-report-page #monthly-print-report .monthly-print-total{display:flex;justify-content:flex-end;align-items:center;gap:14px;border-top:2px solid #213b5b;margin-top:8px;padding-top:5px;font-size:9pt;font-weight:800}
+ .monthly-report-page #monthly-print-report .monthly-print-total b{font-size:12pt;color:#087a59}
+ .monthly-report-page #monthly-print-report .monthly-print-footer{border-top:1px solid #dce3eb;margin-top:10px;padding-top:5px;font-size:7pt;line-height:1.35;color:#64748b}
+ .monthly-report-page #monthly-print-report .monthly-print-footer span{float:right}
+}
+
+/* Final monthly statement: one compact sales table, fees shown only in summary totals */
+@media print{
+ #monthly-print-report .monthly-print-table-title{font-size:8.5pt;margin:8px 0 4px}
+ #monthly-print-report .monthly-print-products{width:100%;table-layout:fixed;font-size:8pt}
+ #monthly-print-report .monthly-print-products th{font-size:7.2pt;line-height:1.2}
+ #monthly-print-report .monthly-print-products th,#monthly-print-report .monthly-print-products td{padding:5px 3px;overflow-wrap:anywhere;word-break:break-word}
+ #monthly-print-report .monthly-print-products th:nth-child(1),#monthly-print-report .monthly-print-products td:nth-child(1){width:14%}
+ #monthly-print-report .monthly-print-products th:nth-child(2),#monthly-print-report .monthly-print-products td:nth-child(2){width:28%;text-align:left}
+ #monthly-print-report .monthly-print-products th:nth-child(3),#monthly-print-report .monthly-print-products td:nth-child(3){width:7%}
+ #monthly-print-report .monthly-print-products th:nth-child(4),#monthly-print-report .monthly-print-products td:nth-child(4){width:11%}
+ #monthly-print-report .monthly-print-products th:nth-child(5),#monthly-print-report .monthly-print-products td:nth-child(5){width:14%}
+ #monthly-print-report .monthly-print-products th:nth-child(6),#monthly-print-report .monthly-print-products td:nth-child(6){width:12%}
+ #monthly-print-report .monthly-print-products th:nth-child(7),#monthly-print-report .monthly-print-products td:nth-child(7){width:14%}
+}
+
+
+/* Fit the monthly statement inside a standard A4 printer page */
+@media print{
+ @page{size:A4 portrait;margin:8mm}
+ #monthly-print-report{
+  zoom:1!important;
+  position:relative!important;
+  left:auto!important;
+  top:auto!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin:0!important;
+ }
+}
+
+
+/* Compact typography and spacing so the monthly statement fits A4 cleanly */
+@media print{
+ #monthly-print-report{font-size:7pt!important}
+ #monthly-print-report .monthly-print-header{padding-bottom:3px!important;margin-bottom:4px!important}
+ #monthly-print-report .monthly-print-brand{font-size:12pt!important;letter-spacing:2px!important}
+ #monthly-print-report .monthly-print-title{font-size:8pt!important;margin-top:2px!important}
+ #monthly-print-report .monthly-print-subtitle{font-size:6pt!important;margin-top:2px!important}
+ #monthly-print-report .monthly-print-month-head{padding-bottom:2px!important;margin-bottom:4px!important}
+ #monthly-print-report .monthly-print-month-head h2{font-size:9pt!important}
+ #monthly-print-report .monthly-print-month-head span{font-size:6.5pt!important}
+ #monthly-print-report .monthly-print-summary{gap:2px!important;margin-bottom:5px!important}
+ #monthly-print-report .monthly-print-summary>div{padding:2px!important}
+ #monthly-print-report .monthly-print-summary small{font-size:5.2pt!important;line-height:1.05!important;margin-bottom:1px!important}
+ #monthly-print-report .monthly-print-summary b{font-size:6.3pt!important;line-height:1.05!important}
+ #monthly-print-report .monthly-print-table-title{font-size:6.5pt!important;margin:5px 0 2px!important;padding-bottom:1px!important}
+ #monthly-print-report .monthly-print-products{font-size:6.2pt!important}
+ #monthly-print-report .monthly-print-products th{font-size:5.7pt!important;line-height:1.05!important}
+ #monthly-print-report .monthly-print-products th,
+ #monthly-print-report .monthly-print-products td{padding:2px 1.5px!important;line-height:1.08!important}
+ #monthly-print-report .monthly-print-total{gap:8px!important;margin-top:5px!important;padding-top:3px!important;font-size:7pt!important}
+ #monthly-print-report .monthly-print-total b{font-size:9pt!important}
+ #monthly-print-report .monthly-print-footer{margin-top:6px!important;padding-top:3px!important;font-size:5.5pt!important;line-height:1.15!important}
+ #monthly-print-report .monthly-print-empty{font-size:7pt!important;padding:10px!important}
+}
+
+
+/* Narrow the entire monthly statement so its left and right edges fit A4 */
+@media print{
+ #monthly-print-report{
+  width:90%!important;
+  max-width:90%!important;
+  margin:10mm auto 0!important;
+  left:auto!important;
+  right:auto!important;
+  box-sizing:border-box!important;
+ }
+ #monthly-print-report .monthly-print-table-group,
+ #monthly-print-report .monthly-print-table{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+ }
+ #monthly-print-report .monthly-print-products th,
+ #monthly-print-report .monthly-print-products td{
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+ }
+}
+
+/* ZED STORE — compact successful-order sales ledger */
+.sales-ledger-panel{display:grid;gap:18px;padding:20px}
+.sales-ledger-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.sales-ledger-kicker{font-size:9px;font-weight:900;letter-spacing:1.5px;color:#087f70}
+.sales-ledger-heading h3{margin:5px 0 4px;font:800 19px Manrope;color:#172b45}
+.sales-ledger-heading p{margin:0;font-size:11px;color:#8794a5}
+.sales-ledger-period{flex:none;padding:7px 10px;border:1px solid #e2eaf2;border-radius:9px;background:#f8fafc;color:#65758a;font-size:10px;font-weight:700}
+.sales-ledger-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.sales-ledger-metric{display:grid;gap:5px;min-width:0;padding:14px 15px;border:1px solid #e5ecf3;border-radius:11px;background:linear-gradient(145deg,#fff,#f8fbfe)}
+.sales-ledger-metric small{font-size:10px;font-weight:800;color:#738298}
+.sales-ledger-metric>b{font:800 20px Manrope;color:#1c304b;overflow-wrap:anywhere}
+.sales-ledger-metric>span{font-size:9px;line-height:1.45;color:#98a4b3}
+.sales-ledger-metric:nth-child(2){border-color:#cfe8e1;background:linear-gradient(145deg,#fff,#f3fbf8)}
+.sales-ledger-metric:nth-child(2)>b{color:#087f70}
+.sales-ledger-metric:nth-child(3){border-color:#dce8f8;background:linear-gradient(145deg,#fff,#f4f8ff)}
+.sales-ledger-table-wrap{overflow-x:auto}
+.sales-ledger-table{min-width:690px}
+.sales-ledger-table thead th{background:#f4f7fb;color:#687a90;font-size:10px;font-weight:800}
+.sales-ledger-table tbody td{padding-top:11px;padding-bottom:11px;font-size:11px}
+.sales-ledger-table tfoot th{padding:12px 9px;background:#f3f7fb;border-top:2px solid #d9e3ed;color:#20344d;font-size:11px}
+.sales-ledger-order{color:#1764c8;font-size:11px}
+.sales-ledger-product{display:flex;align-items:center;gap:9px;min-width:170px;max-width:290px}
+.sales-ledger-product img,.sales-ledger-product-placeholder{width:39px;height:39px;flex:none;border:1px solid #e5ebf2;border-radius:9px;background:#f7f9fc;object-fit:contain}
+.sales-ledger-product-placeholder{display:grid;place-items:center;color:#9aa8b8}
+.sales-ledger-product>span:last-child{display:grid;gap:3px;min-width:0}
+.sales-ledger-product b{font-size:10px;line-height:1.4;color:#30435b;white-space:normal}
+.sales-ledger-product small{font-size:9px;color:#95a1b0}
+.sales-ledger-bottom{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding-top:14px;border-top:1px solid #e8edf3}
+.sales-ledger-bottom>div{display:grid;gap:4px;min-width:0}
+.sales-ledger-bottom small{font-size:10px;font-weight:800;letter-spacing:.4px;color:#8492a4;text-transform:uppercase}
+.sales-ledger-bottom b{font:800 18px Manrope;color:#1e344f;overflow-wrap:anywhere}
+.sales-ledger-bottom span{font-size:9px;color:#98a4b3;line-height:1.4}
+.sales-ledger-bottom>div:first-child b{color:#36516e}
+.sales-ledger-bottom>div:nth-child(2) b{color:#1764c8}
+.sales-ledger-bottom>div:nth-child(3) b{color:#07836c}
+.sales-ledger-note{margin:0;padding:10px 12px;border-radius:9px;background:#f7f9fc;color:#8290a1;font-size:9px;line-height:1.6}
+.sales-ledger-empty{display:grid;justify-items:center;gap:7px;padding:34px 15px;text-align:center;color:#8796a8}
+.sales-ledger-empty svg{color:#0c9a7a}
+.sales-ledger-empty b{font-size:12px;color:#3b4d64}
+.sales-ledger-empty span{font-size:10px}
+@media(max-width:720px){
+ .sales-ledger-panel{gap:13px;padding:13px}
+ .sales-ledger-heading{display:grid}
+ .sales-ledger-heading h3{font-size:16px}
+ .sales-ledger-period{width:max-content;max-width:100%;white-space:normal}
+ .sales-ledger-summary{grid-template-columns:1fr}
+ .sales-ledger-metric{padding:12px}
+ .sales-ledger-metric>b{font-size:19px}
+ .sales-ledger-bottom{gap:8px}
+ .sales-ledger-bottom b{font-size:14px}
+ .sales-ledger-bottom span{font-size:8px}
+}
+
+/* New-order volume analytics */
+.order-dynamics-panel{display:grid;gap:18px}
+.order-dynamics-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.order-dynamics-kpis>div{display:grid;gap:6px;padding:14px;border:1px solid #e5edf5;border-radius:11px;background:#f8fbff;min-width:0}
+.order-dynamics-kpis small,.order-weekday-grid small{font-size:10px;color:#8492a3}
+.order-dynamics-kpis b{font:800 18px Manrope;color:#203b5c;overflow-wrap:anywhere}
+.order-dynamics-kpis span,.order-weekday-grid span{font-size:9px;color:#8997a8}
+.order-dynamics-chart{display:grid;gap:10px}
+.order-dynamics-title{display:grid;gap:4px;margin-bottom:2px}
+.order-dynamics-title b{font:800 12px Manrope;color:#25364d}
+.order-dynamics-title small{font-size:9px;color:#8997a8}
+.order-day-row{display:grid;grid-template-columns:88px minmax(0,1fr) 28px;gap:10px;align-items:center}
+.order-day-row>span{font-size:10px;color:#617187}
+.order-day-row> b{text-align:right;font:800 11px Manrope;color:#25364d}
+.order-day-track{height:11px;border-radius:20px;background:#edf2f7;overflow:hidden}
+.order-day-track i{display:block;height:100%;min-width:3px;border-radius:20px;background:linear-gradient(90deg,#2878df,#55a7f5)}
+.order-weekday-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;padding-top:14px;border-top:1px solid #edf1f5}
+.order-weekday-grid>div{display:grid;gap:5px;padding:10px 7px;border-radius:9px;background:#f5f8fc;text-align:center;min-width:0}
+.order-weekday-grid small{font-size:9px;overflow-wrap:anywhere}
+.order-weekday-grid b{font:800 16px Manrope;color:#1e4775}
+@media(max-width:720px){.order-dynamics-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.order-weekday-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.order-day-row{grid-template-columns:72px minmax(0,1fr) 22px;gap:7px}.order-day-row>span{font-size:9px}}
+@media print{.order-dynamics-panel{break-inside:avoid}}
+
+
+/* Center the narrowed full report precisely within the printable A4 area */
+@media print{
+ @page{size:A4 portrait;margin:12mm}
+ html body #monthly-print-report{
+  display:block!important;
+  position:relative!important;
+  inset:auto!important;
+  float:none!important;
+  width:78%!important;
+  min-width:0!important;
+  max-width:78%!important;
+  margin-left:11%!important;
+  margin-right:11%!important;
+  padding:0!important;
+  transform:none!important;
+  zoom:1!important;
+  box-sizing:border-box!important;
+ }
+ html body #monthly-print-report *{box-sizing:border-box!important}
+ html body #monthly-print-report .monthly-print-table,
+ html body #monthly-print-report .monthly-print-products{
+  width:100%!important;
+  max-width:100%!important;
+  table-layout:fixed!important;
+  margin-left:0!important;
+  margin-right:0!important;
+ }
+}
+
+
+/* Final override: center the WHOLE printed report on the A4 page.
+   Match the original print selector's specificity so this overrides its left:0/width:100%. */
+@media print{
+ @page{size:A4 portrait;margin:12mm}
+ .monthly-report-page #monthly-print-report{
+  display:block!important;
+  position:absolute!important;
+  left:2.5%!important;
+  right:2.5%!important;
+  top:10mm!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+  zoom:1!important;
+  box-sizing:border-box!important;
+ }
+ .monthly-report-page #monthly-print-report *{box-sizing:border-box!important}
+ .monthly-report-page #monthly-print-report .monthly-print-table,
+ .monthly-report-page #monthly-print-report .monthly-print-products{
+  width:100%!important;
+  max-width:100%!important;
+  table-layout:fixed!important;
+  margin-left:0!important;
+  margin-right:0!important;
+ }
+}
+
+
+/* Final explicit widths for the six-column printed sales table */
+@media print{
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products{
+  width:100%!important;
+  table-layout:fixed!important;
+  border-collapse:collapse!important;
+ }
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tr > :nth-child(1){width:12%!important}
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tr > :nth-child(2){
+  width:48%!important;
+  min-width:48%!important;
+  max-width:48%!important;
+  text-align:left!important;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
+  word-break:normal!important;
+ }
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tr > :nth-child(3){width:5%!important;min-width:5%!important;max-width:5%!important;white-space:nowrap!important}
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tr > :nth-child(4){width:12%!important}
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tr > :nth-child(5){width:12%!important}
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tr > :nth-child(6){width:11%!important}
+}
+ 
+/* Highest-specificity print font override: beats earlier html body #monthly-print-report rules */
+@media print{
+ html body .monthly-report-page #monthly-print-report,
+ html body .monthly-report-page #monthly-print-report *,
+ html body .monthly-report-page #monthly-print-report *::before,
+ html body .monthly-report-page #monthly-print-report *::after{
+  font-family:Arial, "Noto Sans", Helvetica, sans-serif!important;
+  font-style:normal!important;
+ }
+}
+
+
+/* Dark theme — Hesabatlar, Sənədlər və Müştəri analitikası */
+:root[data-theme="dark"] .cr-page{color:#dce4ed}
+:root[data-theme="dark"] .cr-page .cr-panel,
+:root[data-theme="dark"] .cr-page .panel,
+:root[data-theme="dark"] .cr-page .monthly-selector,
+:root[data-theme="dark"] .cr-page .monthly-expense-panel,
+:root[data-theme="dark"] .cr-page .successful-summary,
+:root[data-theme="dark"] .cr-page .report-print,
+:root[data-theme="dark"] .cr-page .sales-ledger-panel,
+:root[data-theme="dark"] .cr-page .order-dynamics-panel{
+ background:#252b33!important;
+ border:1px solid #303741!important;
+ color:#dce4ed!important;
+ box-shadow:none!important;
+}
+:root[data-theme="dark"] .cr-page .cr-stat,
+:root[data-theme="dark"] .cr-page .cr-pl-grid>div,
+:root[data-theme="dark"] .cr-page .monthly-print-summary>div,
+:root[data-theme="dark"] .cr-page .monthly-selector-head>span,
+:root[data-theme="dark"] .cr-page .monthly-detail-tabs,
+:root[data-theme="dark"] .cr-page .monthly-expense-notes,
+:root[data-theme="dark"] .cr-page .monthly-expense-list,
+:root[data-theme="dark"] .cr-page .sales-ledger-metric,
+:root[data-theme="dark"] .cr-page .order-dynamics-kpis>div,
+:root[data-theme="dark"] .cr-page .order-weekday-grid>div{
+ background:#292f37!important;
+ border:1px solid #343c46!important;
+ color:#dce4ed!important;
+ box-shadow:none!important;
+}
+:root[data-theme="dark"] .cr-page .cr-stat small,
+:root[data-theme="dark"] .cr-page .cr-pl-grid small,
+:root[data-theme="dark"] .cr-page .monthly-selector-head small,
+:root[data-theme="dark"] .cr-page .monthly-selector-head>span,
+:root[data-theme="dark"] .cr-page .monthly-report-note,
+:root[data-theme="dark"] .cr-page .cr-range-note,
+:root[data-theme="dark"] .cr-page .sales-ledger-heading p,
+:root[data-theme="dark"] .cr-page .sales-ledger-metric small,
+:root[data-theme="dark"] .cr-page .sales-ledger-metric>span,
+:root[data-theme="dark"] .cr-page .order-dynamics-kpis small,
+:root[data-theme="dark"] .cr-page .order-dynamics-kpis span,
+:root[data-theme="dark"] .cr-page .order-weekday-grid small,
+:root[data-theme="dark"] .cr-page .order-weekday-grid span,
+:root[data-theme="dark"] .cr-page .cr-toolbar>span{
+ color:#a4afbd!important;
+}
+:root[data-theme="dark"] .cr-page .cr-stat b,
+:root[data-theme="dark"] .cr-page .cr-pl-grid b,
+:root[data-theme="dark"] .cr-page .monthly-print-summary b,
+:root[data-theme="dark"] .cr-page .monthly-selector-head b,
+:root[data-theme="dark"] .cr-page .sales-ledger-metric>b,
+:root[data-theme="dark"] .cr-page .sales-ledger-bottom b,
+:root[data-theme="dark"] .cr-page .order-dynamics-kpis b,
+:root[data-theme="dark"] .cr-page .order-weekday-grid b{
+ color:#e5edf5!important;
+}
+:root[data-theme="dark"] .cr-page .cr-stat svg{color:#55cbb2}
+:root[data-theme="dark"] .cr-page .sales-ledger-kicker,
+:root[data-theme="dark"] .cr-page .sales-ledger-bottom>div:nth-child(3) b{color:#62d4b5!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-metric:nth-child(2){background:#203b39!important;border-color:#315b54!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-metric:nth-child(2)>b{color:#70d9bd!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-metric:nth-child(3){background:#293543!important;border-color:#3b4c60!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-period,
+:root[data-theme="dark"] .cr-page .sales-ledger-note,
+:root[data-theme="dark"] .cr-page .order-day-track,
+:root[data-theme="dark"] .cr-page .order-weekday-grid>div{
+ background:#20262e!important;
+ border-color:#343c46!important;
+ color:#aeb9c7!important;
+}
+:root[data-theme="dark"] .cr-page .order-dynamics-title b,
+:root[data-theme="dark"] .cr-page .order-day-row>span,
+:root[data-theme="dark"] .cr-page .order-day-row>b,
+:root[data-theme="dark"] .cr-page .sales-ledger-product b,
+:root[data-theme="dark"] .cr-page .sales-ledger-empty b{color:#dce4ed!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-product img,
+:root[data-theme="dark"] .cr-page .sales-ledger-product-placeholder{background:#20262e;border-color:#39424e;color:#9eacbc}
+:root[data-theme="dark"] .cr-page .monthly-add-row input,
+:root[data-theme="dark"] .cr-page .cr-date-filters input,
+:root[data-theme="dark"] .cr-page input,
+:root[data-theme="dark"] .cr-page select{
+ background:#20262e!important;border-color:#39424e!important;color:#e0e6ed!important;
+}
+:root[data-theme="dark"] .cr-page .monthly-add-row label,
+:root[data-theme="dark"] .cr-page .cr-date-filters label{color:#b5c0ce!important}
+:root[data-theme="dark"] .cr-page .tablewrap{background:transparent!important;border-color:#303741!important}
+:root[data-theme="dark"] .cr-page table{background:#252b33!important;color:#dce4ed!important}
+:root[data-theme="dark"] .cr-page th{background:#20262e!important;border-color:#343c46!important;color:#aebac8!important}
+:root[data-theme="dark"] .cr-page td{background:transparent!important;border-color:#303741!important;color:#c7d0db!important}
+:root[data-theme="dark"] .cr-page tfoot th{background:#202a33!important;color:#e1e8ef!important}
+:root[data-theme="dark"] .cr-page .cr-footnote,
+:root[data-theme="dark"] .cr-page .cr-print-foot{color:#9caaba!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-bottom{border-color:#343c46!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-empty{color:#a4afbd!important}
+:root[data-theme="dark"] .cr-page .sales-ledger-empty svg{color:#62d4b5}
+:root[data-theme="dark"] .cr-page .report-empty{color:#a4afbd!important}
+@media(max-width:720px){
+ :root[data-theme="dark"] .cr-page .cr-stat,
+ :root[data-theme="dark"] .cr-page .cr-pl-grid>div,
+ :root[data-theme="dark"] .cr-page .sales-ledger-metric{border-radius:11px}
+}
+
+
+/* ZED STORE — premium A4 financial report print design */
+@media print{
+ @page{size:A4 portrait;margin:12mm}
+ html body .monthly-report-page #monthly-print-report{
+  display:block!important;visibility:visible!important;position:static!important;
+  inset:auto!important;float:none!important;zoom:1!important;transform:none!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  margin:0!important;padding:0!important;box-sizing:border-box!important;
+  background:#fff!important;color:#172b45!important;
+  font-family:Arial,"Noto Sans",Helvetica,sans-serif!important;
+  font-size:8pt!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+ }
+ html body .monthly-report-page #monthly-print-report *{visibility:visible!important;box-sizing:border-box!important}
+ html body .monthly-report-page #monthly-print-report .monthly-print-header{
+  display:block!important;text-align:left!important;border:0!important;
+  padding:0 0 8mm!important;margin:0 0 5mm!important;
+ }
+ #monthly-print-report .monthly-print-brand-row{display:flex;align-items:center;gap:10px;position:relative;padding-bottom:7mm}
+ #monthly-print-report .monthly-print-brand-mark{
+  display:grid;place-items:center;width:38px;height:38px;flex:none;
+  border-radius:10px;background:#102d4f!important;color:#fff!important;
+  font-size:23px;font-weight:900;box-shadow:inset 0 -3px 0 #13a58a;
+ }
+ #monthly-print-report .monthly-print-brand{font-size:17pt!important;font-weight:900!important;letter-spacing:2px!important;line-height:1.05;color:#102d4f!important}
+ #monthly-print-report .monthly-print-brand-caption{margin-top:3px;font-size:6pt;font-weight:700;letter-spacing:1.25px;color:#73849a}
+ #monthly-print-report .monthly-print-document-badge{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+ #monthly-print-report .monthly-print-document-badge span{padding:4px 7px;border-radius:3px;background:#e6f4f1!important;color:#087d70!important;font-size:6pt;font-weight:900;letter-spacing:1px}
+ #monthly-print-report .monthly-print-document-badge b{font-size:7pt;letter-spacing:1.2px;color:#8a98a9}
+ #monthly-print-report .monthly-print-title{margin:0!important;padding:5mm 0 2mm!important;border-top:1px solid #e3eaf1;font-size:15pt!important;line-height:1.2;font-weight:900!important;letter-spacing:.3px;color:#102d4f!important}
+ #monthly-print-report .monthly-print-subtitle{display:flex;justify-content:space-between;gap:10px;margin-top:2mm!important;font-size:7pt!important;color:#65758a!important}
+ #monthly-print-report .monthly-print-subtitle b{color:#1d3858}
+ #monthly-print-report .monthly-print-header-rule{height:3px;margin-top:5mm;background:linear-gradient(90deg,#102d4f 0%,#102d4f 68%,#11a58b 68%,#11a58b 100%)!important}
+ #monthly-print-report .monthly-print-month{margin:0!important;padding:0!important}
+ #monthly-print-report .monthly-print-summary{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:3mm!important;margin:0 0 7mm!important}
+ #monthly-print-report .monthly-print-summary>div{display:flex!important;flex-direction:column;justify-content:center;gap:2mm;min-width:0;padding:4mm 3mm!important;border:1px solid #e2eaf1!important;border-top:3px solid #102d4f!important;border-radius:5px;background:#f5f8fc!important;break-inside:avoid}
+ #monthly-print-report .monthly-print-summary .print-kpi-sales{border-top-color:#0b9b83!important;background:#eff8f5!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-profit{border-top-color:#15966e!important;background:#edf8f2!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-quantity{border-top-color:#c18a35!important;background:#fbf7ef!important}
+ #monthly-print-report .monthly-print-summary small{font-size:5.7pt!important;font-weight:900!important;letter-spacing:.45px;color:#708197!important}
+ #monthly-print-report .monthly-print-summary b{font-size:11pt!important;line-height:1.1;color:#173553!important;overflow-wrap:anywhere}
+ #monthly-print-report .monthly-print-summary .print-kpi-sales b{color:#087d70!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-profit b{color:#087d58!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-quantity b{color:#93651c!important}
+ #monthly-print-report .monthly-print-summary b em{font-size:7pt;font-style:normal}
+ #monthly-print-report .monthly-print-summary span{font-size:5.4pt;color:#8290a0}
+ #monthly-print-report .monthly-print-table-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin:0 0 3mm;padding-bottom:2.5mm;border-bottom:1px solid #dce5ee}
+ #monthly-print-report .monthly-print-table-heading>div{display:flex;flex-direction:column;gap:1mm}
+ #monthly-print-report .monthly-print-table-heading b{font-size:9pt;color:#173553}
+ #monthly-print-report .monthly-print-table-heading span{font-size:6pt;color:#7a899a}
+ #monthly-print-report .monthly-print-table-heading>small{font-size:6pt;font-weight:900;letter-spacing:.7px;color:#0a8c78}
+ #monthly-print-report table.monthly-print-products{width:100%!important;max-width:100%!important;margin:0!important;border-collapse:separate!important;border-spacing:0!important;table-layout:fixed!important;font-size:7pt!important}
+ #monthly-print-report table.monthly-print-products thead{display:table-header-group}
+ #monthly-print-report table.monthly-print-products th{padding:3mm 2mm!important;background:#173553!important;color:#fff!important;border:0!important;text-align:right;font-size:6pt!important;font-weight:900!important;letter-spacing:.25px;line-height:1.25}
+ #monthly-print-report table.monthly-print-products th:first-child{border-radius:4px 0 0 0;text-align:left}
+ #monthly-print-report table.monthly-print-products th:nth-child(2){text-align:left}
+ #monthly-print-report table.monthly-print-products th:last-child{border-radius:0 4px 0 0}
+ #monthly-print-report table.monthly-print-products td{padding:2.6mm 2mm!important;border:0!important;border-bottom:1px solid #e7edf3!important;text-align:right;color:#35485e;font-size:7pt!important;line-height:1.3;overflow-wrap:anywhere;vertical-align:middle}
+ #monthly-print-report table.monthly-print-products td:first-child{text-align:left;color:#42617f;font-weight:700}
+ #monthly-print-report table.monthly-print-products td:nth-child(2){text-align:left;font-weight:700;color:#1d334c}
+ #monthly-print-report table.monthly-print-products tbody tr:nth-child(even){background:#f3f7fb!important}
+ #monthly-print-report table.monthly-print-products td.print-profit-cell{color:#087d58!important;font-weight:800}
+ #monthly-print-report table.monthly-print-products tfoot th{padding:3mm 2mm!important;background:#eaf1f7!important;color:#173553!important;border-top:2px solid #173553!important;text-align:right;font-size:6.5pt!important}
+ #monthly-print-report table.monthly-print-products tfoot th:first-child{text-align:left}
+ #monthly-print-report .monthly-print-total{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:7mm;padding:5mm 6mm;border:1px solid #b9ded2;border-left:5px solid #0b9b83;border-radius:5px;background:#edf8f3!important;break-inside:avoid}
+ #monthly-print-report .monthly-print-total>div{display:flex;flex-direction:column;gap:1.5mm}
+ #monthly-print-report .monthly-print-total span{font-size:7pt;font-weight:900;letter-spacing:.7px;color:#17634f}
+ #monthly-print-report .monthly-print-total small{font-size:6pt;color:#6b877d}
+ #monthly-print-report .monthly-print-total b{font-size:17pt;font-weight:900;color:#087d58!important}
+ #monthly-print-report .monthly-print-empty{padding:10mm;text-align:center;border:1px dashed #c9d5e1;border-radius:5px;color:#6d7e91}
+ #monthly-print-report .monthly-print-footer{display:grid!important;grid-template-columns:1fr 2fr auto;gap:5mm;align-items:center;margin-top:9mm!important;padding-top:4mm!important;border-top:1px solid #dce5ed!important;color:#708096!important;font-size:6pt!important;line-height:1.5}
+ #monthly-print-report .monthly-print-footer-brand{display:flex;flex-direction:column;gap:1mm}
+ #monthly-print-report .monthly-print-footer-brand b{font-size:8pt;letter-spacing:1px;color:#173553}
+ #monthly-print-report .monthly-print-footer-brand span{font-size:5.5pt}
+ #monthly-print-report .monthly-print-footer-note{padding-left:4mm;border-left:2px solid #12a188}
+ #monthly-print-report .monthly-print-footer-page{text-align:right;font-size:5.5pt;letter-spacing:.6px}
+ #monthly-print-report .monthly-print-footer-page b{font-size:7pt;color:#173553}
+ #monthly-print-report tr{break-inside:avoid;page-break-inside:avoid}
+}
+
+
+/* ZED STORE — refined premium palette on a pure white A4 sheet */
+@media print{
+ html body .monthly-report-page #monthly-print-report{
+  background:#ffffff!important;
+  color:#172b45!important;
+ }
+ #monthly-print-report .monthly-print-header{background:#fff!important}
+ #monthly-print-report .monthly-print-brand-mark{
+  background:#123452!important;
+  color:#fff!important;
+  box-shadow:inset 0 -3px 0 #159b83!important;
+ }
+ #monthly-print-report .monthly-print-brand{color:#123452!important}
+ #monthly-print-report .monthly-print-brand-caption{color:#718096!important}
+ #monthly-print-report .monthly-print-document-badge span{
+  background:#e8f5f1!important;color:#087c68!important;
+  border:1px solid #cce8df!important;
+ }
+ #monthly-print-report .monthly-print-title{color:#123452!important;border-color:#dce5ec!important}
+ #monthly-print-report .monthly-print-subtitle,
+ #monthly-print-report .monthly-print-subtitle b{color:#62748a!important}
+ #monthly-print-report .monthly-print-header-rule{
+  background:linear-gradient(90deg,#123452 0%,#123452 72%,#159b83 72%,#159b83 100%)!important;
+ }
+ #monthly-print-report .monthly-print-summary>div{
+  background:#fff!important;border:1px solid #dfe7ed!important;
+  border-top:3px solid #45627e!important;border-radius:5px!important;
+ }
+ #monthly-print-report .monthly-print-summary .print-kpi-sales{
+  background:#fff!important;border-top-color:#159b83!important;
+ }
+ #monthly-print-report .monthly-print-summary .print-kpi-profit{
+  background:#fff!important;border-top-color:#21845e!important;
+ }
+ #monthly-print-report .monthly-print-summary .print-kpi-quantity{
+  background:#fff!important;border-top-color:#bd8a3e!important;
+ }
+ #monthly-print-report .monthly-print-summary small{color:#718096!important}
+ #monthly-print-report .monthly-print-summary b{color:#173553!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-sales b{color:#087c70!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-profit b{color:#16734f!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-quantity b{color:#94651f!important}
+ #monthly-print-report .monthly-print-table-heading{border-color:#dce5ec!important}
+ #monthly-print-report .monthly-print-table-heading b{color:#173553!important}
+ #monthly-print-report .monthly-print-table-heading>small{color:#0b8b78!important}
+ #monthly-print-report table.monthly-print-products th{
+  background:#173b59!important;color:#fff!important;
+ }
+ #monthly-print-report table.monthly-print-products td{
+  background:#fff!important;color:#35485e!important;
+  border-bottom:1px solid #e5ebf0!important;
+ }
+ #monthly-print-report table.monthly-print-products tbody tr:nth-child(even){
+  background:#f7f9fb!important;
+ }
+ #monthly-print-report table.monthly-print-products td:nth-child(2){color:#1d334c!important}
+ #monthly-print-report table.monthly-print-products td.print-profit-cell{color:#087c59!important}
+ #monthly-print-report table.monthly-print-products tfoot th{
+  background:#eef2f5!important;color:#173553!important;
+  border-top:2px solid #45627e!important;
+ }
+ #monthly-print-report .monthly-print-total{
+  background:#fff!important;border:1px solid #b9ded2!important;
+  border-left:5px solid #159b83!important;
+ }
+ #monthly-print-report .monthly-print-total span{color:#17634f!important}
+ #monthly-print-report .monthly-print-total b{color:#087c59!important}
+ #monthly-print-report .monthly-print-footer{
+  background:#fff!important;border-color:#dce5ec!important;color:#718096!important;
+ }
+ #monthly-print-report .monthly-print-footer-brand b,
+ #monthly-print-report .monthly-print-footer-page b{color:#173553!important}
+ #monthly-print-report .monthly-print-footer-note{border-color:#159b83!important}
+}
+
+
+/* Minimal report-only print sheet: retain original A4 dimensions, remove branding */
+@media print{
+ @page{size:A4 portrait;margin:12mm}
+ html body .monthly-report-page #monthly-print-report{
+  width:100%!important;max-width:100%!important;margin:0!important;
+  padding:0!important;background:#fff!important;color:#172b45!important;
+ }
+ #monthly-print-report .monthly-print-header{
+  display:block!important;text-align:left!important;
+  padding:0 0 4mm!important;margin:0 0 5mm!important;
+  border:0!important;border-bottom:1.5px solid #173b59!important;
+ }
+ #monthly-print-report .monthly-print-title{
+  margin:0!important;padding:0 0 2mm!important;border:0!important;
+  color:#173b59!important;font-size:15pt!important;font-weight:800!important;
+  letter-spacing:.2px!important;
+ }
+ #monthly-print-report .monthly-print-subtitle{
+  display:flex!important;justify-content:space-between!important;gap:8px!important;
+  margin:0!important;color:#66778a!important;font-size:7pt!important;
+ }
+ #monthly-print-report .monthly-print-subtitle b{color:#344b63!important}
+ #monthly-print-report .monthly-print-summary>div{
+  background:#fff!important;border:1px solid #dce4eb!important;
+  border-top:2px solid #526b83!important;border-radius:3px!important;
+ }
+ #monthly-print-report .monthly-print-summary .print-kpi-sales{border-top-color:#168c79!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-profit{border-top-color:#21845e!important}
+ #monthly-print-report .monthly-print-summary .print-kpi-quantity{border-top-color:#b8873c!important}
+ #monthly-print-report .monthly-print-table-heading{border-color:#dce4eb!important}
+ #monthly-print-report .monthly-print-table-heading b{color:#233d58!important}
+ #monthly-print-report table.monthly-print-products th{background:#29445f!important;color:#fff!important}
+ #monthly-print-report table.monthly-print-products td{background:#fff!important}
+ #monthly-print-report table.monthly-print-products tbody tr:nth-child(even){background:#f7f9fb!important}
+ #monthly-print-report table.monthly-print-products tfoot th{background:#edf1f5!important;color:#29445f!important}
+ #monthly-print-report .monthly-print-total{
+  background:#fff!important;border:1px solid #cbded7!important;
+  border-left:3px solid #168c79!important;border-radius:3px!important;
+ }
+ #monthly-print-report .monthly-print-total b{color:#167653!important}
+ #monthly-print-report .monthly-print-footer{display:none!important}
+}
+
+
+/* Final print fit: reduce report sheet footprint and typography without changing A4 paper */
+@media print{
+ @page{size:A4 portrait;margin:8mm}
+ html body .monthly-report-page #monthly-print-report{
+  width:92%!important;max-width:92%!important;
+  margin:0 auto!important;padding:0!important;
+  font-size:6pt!important;box-sizing:border-box!important;
+ }
+ #monthly-print-report .monthly-print-header{
+  padding-bottom:2.5mm!important;margin-bottom:3mm!important;
+ }
+ #monthly-print-report .monthly-print-title{
+  font-size:11pt!important;line-height:1.15!important;
+  padding-bottom:1.5mm!important;
+ }
+ #monthly-print-report .monthly-print-subtitle{
+  font-size:5.8pt!important;gap:5px!important;
+ }
+ #monthly-print-report .monthly-print-summary{
+  gap:2mm!important;margin-bottom:3mm!important;
+ }
+ #monthly-print-report .monthly-print-summary>div{
+  padding:2mm 1.5mm!important;gap:1mm!important;
+ }
+ #monthly-print-report .monthly-print-summary small{font-size:5pt!important}
+ #monthly-print-report .monthly-print-summary b{font-size:8pt!important;line-height:1.05!important}
+ #monthly-print-report .monthly-print-summary b em{font-size:5.5pt!important}
+ #monthly-print-report .monthly-print-summary span{font-size:4.8pt!important}
+ #monthly-print-report .monthly-print-table-heading{
+  margin-bottom:1.5mm!important;padding-bottom:1.5mm!important;
+ }
+ #monthly-print-report .monthly-print-table-heading b{font-size:7.5pt!important}
+ #monthly-print-report .monthly-print-table-heading span,
+ #monthly-print-report .monthly-print-table-heading>small{font-size:5pt!important}
+ #monthly-print-report table.monthly-print-products{font-size:5.7pt!important}
+ #monthly-print-report table.monthly-print-products th{
+  padding:1.6mm 1mm!important;font-size:5pt!important;line-height:1.1!important;
+ }
+ #monthly-print-report table.monthly-print-products td{
+  padding:1.4mm 1mm!important;font-size:5.4pt!important;line-height:1.12!important;
+ }
+ #monthly-print-report table.monthly-print-products tfoot th{
+  padding:1.6mm 1mm!important;font-size:5.2pt!important;
+ }
+ #monthly-print-report .monthly-print-total{
+  margin-top:3mm!important;padding:2.5mm 3mm!important;gap:6px!important;
+ }
+ #monthly-print-report .monthly-print-total span{font-size:5.8pt!important}
+ #monthly-print-report .monthly-print-total small{font-size:5pt!important}
+ #monthly-print-report .monthly-print-total b{font-size:11pt!important}
+}
+
+
+/* Final print readability: Azerbaijani glyph-safe font and clear order number column */
+@media print{
+ html body .monthly-report-page #monthly-print-report,
+ html body .monthly-report-page #monthly-print-report *{
+  font-family:"Noto Sans","DejaVu Sans",Arial,sans-serif!important;
+  font-synthesis:none!important;
+ }
+ #monthly-print-report .monthly-print-title{
+  color:#102f4d!important;font-weight:800!important;
+ }
+ #monthly-print-report .monthly-print-subtitle,
+ #monthly-print-report .monthly-print-subtitle b{
+  color:#344b63!important;
+ }
+ #monthly-print-report .monthly-print-summary small{color:#40556d!important}
+ #monthly-print-report .monthly-print-summary b{color:#102f4d!important}
+ #monthly-print-report .monthly-print-table-heading b{color:#102f4d!important}
+ #monthly-print-report .monthly-print-table-heading span{color:#52657a!important}
+ #monthly-print-report table.monthly-print-products{
+  border:1px solid #9aabba!important;
+  border-collapse:collapse!important;
+  font-size:6pt!important;
+ }
+ #monthly-print-report table.monthly-print-products th{
+  background:#244d70!important;color:#fff!important;
+  border:1px solid #8ca2b7!important;
+  padding:1.8mm 1.2mm!important;
+  font-size:5.5pt!important;font-weight:800!important;
+  line-height:1.15!important;text-align:center!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;
+ }
+ #monthly-print-report table.monthly-print-products th:first-child{
+  width:17%!important;text-align:center!important;
+  background:#173b5b!important;color:#fff!important;
+ }
+ #monthly-print-report table.monthly-print-products td{
+  color:#20364d!important;border:1px solid #c4d0db!important;
+  padding:1.6mm 1.2mm!important;font-size:5.8pt!important;
+  line-height:1.18!important;vertical-align:middle!important;
+ }
+ #monthly-print-report table.monthly-print-products td:first-child{
+  width:17%!important;text-align:center!important;
+  background:#e7eff7!important;color:#123b60!important;
+  font-weight:900!important;white-space:normal!important;
+  overflow-wrap:anywhere!important;word-break:break-word!important;
+  border-right:1.5px solid #8ca2b7!important;
+ }
+ #monthly-print-report table.monthly-print-products td:nth-child(2){
+  text-align:left!important;color:#20364d!important;font-weight:700!important;
+ }
+ #monthly-print-report table.monthly-print-products tbody tr:nth-child(even) td{
+  background:#f2f6fa!important;
+ }
+ #monthly-print-report table.monthly-print-products tbody tr:nth-child(even) td:first-child{
+  background:#dce8f3!important;color:#123b60!important;
+ }
+ #monthly-print-report table.monthly-print-products td.print-profit-cell{
+  color:#08764f!important;font-weight:800!important;
+ }
+ #monthly-print-report table.monthly-print-products tfoot th{
+  background:#dce6ef!important;color:#173b5b!important;
+  border:1px solid #9aabba!important;font-weight:900!important;
+ }
+ #monthly-print-report .monthly-print-total{
+  border-color:#8db9a8!important;background:#f1f8f4!important;
+ }
+ #monthly-print-report .monthly-print-total span{color:#145b46!important}
+ #monthly-print-report .monthly-print-total b{color:#086b49!important}
+}
+
+/* Final adjustment: move the complete printed statement down by 1 cm
+   and make every order number strongly legible. */
+@media print{
+ html body .monthly-report-page #monthly-print-report{
+  margin:10mm auto 0!important;
+ }
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products td:first-child{
+  color:#071f38!important;
+  background:#d5e3f0!important;
+  font-size:7pt!important;
+  font-weight:900!important;
+  letter-spacing:.15px!important;
+  text-shadow:0 0 .01px #071f38!important;
+  border-right:2px solid #718ba4!important;
+ }
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tbody tr:nth-child(even) td:first-child{
+  background:#cbdceb!important;
+  color:#071f38!important;
+ }
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tfoot th:first-child{
+  color:#071f38!important;
+  font-weight:900!important;
+ }
+}
+
+/* Print table palette refinement only — preserve all existing dimensions and spacing */
+@media print{
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products thead th{
+  background:#e7edf4!important;
+  color:#102f4d!important;
+  border-color:#aab9c8!important;
+  font-weight:900!important;
+ }
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products thead th:first-child{
+  background:#dce6f0!important;
+  color:#102f4d!important;
+ }
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tbody td:first-child,
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tbody tr:nth-child(even) td:first-child{
+  color:#000000!important;
+  font-weight:900!important;
+  text-shadow:none!important;
+ }
+}
+
+
+/* Force the actual order-number text (nested <b>) to print in black */
+@media print{
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tbody td:first-child,
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tbody td:first-child b{
+  color:#000000!important;
+  -webkit-text-fill-color:#000000!important;
+  font-weight:900!important;
+  text-shadow:none!important;
+ }
+}
+.sales-ledger-table .sales-ledger-order{color:#000000!important;-webkit-text-fill-color:#000000!important}
+
+
+/* Sales report identity: compact brand lockup; preserve A4/table/column dimensions */
+@media print{
+ #monthly-print-report .monthly-print-header{
+  display:flex!important;align-items:center!important;gap:3mm!important;
+ }
+ #monthly-print-report .monthly-print-logo{
+  display:block!important;flex:0 0 25mm!important;
+  width:25mm!important;height:25mm!important;object-fit:contain!important;
+  background:#000!important;border-radius:2mm!important;
+ }
+ #monthly-print-report .monthly-print-brand-copy{
+  display:flex!important;flex:1 1 auto!important;min-width:0!important;
+  flex-direction:column!important;justify-content:center!important;
+ }
+ #monthly-print-report .monthly-print-company{
+  margin:0 0 .5mm!important;color:#123b60!important;
+  font-size:9pt!important;font-weight:900!important;letter-spacing:1.2px!important;
+  line-height:1!important;
+ }
+ #monthly-print-report .monthly-print-title{
+  margin:0!important;padding:0 0 1mm!important;
+  font-size:11pt!important;line-height:1.1!important;
+ }
+ #monthly-print-report .monthly-print-subtitle{
+  display:flex!important;justify-content:space-between!important;gap:5px!important;
+  font-size:5.8pt!important;
+ }
+}
+
+
+/* Move the complete printed sales document down by exactly 0.5 mm */
+@media print{
+ html body .monthly-report-page #monthly-print-report{
+  position:relative!important;
+  top:0.5mm!important;
+ }
+}
+
+
+/* Keep the logo fixed; shift the company name and all report content below it */
+@media print{
+ html body .monthly-report-page #monthly-print-report{
+  top:0!important;
+ }
+ #monthly-print-report .monthly-print-brand-copy,
+ #monthly-print-report .monthly-print-month{
+  position:relative!important;
+  top:0.5mm!important;
+ }
+}
+
+
+/* Final requested offset: from the company name onward, move content down 1 cm */
+@media print{
+ html body .monthly-report-page #monthly-print-report{top:0!important}
+ #monthly-print-report .monthly-print-brand-copy,
+ #monthly-print-report .monthly-print-month{
+  position:relative!important;
+  top:5mm!important;
+ }
+}
+
+
+/* Requested: make the printed “ÜMUMİ YEKUN” label white */
+@media print{
+ html body .monthly-report-page #monthly-print-report table.monthly-print-products tfoot th[colspan="2"]{
+  background:#173b59!important;
+  color:#ffffff!important;
+  -webkit-text-fill-color:#ffffff!important;
+ }
+}
+
+
+/* Requested KPI card order colors: net sales navy, total cost red. */
+#monthly-print-report .monthly-print-summary .print-kpi-sales{border-top-color:#123452!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-sales b{color:#123452!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-cost{border-top-color:#c62828!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-cost b{color:#c62828!important;}
+
+
+/* KPI colors requested: blue, red, green, gold. */
+#monthly-print-report .monthly-print-summary .print-kpi-sales{border-top-color:#1976d2!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-sales b{color:#1976d2!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-cost{border-top-color:#c62828!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-cost b{color:#c62828!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-profit{border-top-color:#21845e!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-profit b{color:#21845e!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-quantity{border-top-color:#b8873c!important;}
+#monthly-print-report .monthly-print-summary .print-kpi-quantity b{color:#b8873c!important;}
+
+
+/* Ensure every element in the printed A4 statement uses Azerbaijani-compatible Noto Sans. */
+@media print{
+ html body .monthly-report-page #monthly-print-report,
+ html body .monthly-report-page #monthly-print-report *{
+  font-family:'Noto Sans',sans-serif!important;
+  font-synthesis:none!important;
+ }
+}
