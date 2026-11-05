@@ -1,0 +1,22 @@
+name: ZED STORE restore build check
+on:
+  push:
+    branches:
+      - restore/zed-store-ui-mainline-2026-11-06
+    paths:
+      - 'zedstore-management/**'
+      - '.github/workflows/zedstore-restore-build.yml'
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: zedstore-management
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm run build
