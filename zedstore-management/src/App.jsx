@@ -9,8 +9,7 @@ import {NotificationPanel,ActivityPanel} from './AutomationPanels.jsx';
 import {BarcodePanel} from './InventoryTools.jsx';
 import {ReceiptPanel,ProductRankingPanel,MobileAlerts} from './FinanceTools.jsx';
 import {DashboardPanel,PurchasesPanel,SecurityPanel,SupplierManagerPanel} from './OwnerTools.jsx';
-import BirmarketInbox from './BirmarketInbox.jsx';
-import {ReturnsPanel,StockMovementsPanel} from './ReturnsStock.jsx';
+import {StockMovementsPanel} from './ReturnsStock.jsx';
 import {CustomerAnalyticsPanel,BusinessReportsPanel,MonthlyReportsPanel} from './CustomerReports.jsx';
 import OperationsCenter from './OperationsCenter.jsx';
 const sb=createClient(import.meta.env.VITE_SUPABASE_URL,import.meta.env.VITE_SUPABASE_ANON_KEY);
@@ -94,7 +93,7 @@ const pathTabs=Object.fromEntries(Object.entries(tabPaths).map(([id,path])=>[pat
 function tabFromPath(pathname){const path=pathname.length>1&&pathname.endsWith('/')?pathname.slice(0,-1):pathname;return pathTabs[path||'/']||'home';}
 function Login(){const [email,E]=useState(''),[pass,P]=useState(''),[err,Er]=useState('');async function go(e){e.preventDefault();Er('');const r=await sb.auth.signInWithPassword({email,password:pass});if(r.error){Er(r.error.message);return}if(!r.data.session||!r.data.user){Er('Giriş sessiyası yaradılmadı.');return}const access=await sb.from('admin_access').select('user_id').eq('user_id',r.data.user.id).maybeSingle();if(access.error||!access.data){await sb.auth.signOut({scope:'local'});Er('Bu hesabın ZED STORE admin panelinə giriş icazəsi yoxdur.');return}let sessionId=null;try{const part=r.data.session.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');sessionId=JSON.parse(atob(part)).session_id||null}catch{}const log=await sb.from('login_events').insert({owner_id:r.data.user.id,session_id:sessionId,event_type:'sign_in',device_info:(navigator.userAgent||'').slice(0,500)});if(log.error)console.warn('Giriş tarixçəsi yazılmadı:',log.error.message)}return <div className="login"><form onSubmit={go}><img className="brand-logo login-logo" src="/Picsart_26-10-14_20-57-41-838.png" alt="ZED STORE loqosu"/><small>ZED STORE MANAGEMENT</small><h1>Xoş gəlmisən</h1><p>Yalnız səlahiyyətli administrator üçün giriş.</p><label>E-poçt<input type="email" autoComplete="username" required value={email} onChange={e=>E(e.target.value)}/></label><label>Şifrə<input type="password" autoComplete="current-password" required value={pass} onChange={e=>P(e.target.value)}/></label>{err&&<div className="error">{err}</div>}<button className="primary">Daxil ol</button></form></div>}function Modal({title,close,children}){return <div className="shade" onClick={e=>e.target===e.currentTarget&&close()}><section className="modal"><header><b>{title}</b><button onClick={close}><X/></button></header>{children}</section></div>}
 function App(){
- const [user,U]=useState(null),[ready,R]=useState(false),[splashDone,SD]=useState(false),[tab,T]=useState(()=>tabFromPath(window.location.pathname)),[mobile,M]=useState(false),[expandedGroups,EG]=useState({'İCMAL':true,'SATIŞ VƏ SİFARİŞ':true,'ANBAR VƏ TƏCHİZAT':true,'MALİYYƏ VƏ HESABAT':true,'ANALİTİKA':false,'SİSTEM VƏ TƏHLÜKƏSİZLİK':false}),[data,D]=useState({products:[],orders:[],sales:[],cancel:[],settings:null,notifications:[],activity:[],returns:[],stockMovements:[],financeEntries:[],purchases:[],suppliers:[],loginEvents:[],birmarket:[]}),[toast,Q]=useState(''),[busy,B]=useState(false);
+ const [user,U]=useState(null),[ready,R]=useState(false),[splashDone,SD]=useState(false),[tab,T]=useState(()=>tabFromPath(window.location.pathname)),[mobile,M]=useState(false),[expandedGroups,EG]=useState({'İCMAL':true,'SATIŞ VƏ SİFARİŞ':true,'ANBAR VƏ TƏCHİZAT':true,'MALİYYƏ VƏ HESABAT':true,'ANALİTİKA':false,'SİSTEM VƏ TƏHLÜKƏSİZLİK':false}),[data,D]=useState({products:[],orders:[],sales:[],cancel:[],settings:null,notifications:[],activity:[],returns:[],stockMovements:[],financeEntries:[],purchases:[],suppliers:[],loginEvents:[]}),[toast,Q]=useState(''),[busy,B]=useState(false);
  const [theme,setTheme]=useState(()=>localStorage.getItem('zed_store_theme')==='dark'?'dark':'light');
  useEffect(()=>{document.documentElement.dataset.theme=theme;localStorage.setItem('zed_store_theme',theme)},[theme]);
  const [storeEmail,SEmail]=useState(()=>localStorage.getItem('zed_store_contact_email')||''),[storePhone,SPhone]=useState(()=>localStorage.getItem('zed_store_contact_phone')||'');
@@ -146,7 +145,7 @@ function App(){
     loadAllRows('stock_movements','*','created_at')
    ]);
    const results=[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o];
-   const labels=['Məhsullar','Sifarişlər','Satışlar','Ləğvlər','Tənzimləmələr','API bağlantısı','Bildirişlər','Fəaliyyət tarixçəsi','Qaytarmalar','Maliyyə qeydləri','Mal qəbulu','Təchizatçılar','Giriş tarixçəsi','Birmarket SMS','Stok hərəkətləri'];
+   const labels=['Məhsullar','Sifarişlər','Satışlar','Ləğvlər','Tənzimləmələr','API bağlantısı','Bildirişlər','Fəaliyyət tarixçəsi','Qaytarmalar','Maliyyə qeydləri','Mal qəbulu','Təchizatçılar','Giriş tarixçəsi','—','Stok hərəkətləri'];
    const failed=results.map((x,index)=>x.error?labels[index]+': '+x.error.message:null).filter(Boolean);
    if(failed.length)say('Bəzi məlumatlar yenilənmədi; əvvəlki məlumatlar saxlanıldı. '+failed.join(' · '));
    D(prev=>({
@@ -164,7 +163,6 @@ function App(){
     purchases:k.error?prev.purchases:(k.data||[]),
     suppliers:l.error?prev.suppliers:(l.data||[]),
     loginEvents:m.error?prev.loginEvents:(m.data||[]),
-    birmarket:n.error?prev.birmarket:(n.data||[])
    }));
    if(!e.error&&e.data)SS(e.data);
   }catch(error){
