@@ -27,8 +27,15 @@ export default function OperationsCenter({products=[],orders=[],sales=[],onNavig
    incoming.forEach(n=>seenNotificationIds.current.add(n.id));
    if(typeof Notification!=='undefined'&&Notification.permission==='granted'){
     fresh.slice(0,5).forEach(n=>{
-     const notice=new Notification(n.title||'ZED STORE bildirişi',{body:n.message||'Yeni sistem bildirişi var.',icon:'/zed-store-icon.svg',tag:n.id});
-     notice.onclick=()=>{window.focus();notice.close()};
+     const title=n.title||'ZED STORE bildirişi';
+     const options={body:n.message||'Yeni sistem bildirişi var.',icon:'/zed-store-icon.svg',tag:n.id};
+     if('serviceWorker' in navigator){
+      navigator.serviceWorker.ready.then(reg=>reg.showNotification(title,options)).catch(()=>{
+       try{const notice=new Notification(title,options);notice.onclick=()=>{window.focus();notice.close()}}catch(_){}
+      });
+     }else{
+      try{const notice=new Notification(title,options);notice.onclick=()=>{window.focus();notice.close()}}catch(_){}
+     }
     });
    }
   }
