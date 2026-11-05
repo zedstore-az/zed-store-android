@@ -1,0 +1,94 @@
+import React,{useEffect,useMemo,useRef,useState} from 'react';
+import {createClient} from '@supabase/supabase-js';
+import {Search,Boxes,TrendingUp,AlertTriangle,Bell,Users,History,PackageSearch,RefreshCw,ArrowDownRight,ArrowUpRight} from 'lucide-react';
+import './operations.css';
+const db=createClient(import.meta.env.VITE_SUPABASE_URL,import.meta.env.VITE_SUPABASE_ANON_KEY);
+const money=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).format(Number(n||0));
+const date=d=>d?new Date(d).toLocaleDateString('az-AZ'):'—';
+export default function OperationsCenter({products=[],orders=[],sales=[],onNavigate=()=>{}}){
+ const [extra,setExtra]=useState({suppliers:[],movements:[],logs:[],notifications:[],purchases:[],login_events:[]});
+ const [q,Q]=useState(''),[range,R]=useState(30),[movementFrom,MF]=useState(''),[movementTo,MT]=useState(''),[loading,L]=useState(false),[error,E]=useState('');
+ const [browserPermission,BP]=useState(typeof Notification==='undefined'?'unsupported':Notification.permission);
+ const seenNotificationIds=useRef(new Set());
+ const firstNotificationLoad=useRef(true);
+ const [supplierForm,SF]=useState({name:'',phone:'',email:'',notes:''}),[supplierEdit,SEdit]=useState(null),[supplierOpen,SO]=useState(false),[savingSupplier,SSave]=useState(false);
+ async function load(quiet=false){
+  if(!quiet)L(true);E('');
+  const names=['suppliers','stock_movements','activity_logs','notifications','purchases','login_events'];
+  const rs=await Promise.all(names.map(t=>db.from(t).select('*').order('created_at',{ascending:false}).limit(250)));
+  const failed=rs.find(x=>x.error);if(failed)E(failed.error.message);
+  const next=Object.fromEntries(names.map((n,i)=>[n,rs[i].data||[]]));
+  const incoming=next.notifications||[];
+  if(firstNotificationLoad.current){
+   incoming.forEach(n=>seenNotificationIds.current.add(n.id));
+   firstNotificationLoad.current=false;
+  }else{
+   const fresh=incoming.filter(n=>!seenNotificationIds.current.has(n.id)&&!n.read_at);
+   incoming.forEach(n=>seenNotificationIds.current.add(n.id));
+   if(typeof Notification!=='undefined'&&Notification.permission==='granted'){
+    fresh.slice(0,5).forEach(n=>{
+     const title=n.title||'ZED STORE bildirişi';
+     const options={body:n.message||'Yeni sistem bildirişi var.',icon:'/zed-store-icon.svg',tag:n.id};
+     if('serviceWorker' in navigator){
+      navigator.serviceWorker.ready.then(reg=>reg.showNotification(title,options)).catch(()=>{
+       try{const notice=new Notification(title,options);notice.onclick=()=>{window.focus();notice.close()}}catch(_){}
+      });
+     }else{
+      try{const notice=new Notification(title,options);notice.onclick=()=>{window.focus();notice.close()}}catch(_){}
+     }
+    });
+   }
+  }
+  setExtra(next);if(!quiet)L(false);
+ }
+ async function enableBrowserNotifications(){
+  if(typeof Notification==='undefined'){BP('unsupported');return}
+  const permission=await Notification.requestPermission();
+  BP(permission);
+  if(permission==='granted')E('Brauzer bildirişləri aktivdir. Bu bildirişlər idarəetmə səhifəsi açıq olduqda yoxlanılır.');
+  else if(permission==='denied')E('Brauzer bildirişlərinə icazə verilmədi. Telefonun sayt icazələrindən dəyişə bilərsən.');
+ }
+ useEffect(()=>{load();const timer=setInterval(()=>load(true),30000);return()=>clearInterval(timer)},[]);
+ async function saveSupplier(e){e.preventDefault();if(!supplierForm.name.trim())return;SSave(true);const payload={name:supplierForm.name.trim(),phone:supplierForm.phone.trim()||null,email:supplierForm.email.trim()||null,notes:supplierForm.notes.trim()||null};const result=supplierEdit?await db.from('suppliers').update(payload).eq('id',supplierEdit):await db.from('suppliers').insert(payload);SSave(false);if(result.error){E('Təchizatçı saxlanmadı: '+result.error.message);return}SF({name:'',phone:'',email:'',notes:''});SEdit(null);SO(false);await load()}
+ function editSupplier(item){SF({name:item.name||'',phone:item.phone||'',email:item.email||'',notes:item.notes||''});SEdit(item.id);SO(true)}
+ async function markAllRead(){const result=await db.from('notifications').update({read_at:new Date().toISOString()}).is('read_at',null);if(result.error){E('Bildirişləri yeniləmək mümkün olmadı: '+result.error.message);return}await load()}
+ const active=products.filter(p=>p.is_active),low=active.filter(p=>Number(p.stock_qty)<=Number(p.low_stock_threshold||0)),zero=active.filter(p=>Number(p.stock_qty)<=0);
+ const cutoff=Date.now()-range*86400000;
+ const filteredMovements=extra.movements.filter(m=>{const day=(m.occurred_at||m.created_at||'').slice(0,10);return (!movementFrom||day>=movementFrom)&&(!movementTo||day<=movementTo)});
+ const movementLabels={opening:'İlkin qalıq',purchase:'Məhsul qəbulu',sale:'Satış',return:'Geri qaytarılma',adjustment:'Əl ilə düzəliş',cancellation:'Ləğv edilmiş sifariş'};
+ const periodSales=sales.filter(s=>new Date(s.sold_at).getTime()>=cutoff),profit=periodSales.reduce((a,s)=>a+Number(s.net_profit||0),0);
+ const top=[...periodSales.reduce((m,s)=>{const k=s.product_id||s.product_name;const v=m.get(k)||{name:s.product_name||'Məhsul',qty:0,profit:0};v.qty+=Number(s.quantity||0);v.profit+=Number(s.net_profit||0);m.set(k,v);return m},new Map()).values()].sort((a,b)=>b.qty-a.qty).slice(0,8);
+ const searchResults=useMemo(()=>{const term=q.trim().toLocaleLowerCase('az');if(!term)return [];const p=products.filter(x=>(x.name+' '+(x.sku||'')+' '+(x.category||'')).toLocaleLowerCase('az').includes(term)).slice(0,6).map(x=>({type:'Məhsul',title:x.name,meta:'SKU: '+(x.sku||'—')+' · Stok: '+x.stock_qty,go:()=>onNavigate('stock')}));const o=orders.filter(x=>(x.customer_name+' '+x.id+' '+(x.order_number||'')).toLocaleLowerCase('az').includes(term)).slice(0,6).map(x=>({type:'Sifariş',title:x.order_number||('#'+String(x.id).slice(0,8)),meta:(x.customer_name||'—')+' · '+(x.delivery_status||''),go:()=>onNavigate('orders')}));return [...p,...o].slice(0,10)},[q,products,orders,onNavigate]);
+ const daily=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));const key=d.toDateString();return {label:d.toLocaleDateString('az-AZ',{day:'2-digit',month:'2-digit'}),count:orders.filter(o=>new Date(o.ordered_at).toDateString()===key).length}});
+ const maxDaily=Math.max(1,...daily.map(x=>x.count));
+ const unpaidPurchases=extra.purchases.reduce((a,p)=>a+Math.max(0,Number(p.total_amount||0)-Number(p.paid_amount||0)),0);
+ const productProfit=[...periodSales.reduce((m,x)=>{const k=x.product_id||x.product_name;const p=m.get(k)||{name:x.product_name||'Məhsul',qty:0,cost:0,profit:0};p.qty+=Number(x.quantity||0);p.cost+=Number(x.unit_cost||0)*Number(x.quantity||0);p.profit+=Number(x.net_profit||0);m.set(k,p);return m},new Map()).values()];
+ const lossProducts=productProfit.filter(p=>p.profit<0).sort((a,b)=>a.profit-b.profit).slice(0,6);
+ const profitableProducts=productProfit.filter(p=>p.profit>0).sort((a,b)=>b.profit-a.profit).slice(0,6);
+ const dormantProducts=active.filter(p=>Number(p.stock_qty)>0&&!periodSales.some(x=>x.product_id===p.id)).slice(0,8);
+ const forecast=active.map(p=>{const sold=periodSales.filter(s=>s.product_id===p.id).reduce((a,s)=>a+Number(s.quantity||0),0);return {...p,velocity:sold/range,days:sold?Math.floor(Number(p.stock_qty)/(sold/range)):null}}).filter(p=>p.velocity>0).sort((a,b)=>(a.days??9999)-(b.days??9999)).slice(0,8);
+ return <div className="ops">
+  <div className="ops-head"><div><span>ƏMƏLİYYAT MƏRKƏZİ</span><h2>Smart idarəetmə</h2><p>Anbar, satış performansı, bildirişlər və fəaliyyət tarixçəsi bir yerdə.</p></div><button className="ops-refresh" onClick={load}><RefreshCw size={15}/> Yenilə</button></div>
+  <div className="ops-search"><Search/><input value={q} onChange={e=>Q(e.target.value)} placeholder="Məhsul, SKU, sifariş nömrəsi və ya müştəri axtar..."/>{q&&<button onClick={()=>Q('')}>×</button>}</div>
+  {q&&<div className="ops-search-results">{searchResults.map((r,i)=><button key={i} onClick={r.go}><b>{r.title}</b><small>{r.type} · {r.meta}</small></button>)}{!searchResults.length&&<p>Nəticə tapılmadı.</p>}</div>}
+  {error&&<div className="ops-error">Əlavə məlumatların bir hissəsi yüklənmədi: {error}</div>}
+  <div className="ops-kpis"><article><Boxes/><small>Aktiv stok</small><b>{active.length}</b><em>{zero.length} stokda yoxdur</em></article><article className="warning"><AlertTriangle/><small>Az qalan məhsul</small><b>{low.length}</b><em>Həddə çatan və ya aşağı</em></article><article><TrendingUp/><small>{range} gündə mənfəət</small><b>{money(profit)}</b><em>{periodSales.length} satış qeydi</em></article><article><Bell/><small>Oxunmamış bildiriş</small><b>{extra.notifications.filter(n=>!n.read_at).length}</b><em>Bildiriş mərkəzi</em></article><article><ArrowDownRight/><small>Alışlar üzrə borc</small><b>{money(unpaidPurchases)}</b><em>{extra.purchases.length} alış qeydi</em></article></div>
+  <div className="ops-grid">
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Stok xəbərdarlıqları</h3><p>Minimum stok həddinə görə</p></div><span>{low.length}</span></div>{low.length?low.slice(0,8).map(p=><div className="ops-row" key={p.id}><div className="ops-product">{p.image_url?<img src={p.image_url}/>:<PackageSearch/>}<div><b>{p.name}</b><small>{p.sku||p.category||'—'}</small></div></div><strong className={Number(p.stock_qty)<=0?'danger':'amber'}>{p.stock_qty} / {p.low_stock_threshold}</strong></div>):<p className="ops-empty">Hazırda aşağı stoklu məhsul yoxdur.</p>}</section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Sifariş dinamikası</h3><p>Son 7 gündə daxil olan sifarişlər</p></div></div><div className="ops-bars">{daily.map(d=><div className="ops-bar-col" key={d.label}><b>{d.count}</b><div><i style={{height:(d.count/maxDaily*100)+'%'}}/></div><small>{d.label}</small></div>)}</div></section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Ən çox satılan məhsullar</h3><p>Seçilmiş dövr üzrə miqdara görə</p></div><select value={range} onChange={e=>R(Number(e.target.value))}><option value="7">7 gün</option><option value="30">30 gün</option><option value="90">90 gün</option></select></div>{top.length?top.map((p,i)=><div className="ops-rank" key={p.name+i}><span>{i+1}</span><b>{p.name}</b><strong>{p.qty} ədəd</strong><small>{money(p.profit)}</small></div>):<p className="ops-empty">Bu dövr üçün satış məlumatı yoxdur.</p>}</section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Stok tükənmə proqnozu</h3><p>Son {range} günün satış sürətinə əsaslanan təxmini hesab</p></div></div>{forecast.length?forecast.map(p=><div className="ops-row" key={p.id}><div className="ops-product"><div className="ops-mini-icon"><TrendingUp/></div><div><b>{p.name}</b><small>{p.stock_qty} ədəd qalıb · gündə {p.velocity.toFixed(2)}</small></div></div><strong className={p.days<=7?'danger':'amber'}>{p.days===0?'Bu gün':p.days+' gün'}</strong></div>):<p className="ops-empty">Proqnoz üçün kifayət qədər satış məlumatı yoxdur.</p>}</section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Təchizatçılar</h3><p>Əlaqə məlumatları və idarəetmə</p></div><button className="ops-add" onClick={()=>{SF({name:"",phone:"",email:"",notes:""});SEdit(null);SO(!supplierOpen)}}>+ Əlavə et</button></div>{supplierOpen&&<form className="ops-supplier-form" onSubmit={saveSupplier}><input required placeholder="Təchizatçı adı" value={supplierForm.name} onChange={e=>SF({...supplierForm,name:e.target.value})}/><input placeholder="Telefon" value={supplierForm.phone} onChange={e=>SF({...supplierForm,phone:e.target.value})}/><input type="email" placeholder="E-poçt" value={supplierForm.email} onChange={e=>SF({...supplierForm,email:e.target.value})}/><textarea placeholder="Qeyd" value={supplierForm.notes} onChange={e=>SF({...supplierForm,notes:e.target.value})}/><div><button className="ops-add" disabled={savingSupplier}>{savingSupplier?"Saxlanır...":supplierEdit?"Yadda saxla":"Təchizatçını yarat"}</button><button type="button" className="ops-cancel" onClick={()=>SO(false)}>Ləğv et</button></div></form>}{extra.suppliers.length?extra.suppliers.map(s=><div className="ops-row" key={s.id}><div><b>{s.name}</b><small>{s.phone||s.email||"Əlaqə məlumatı yoxdur"}</small></div><button className="ops-edit" onClick={()=>editSupplier(s)}>Dəyiş</button></div>):<p className="ops-empty">Təchizatçı qeydi yoxdur.</p>}</section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Zərər riski olan məhsullar</h3><p>Seçilmiş dövrdə mənfi mənfəətlə satılanlar</p></div><AlertTriangle/></div>{lossProducts.length?lossProducts.map(p=><div className="ops-row" key={p.name}><div><b>{p.name}</b><small>{p.qty} ədəd · maya {money(p.cost)}</small></div><strong className="danger">{money(p.profit)}</strong></div>):<p className="ops-empty">Bu dövrdə mənfi mənfəətli satış qeydi görünmür.</p>}</section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Ən çox mənfəət gətirənlər</h3><p>Seçilmiş dövrdə xalis mənfəətə görə</p></div><TrendingUp/></div>{profitableProducts.length?profitableProducts.map(p=><div className="ops-row" key={p.name}><div><b>{p.name}</b><small>{p.qty} ədəd satılıb</small></div><strong className="positive">{money(p.profit)}</strong></div>):<p className="ops-empty">Bu dövrdə mənfəətli satış məlumatı yoxdur.</p>}</section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Satışı olmayan aktiv məhsullar</h3><p>Son {range} gündə satılmayıb, stokda qalır</p></div><PackageSearch/></div>{dormantProducts.length?dormantProducts.map(p=><div className="ops-row" key={p.id}><div className="ops-product">{p.image_url?<img src={p.image_url} alt=""/>:<PackageSearch/>}<div><b>{p.name}</b><small>{p.sku||"SKU yoxdur"}</small></div></div><strong>{p.stock_qty} ədəd</strong></div>):<p className="ops-empty">Bu dövrdə satışı olmayan stoklu məhsul tapılmadı.</p>}</section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Son alışlar</h3><p>Məhsul, təchizatçı və ödəniş vəziyyəti</p></div><Boxes/></div>{extra.purchases.length?extra.purchases.slice(0,8).map(p=>{const product=products.find(x=>x.id===p.product_id);const supplier=extra.suppliers.find(x=>x.id===p.supplier_id);const debt=Math.max(0,Number(p.total_amount||0)-Number(p.paid_amount||0));return <div className="ops-row" key={p.id}><div><b>{product?.name||"Məhsul"}</b><small>{supplier?.name||"Təchizatçı göstərilməyib"} · {date(p.purchased_at)} · {p.quantity} ədəd</small></div><div className="ops-purchase-amount"><strong>{money(p.total_amount)}</strong><small className={debt>0?"danger":"positive"}>{debt>0?"Borc: "+money(debt):"Ödənilib"}</small></div></div>}):<p className="ops-empty">Alış qeydi yoxdur.</p>}</section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Stok hərəkətləri</h3><p>Məhsul şəkli, giriş-çıxış miqdarı və tarixçə</p></div><ArrowUpRight/></div><div className="ops-movement-filters"><label>Başlanğıc tarix<input type="date" value={movementFrom} onChange={e=>MF(e.target.value)}/></label><label>Son tarix<input type="date" value={movementTo} onChange={e=>MT(e.target.value)}/></label><button type="button" onClick={()=>{MF('');MT('')}}>Sıfırla</button></div>{filteredMovements.slice(0,30).map(m=>{const product=products.find(p=>p.id===m.product_id);const stamp=m.occurred_at||m.created_at;return <div className="ops-row" key={m.id}><div className="ops-product">{product?.image_url?<img src={product.image_url} alt="" loading="lazy"/>:<div className="ops-mini-icon"><PackageSearch/></div>}<div><b>{product?.name||'Məhsul'}</b><small>{movementLabels[m.movement_type]||m.movement_type} · {m.note||'—'} · {date(stamp)} {stamp?new Date(stamp).toLocaleTimeString('az-AZ',{hour:'2-digit',minute:'2-digit'}):''}</small></div></div><strong className={Number(m.quantity_delta)<0?'danger':'positive'}>{Number(m.quantity_delta)>0?'+':''}{m.quantity_delta}</strong></div>})}{!filteredMovements.length&&<p className="ops-empty">{extra.movements.length?'Seçilmiş tarix aralığında stok hərəkəti yoxdur.':'Stok hərəkəti yoxdur.'}</p>}</section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Bildiriş mərkəzi</h3><p>Ən son sistem bildirişləri · 30 saniyədən bir yenilənir</p></div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><button className="ops-add" onClick={enableBrowserNotifications} disabled={browserPermission==="granted"||browserPermission==="unsupported"}>{browserPermission==="granted"?"Bildirişlər aktivdir":browserPermission==="denied"?"İcazə bağlı":browserPermission==="unsupported"?"Dəstəklənmir":"Brauzer bildirişlərini aktiv et"}</button><button className="ops-add" onClick={markAllRead} disabled={!extra.notifications.some(n=>!n.read_at)}>Hamısını oxu</button></div></div>{extra.notifications.slice(0,7).map(n=><div className="ops-row" key={n.id}><div><b>{n.title||n.message||n.type}</b><small>{n.message||n.type} · {date(n.created_at)}</small></div><span className={n.read_at?'ops-read':'ops-unread'}>{n.read_at?'Oxunub':'Yeni'}</span></div>)}{!extra.notifications.length&&<p className="ops-empty">Bildiriş yoxdur.</p>}</section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Giriş təhlükəsizliyi</h3><p>Son hesab girişləri</p></div><History/></div>{extra.login_events.slice(0,7).map(l=><div className="ops-row" key={l.id}><div><b>{l.event_type==='sign_in'?'Hesaba giriş':'Hesabdan çıxış'}</b><small>{l.device_info||'Cihaz məlumatı yoxdur'} · {date(l.created_at)}</small></div><span className="ops-tag">{new Date(l.created_at).toLocaleTimeString('az-AZ',{hour:'2-digit',minute:'2-digit'})}</span></div>)}{!extra.login_events.length&&<p className="ops-empty">Giriş tarixçəsi mövcud deyil.</p>}</section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Fəaliyyət tarixçəsi</h3><p>Son dəyişikliklər və əməliyyatlar</p></div><History/></div>{extra.logs.slice(0,8).map(l=><div className="ops-row" key={l.id}><div><b>{l.summary||l.action+' · '+l.entity_type}</b><small>{l.actor_email||l.actor||'Admin'} · {date(l.created_at)}</small></div><span className="ops-tag">{l.action}</span></div>)}{!extra.logs.length&&<p className="ops-empty">Fəaliyyət qeydi yoxdur.</p>}</section>
+  </div>
+  {loading&&<div className="ops-loading">Əlavə məlumatlar yenilənir...</div>}
+  <p className="ops-foot"><ArrowDownRight size={13}/> Proqnozlar keçmiş satış sürətinə əsaslanan təxminlərdir, zəmanətli nəticə deyil.</p>
+ </div>
+}
