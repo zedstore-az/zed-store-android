@@ -1,6 +1,6 @@
 import React,{useEffect,useMemo,useState} from 'react';
 import {createClient} from '@supabase/supabase-js';
-import {LayoutDashboard,Boxes,ShoppingCart,BadgeDollarSign,Calculator,Ban,ChartNoAxesCombined,Settings,LogOut,Plus,Search,RefreshCw,ArrowDownToLine,Pencil,Trash2,X,CheckCircle2,Wallet,TrendingUp,AlertTriangle,CalendarDays,Menu,Truck,Wallet} from 'lucide-react';
+import {LayoutDashboard,Boxes,ShoppingCart,BadgeDollarSign,Calculator,Ban,ChartNoAxesCombined,Settings,LogOut,Plus,Search,RefreshCw,ArrowDownToLine,Pencil,Trash2,X,CheckCircle2,Wallet,TrendingUp,AlertTriangle,CalendarDays,Menu,Truck} from 'lucide-react';
 import './styles.css';
 import CalculatorPanel from './CalculatorPanel.jsx';
 import ReportOrders from './ReportOrders.jsx';
