@@ -1,4 +1,4 @@
-import React,{useEffect,useMemo,useState} from 'react';
+import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {createClient} from '@supabase/supabase-js';
 import {Search,Boxes,TrendingUp,AlertTriangle,Bell,Users,History,PackageSearch,RefreshCw,ArrowDownRight,ArrowUpRight} from 'lucide-react';
 import './operations.css';
@@ -8,9 +8,40 @@ const date=d=>d?new Date(d).toLocaleDateString('az-AZ'):'—';
 export default function OperationsCenter({products=[],orders=[],sales=[],onNavigate=()=>{}}){
  const [extra,setExtra]=useState({suppliers:[],movements:[],logs:[],notifications:[],purchases:[],login_events:[]});
  const [q,Q]=useState(''),[range,R]=useState(30),[movementFrom,MF]=useState(''),[movementTo,MT]=useState(''),[loading,L]=useState(false),[error,E]=useState('');
+ const [browserPermission,BP]=useState(typeof Notification==='undefined'?'unsupported':Notification.permission);
+ const seenNotificationIds=useRef(new Set());
+ const firstNotificationLoad=useRef(true);
  const [supplierForm,SF]=useState({name:'',phone:'',email:'',notes:''}),[supplierEdit,SEdit]=useState(null),[supplierOpen,SO]=useState(false),[savingSupplier,SSave]=useState(false);
- async function load(){L(true);E('');const names=['suppliers','stock_movements','activity_logs','notifications','purchases','login_events'];const rs=await Promise.all(names.map(t=>db.from(t).select('*').order('created_at',{ascending:false}).limit(250)));const failed=rs.find(x=>x.error);if(failed)E(failed.error.message);setExtra(Object.fromEntries(names.map((n,i)=>[n,rs[i].data||[]])));L(false)}
- useEffect(()=>{load()},[]);
+ async function load(quiet=false){
+  if(!quiet)L(true);E('');
+  const names=['suppliers','stock_movements','activity_logs','notifications','purchases','login_events'];
+  const rs=await Promise.all(names.map(t=>db.from(t).select('*').order('created_at',{ascending:false}).limit(250)));
+  const failed=rs.find(x=>x.error);if(failed)E(failed.error.message);
+  const next=Object.fromEntries(names.map((n,i)=>[n,rs[i].data||[]]));
+  const incoming=next.notifications||[];
+  if(firstNotificationLoad.current){
+   incoming.forEach(n=>seenNotificationIds.current.add(n.id));
+   firstNotificationLoad.current=false;
+  }else{
+   const fresh=incoming.filter(n=>!seenNotificationIds.current.has(n.id)&&!n.read_at);
+   incoming.forEach(n=>seenNotificationIds.current.add(n.id));
+   if(typeof Notification!=='undefined'&&Notification.permission==='granted'){
+    fresh.slice(0,5).forEach(n=>{
+     const notice=new Notification(n.title||'ZED STORE bildirişi',{body:n.message||'Yeni sistem bildirişi var.',icon:'/zed-store-icon.svg',tag:n.id});
+     notice.onclick=()=>{window.focus();notice.close()};
+    });
+   }
+  }
+  setExtra(next);if(!quiet)L(false);
+ }
+ async function enableBrowserNotifications(){
+  if(typeof Notification==='undefined'){BP('unsupported');return}
+  const permission=await Notification.requestPermission();
+  BP(permission);
+  if(permission==='granted')E('Brauzer bildirişləri aktivdir. Bu bildirişlər idarəetmə səhifəsi açıq olduqda yoxlanılır.');
+  else if(permission==='denied')E('Brauzer bildirişlərinə icazə verilmədi. Telefonun sayt icazələrindən dəyişə bilərsən.');
+ }
+ useEffect(()=>{load();const timer=setInterval(()=>load(true),30000);return()=>clearInterval(timer)},[]);
  async function saveSupplier(e){e.preventDefault();if(!supplierForm.name.trim())return;SSave(true);const payload={name:supplierForm.name.trim(),phone:supplierForm.phone.trim()||null,email:supplierForm.email.trim()||null,notes:supplierForm.notes.trim()||null};const result=supplierEdit?await db.from('suppliers').update(payload).eq('id',supplierEdit):await db.from('suppliers').insert(payload);SSave(false);if(result.error){E('Təchizatçı saxlanmadı: '+result.error.message);return}SF({name:'',phone:'',email:'',notes:''});SEdit(null);SO(false);await load()}
  function editSupplier(item){SF({name:item.name||'',phone:item.phone||'',email:item.email||'',notes:item.notes||''});SEdit(item.id);SO(true)}
  async function markAllRead(){const result=await db.from('notifications').update({read_at:new Date().toISOString()}).is('read_at',null);if(result.error){E('Bildirişləri yeniləmək mümkün olmadı: '+result.error.message);return}await load()}
@@ -46,7 +77,7 @@ export default function OperationsCenter({products=[],orders=[],sales=[],onNavig
    <section className="ops-card"><div className="ops-card-title"><div><h3>Satışı olmayan aktiv məhsullar</h3><p>Son {range} gündə satılmayıb, stokda qalır</p></div><PackageSearch/></div>{dormantProducts.length?dormantProducts.map(p=><div className="ops-row" key={p.id}><div className="ops-product">{p.image_url?<img src={p.image_url} alt=""/>:<PackageSearch/>}<div><b>{p.name}</b><small>{p.sku||"SKU yoxdur"}</small></div></div><strong>{p.stock_qty} ədəd</strong></div>):<p className="ops-empty">Bu dövrdə satışı olmayan stoklu məhsul tapılmadı.</p>}</section>
    <section className="ops-card"><div className="ops-card-title"><div><h3>Son alışlar</h3><p>Məhsul, təchizatçı və ödəniş vəziyyəti</p></div><Boxes/></div>{extra.purchases.length?extra.purchases.slice(0,8).map(p=>{const product=products.find(x=>x.id===p.product_id);const supplier=extra.suppliers.find(x=>x.id===p.supplier_id);const debt=Math.max(0,Number(p.total_amount||0)-Number(p.paid_amount||0));return <div className="ops-row" key={p.id}><div><b>{product?.name||"Məhsul"}</b><small>{supplier?.name||"Təchizatçı göstərilməyib"} · {date(p.purchased_at)} · {p.quantity} ədəd</small></div><div className="ops-purchase-amount"><strong>{money(p.total_amount)}</strong><small className={debt>0?"danger":"positive"}>{debt>0?"Borc: "+money(debt):"Ödənilib"}</small></div></div>}):<p className="ops-empty">Alış qeydi yoxdur.</p>}</section>
    <section className="ops-card"><div className="ops-card-title"><div><h3>Stok hərəkətləri</h3><p>Məhsul şəkli, giriş-çıxış miqdarı və tarixçə</p></div><ArrowUpRight/></div><div className="ops-movement-filters"><label>Başlanğıc tarix<input type="date" value={movementFrom} onChange={e=>MF(e.target.value)}/></label><label>Son tarix<input type="date" value={movementTo} onChange={e=>MT(e.target.value)}/></label><button type="button" onClick={()=>{MF('');MT('')}}>Sıfırla</button></div>{filteredMovements.slice(0,30).map(m=>{const product=products.find(p=>p.id===m.product_id);const stamp=m.occurred_at||m.created_at;return <div className="ops-row" key={m.id}><div className="ops-product">{product?.image_url?<img src={product.image_url} alt="" loading="lazy"/>:<div className="ops-mini-icon"><PackageSearch/></div>}<div><b>{product?.name||'Məhsul'}</b><small>{movementLabels[m.movement_type]||m.movement_type} · {m.note||'—'} · {date(stamp)} {stamp?new Date(stamp).toLocaleTimeString('az-AZ',{hour:'2-digit',minute:'2-digit'}):''}</small></div></div><strong className={Number(m.quantity_delta)<0?'danger':'positive'}>{Number(m.quantity_delta)>0?'+':''}{m.quantity_delta}</strong></div>})}{!filteredMovements.length&&<p className="ops-empty">{extra.movements.length?'Seçilmiş tarix aralığında stok hərəkəti yoxdur.':'Stok hərəkəti yoxdur.'}</p>}</section>
-   <section className="ops-card"><div className="ops-card-title"><div><h3>Bildiriş mərkəzi</h3><p>Ən son sistem bildirişləri</p></div><button className="ops-add" onClick={markAllRead} disabled={!extra.notifications.some(n=>!n.read_at)}>Hamısını oxu</button></div>{extra.notifications.slice(0,7).map(n=><div className="ops-row" key={n.id}><div><b>{n.title||n.message||n.type}</b><small>{n.message||n.type} · {date(n.created_at)}</small></div><span className={n.read_at?'ops-read':'ops-unread'}>{n.read_at?'Oxunub':'Yeni'}</span></div>)}{!extra.notifications.length&&<p className="ops-empty">Bildiriş yoxdur.</p>}</section>
+   <section className="ops-card"><div className="ops-card-title"><div><h3>Bildiriş mərkəzi</h3><p>Ən son sistem bildirişləri · 30 saniyədən bir yenilənir</p></div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><button className="ops-add" onClick={enableBrowserNotifications} disabled={browserPermission==="granted"||browserPermission==="unsupported"}>{browserPermission==="granted"?"Bildirişlər aktivdir":browserPermission==="denied"?"İcazə bağlı":browserPermission==="unsupported"?"Dəstəklənmir":"Brauzer bildirişlərini aktiv et"}</button><button className="ops-add" onClick={markAllRead} disabled={!extra.notifications.some(n=>!n.read_at)}>Hamısını oxu</button></div></div>{extra.notifications.slice(0,7).map(n=><div className="ops-row" key={n.id}><div><b>{n.title||n.message||n.type}</b><small>{n.message||n.type} · {date(n.created_at)}</small></div><span className={n.read_at?'ops-read':'ops-unread'}>{n.read_at?'Oxunub':'Yeni'}</span></div>)}{!extra.notifications.length&&<p className="ops-empty">Bildiriş yoxdur.</p>}</section>
    <section className="ops-card"><div className="ops-card-title"><div><h3>Giriş təhlükəsizliyi</h3><p>Son hesab girişləri</p></div><History/></div>{extra.login_events.slice(0,7).map(l=><div className="ops-row" key={l.id}><div><b>{l.event_type==='sign_in'?'Hesaba giriş':'Hesabdan çıxış'}</b><small>{l.device_info||'Cihaz məlumatı yoxdur'} · {date(l.created_at)}</small></div><span className="ops-tag">{new Date(l.created_at).toLocaleTimeString('az-AZ',{hour:'2-digit',minute:'2-digit'})}</span></div>)}{!extra.login_events.length&&<p className="ops-empty">Giriş tarixçəsi mövcud deyil.</p>}</section>
    <section className="ops-card"><div className="ops-card-title"><div><h3>Fəaliyyət tarixçəsi</h3><p>Son dəyişikliklər və əməliyyatlar</p></div><History/></div>{extra.logs.slice(0,8).map(l=><div className="ops-row" key={l.id}><div><b>{l.summary||l.action+' · '+l.entity_type}</b><small>{l.actor_email||l.actor||'Admin'} · {date(l.created_at)}</small></div><span className="ops-tag">{l.action}</span></div>)}{!extra.logs.length&&<p className="ops-empty">Fəaliyyət qeydi yoxdur.</p>}</section>
   </div>
