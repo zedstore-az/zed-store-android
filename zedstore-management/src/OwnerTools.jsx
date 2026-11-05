@@ -1,5 +1,5 @@
 import React,{useEffect,useMemo,useState} from "react";
-import {ArrowDownToLine,ArrowUpFromLine,Boxes,CalendarDays,CheckCircle2,Clock3,Download,LockKeyhole,Plus,RefreshCw,ShieldCheck,Store,Trash2,Upload,Wallet,X} from "lucide-react";
+import {ArrowDownToLine,ArrowUpFromLine,Boxes,CalendarDays,CheckCircle2,Clock3,Download,LockKeyhole,Plus,RefreshCw,ShieldCheck,Store,Trash2,Upload,X} from "lucide-react";
 import BIRM_CATEGORIES from "./data/birmarketCategories.json";
 import "./OwnerTools.css";
 
@@ -34,7 +34,6 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
  const stockValue=products.reduce((n,x)=>n+Number(x.cost_price||0)*Number(x.stock_qty||0),0);
  const deliveredUnpaid=sales.filter(x=>!x.paid_at&&orders.some(o=>o.id===x.order_id&&o.delivery_status==="delivered"&&o.payment_status!=="paid"));
  const waitingAmount=deliveredUnpaid.reduce((n,x)=>n+Number(x.transferred_amount||0)*Number(x.quantity||0),0);
- const payable=financeEntries.filter(x=>x.entry_type==="payable"&&x.status==="pending").reduce((n,x)=>n+Number(x.amount||0),0);
  const purchaseTotal=purchases.filter(x=>monthKey(x.purchased_at||x.created_at)===currentMonth).reduce((n,x)=>n+Number(x.total_amount||0),0);
  const change=previousTurnover?((monthTurnover-previousTurnover)/previousTurnover)*100:(monthTurnover?100:0);
  const chart=useMemo(()=>{const count=Number(period);return Array.from({length:count},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(count-1-i));const key=dateKey(d);const dayOrders=orders.filter(x=>dateKey(x.ordered_at||x.created_at)===key);return {key,label:String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0"),fullDate:dateLabel(d),count:dayOrders.length}})},[orders,period]);
@@ -44,7 +43,7 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
  const low=products.filter(x=>Number(x.stock_qty||0)<=Number(x.low_stock_threshold||0));
  const activeOrders=orders.filter(x=>!["delivered","cancelled"].includes(x.delivery_status));
  return <div className="owner-dashboard">
-  <div className="owner-welcome"><div><span className="owner-kicker">SAHİBKAR PANELİ</span><h2>ZED STORE — Biznes icmalı</h2><p>Sifariş, ödəniş, mənfəət, anbar və pul axınını bir ekranda izlə.</p></div><button className="owner-refresh" onClick={load}><RefreshCw size={16}/> Yenilə</button></div>
+  <div className="owner-welcome"><div><span className="owner-kicker">SAHİBKAR PANELİ</span><h2>ZED STORE — Biznes icmalı</h2><p>Sifariş, satış dinamikası və anbar vəziyyətini bir ekranda izlə.</p></div><button className="owner-refresh" onClick={load}><RefreshCw size={16}/> Yenilə</button></div>
   <div className="owner-metrics">
    <article className="owner-metric accent"><span>Bu gün satış</span><b>{money(todayTurnover)}</b><small>{todayOrders.length} yeni sifariş · komissiyalar çıxıldıqdan sonra</small></article>
    <article className="owner-metric"><span>Bu ay dövriyyə</span><b>{money(monthTurnover)}</b><small className={change>=0?"positive":"negative"}>{change>=0?"↑":"↓"} {Math.abs(change).toFixed(1)}% · yalnız ödənişi təsdiqlənənlər</small></article>
@@ -59,7 +58,6 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
    <button onClick={()=>navigate("orders")}><Store size={18}/><span><b>{activeOrders.length}</b><small>Prosesdə sifariş</small></span></button>
    <button onClick={()=>navigate("stock")}><Boxes size={18}/><span><b>{low.length}</b><small>Az qalan məhsul</small></span></button>
    <button onClick={()=>navigate("purchases")}><ArrowDownToLine size={18}/><span><b>{money(purchaseTotal)}</b><small>Bu ay alışlar</small></span></button>
-   <button onClick={()=>navigate("finance")}><Wallet size={18}/><span><b>{money(waitingAmount+payable)}</b><small>Gözləyən məbləğ + borc</small></span></button>
   </div>
   <p className="owner-footnote">“Satış dinamikası” sifarişin yaradılma tarixinə əsaslanır, bütün yeni sifarişləri statusundan asılı olmayaraq sayır və məbləğ göstərmir. “Bu ay dövriyyə” yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışların komissiyalar çıxıldıqdan sonra köçən məbləğini göstərir. “Gözləmədə” yalnız təhvil verilmiş, lakin ödənişi təsdiqlənməmiş satışları göstərir.</p>
  </div>
