@@ -2,7 +2,7 @@ name: ZED STORE restore build check
 on:
   push:
     branches:
-      - restore/zed-store-ui-integration-2026-11-06
+      - restore/zed-store-ui-mainline-2026-11-06
     paths:
       - 'zedstore-management/**'
       - '.github/workflows/zedstore-restore-build.yml'
