@@ -8,7 +8,7 @@ import BIRM_CATEGORIES from './data/birmarketCategories.json';
 import OperationsCenter from './OperationsCenter.jsx';
 const sb=createClient(import.meta.env.VITE_SUPABASE_URL,import.meta.env.VITE_SUPABASE_ANON_KEY);
 const fmt=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).format(Number(n||0));
-const normalizeCategory=s=>String(s||'').toLocaleLowerCase('az').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/\\s+/g,' ').trim();
+const normalizeCategory=s=>String(s||'').toLocaleLowerCase('az').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
 const formatDate=d=>{if(!d)return '—';const x=new Date(d);if(Number.isNaN(x.getTime()))return '—';return x.getDate()+'.'+(x.getMonth()+1)+'.'+x.getFullYear()};
 const dt=d=>{if(!d)return '—';const x=new Date(d);if(Number.isNaN(x.getTime()))return '—';return formatDate(x)+', '+String(x.getHours()).padStart(2,'0')+':'+String(x.getMinutes()).padStart(2,'0')};
 const monthKey=d=>{if(!d)return '';const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')};
