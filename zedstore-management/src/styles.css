@@ -166,3 +166,24 @@
 .stat-clickable{cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}.stat-clickable:hover,.stat-clickable:focus-visible{transform:translateY(-2px);border-color:#c8d8e5;box-shadow:0 8px 22px rgba(25,45,65,.08);outline:none}.intro+.stats{grid-template-columns:repeat(2,minmax(0,1fr))}
 
 .purchase-line{border:1px solid #e6ebf0;border-radius:12px;padding:14px;margin:12px 0;background:#fbfcfd}.purchase-line-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;color:#667085;font-size:13px}.purchase-line-foot b{color:#172b4d}.purchase-line .fields{grid-template-columns:repeat(2,minmax(0,1fr))}.purchase-line .tiny{white-space:nowrap}@media(min-width:900px){.purchase-line .fields{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:620px){.purchase-line .fields{grid-template-columns:1fr}.purchase-line-foot{align-items:flex-start;flex-direction:column}}
+
+/* A4 hesabat çapı: cədvəllər səhifə eninə uyğunlaşır və çoxsəhifəli çapda başlıqlar təkrarlanır. */
+@media print{
+  @page{size:A4 portrait;margin:10mm}
+  html,body,#root{width:auto!important;min-width:0!important;overflow:visible!important}
+  .report-print-area{width:100%!important;max-width:100%!important;overflow:visible!important}
+  .report-print-area .stats{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important;margin:0 0 6mm!important}
+  .report-print-area .stats>*{min-width:0!important;padding:7px!important;box-shadow:none!important;border:1px solid #bbb!important}
+  .report-print-area .stats *{font-size:7pt!important}
+  .report-print-area .reportpanel{break-inside:auto!important;page-break-inside:auto!important}
+  .report-print-area .tablewrap{width:100%!important;max-width:100%!important;overflow:visible!important}
+  .report-print-area table{width:100%!important;table-layout:fixed!important;break-inside:auto!important;page-break-inside:auto!important;font-size:7pt!important}
+  .report-print-area thead{display:table-header-group!important}
+  .report-print-area tfoot{display:table-footer-group!important}
+  .report-print-area tr{break-inside:avoid!important;page-break-inside:avoid!important}
+  .report-print-area th,.report-print-area td{padding:4px 3px!important;overflow-wrap:anywhere!important;word-break:normal!important;vertical-align:middle!important}
+  .report-print-area .report-product{min-width:0!important;gap:4px!important}
+  .report-print-area .report-product b{font-size:7pt!important;overflow-wrap:anywhere!important}
+  .report-print-area .report-product img,.report-print-area .report-product .placeholder{width:22px!important;height:22px!important}
+  .report-print-area .empty{break-inside:avoid!important}
+}
