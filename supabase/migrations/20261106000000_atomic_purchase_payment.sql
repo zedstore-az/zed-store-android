@@ -120,7 +120,7 @@ begin
   end if;
 
   v_new_paid := v_purchase.paid_amount + p_amount;
-  v_remaining := pg_catalog.greatest(v_purchase.total_amount - v_new_paid, 0);
+  v_remaining := case when v_purchase.total_amount - v_new_paid < 0 then 0 else v_purchase.total_amount - v_new_paid end;
   v_new_status := case when v_remaining = 0 then 'paid' else 'partial' end;
 
   -- Claim the idempotency key inside the same transaction as all ledger writes.
