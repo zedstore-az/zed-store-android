@@ -104,3 +104,11 @@
  .gallery-main{height:52vh;min-height:300px;max-height:440px;padding:12px}
  .gallery-thumbs button{flex-basis:64px;width:64px;height:64px}
 }
+
+
+/* Catalog product images: fully visible, never cropped */
+.photo{height:270px;flex:0 0 270px;padding:10px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.photo img{display:block;width:100%;height:100%;max-width:100%;max-height:100%;padding:0;object-fit:contain;object-position:center;transform:none}
+.card:hover .photo img{transform:none}
+@media(max-width:1050px){.photo{height:245px;flex-basis:245px}}
+@media(max-width:720px){.photo{height:190px;flex-basis:190px;padding:7px}.photo img{padding:0}}
