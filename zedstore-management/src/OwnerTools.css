@@ -305,3 +305,15 @@
 :root[data-theme="dark"] .owner-shortcuts>button {
   box-shadow:none;
 }
+
+
+/* MQ jurnalında bütün mətnlər qara */
+.owner-mq-journal,
+.owner-mq-journal :is(h1,h2,h3,h4,p,span,small,b,strong,th,td,label,button,input,select,textarea) {
+  color:#111111 !important;
+}
+.owner-mq-journal input::placeholder,
+.owner-mq-journal textarea::placeholder {
+  color:#111111 !important;
+  opacity:1;
+}
