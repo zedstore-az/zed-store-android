@@ -24,3 +24,31 @@
 .detail-price strong{font-size:29px;color:#fff}
 @media(max-width:1050px){.grid{gap:16px}.photo{height:215px}}
 @media(max-width:720px){.grid{gap:12px}.photo{height:166px}.info{padding:12px}.info h3{font-size:13px;min-height:38px}.info p{font-size:11px;min-height:34px}.price-block{margin-top:12px;padding-top:10px}.price-label{font-size:10px}.price{font-size:19px;margin-bottom:10px}.info .order{font-size:10px;min-height:40px;padding:9px 8px}}
+
+/* Comfortable, modern catalog cards */
+.grid{align-items:stretch;gap:22px}
+.card{display:flex;flex-direction:column;min-width:0;min-height:100%;padding:0;text-align:left;color:inherit;overflow:hidden;border-radius:18px;background:#111c2b;border:1px solid #26364b;box-shadow:0 5px 18px #0002;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.card:hover{transform:translateY(-4px);border-color:#347bc8;box-shadow:0 14px 30px #0004}
+.photo{height:230px;flex:0 0 230px;background:#f8fafc}
+.photo img{padding:20px}
+.info{display:flex;flex-direction:column;flex:1;padding:17px}
+.info h3{font-size:15px;line-height:1.45;min-height:44px;margin:11px 0 8px}
+.info p{min-height:36px;max-height:38px;overflow:hidden}
+.price-block{margin-top:auto;padding-top:13px}
+.card-open{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 0;margin:0 0 9px;border:0;border-top:1px solid #29394f;background:transparent;color:#a9c8e9;font:600 12px inherit;cursor:pointer;text-align:left}
+.card-open:hover{color:#fff}
+.info .order{min-height:44px;border-radius:10px;padding:12px 13px;font-size:12px}
+@media(max-width:720px){
+ .grid{gap:13px}
+ .card{border-radius:14px}
+ .photo{height:158px;flex-basis:158px}
+ .photo img{padding:12px}
+ .info{padding:12px}
+ .info h3{font-size:13px;line-height:1.4;min-height:37px;margin:9px 0 6px}
+ .info p{font-size:11px;line-height:1.45;min-height:32px;max-height:32px}
+ .price-block{padding-top:10px}
+ .price{font-size:19px}
+ .card-open{font-size:11px;margin-bottom:8px;padding:9px 0}
+ .info .order{font-size:10px;line-height:1.35;min-height:43px;padding:10px}
+}
+@media(prefers-reduced-motion:reduce){.card,.photo img{transition:none}}
