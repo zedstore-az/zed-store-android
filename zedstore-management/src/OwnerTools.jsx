@@ -95,8 +95,27 @@ export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],sa
     const paths=[];
     for(const image of item.images||[]){
      const file=image.file,path=user.id+"/"+crypto.randomUUID()+"."+file.name.split(".").pop().toLowerCase();
-     const up=await sb.storage.from("zedstore-products").upload(path,file);
-     if(up.error)throw new Error("Şəkil yüklənmədi: "+up.error.message);
+     const storage=sb.storage.from("zedstore-products");
+     let up=null,uploadError=null;
+     for(let attempt=1;attempt<=3;attempt++){
+      try{
+       up=await storage.upload(path,file,{cacheControl:"3600",upsert:true,contentType:file.type});
+       if(!up.error)break;
+       uploadError=up.error;
+       const status=Number(up.error.statusCode||up.error.status||0);
+       if(status&&status<500&&status!==408&&status!==429)throw up.error;
+      }catch(err){
+       uploadError=err;
+       const status=Number(err?.statusCode||err?.status||0);
+       const retryable=!status||status>=500||status===408||status===429||/failed to fetch|network/i.test(String(err?.message||""));
+       if(!retryable||attempt===3){
+        if(/failed to fetch|networkerror|load failed/i.test(String(err?.message||"")))throw new Error("Supabase Storage serverinə qoşulmaq mümkün olmadı. İnternet bağlantısını yoxla və yenidən cəhd et.");
+        throw err;
+       }
+      }
+      if(attempt<3)await new Promise(resolve=>setTimeout(resolve,700*attempt));
+     }
+     if(up?.error)throw uploadError||up.error;
      paths.push(path);uploaded.push(path);
     }
     const urls=paths.map(path=>sb.storage.from("zedstore-products").getPublicUrl(path).data.publicUrl);
