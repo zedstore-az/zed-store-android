@@ -112,3 +112,17 @@
 .card:hover .photo img{transform:none}
 @media(max-width:1050px){.photo{height:245px;flex-basis:245px}}
 @media(max-width:720px){.photo{height:190px;flex-basis:190px;padding:7px}.photo img{padding:0}}
+
+/* Product details: SKU, specifications, stock state and description */
+.detail-stock{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;margin:0 0 14px;border:1px solid #2b4560;border-radius:11px;background:#102238}
+.stock-state{color:#70e0a7;font-size:13px;font-weight:750}
+.stock-state.low{color:#ffd27a}
+.detail-stock>strong{color:#eaf4ff;font-size:13px}
+.detail-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+.detail-facts>div{min-width:0}
+.detail-facts strong{overflow-wrap:anywhere}
+.description-block{width:100%;margin:0 0 18px;padding:16px 17px;border:1px solid #2a3d54;border-radius:12px;background:#101e30}
+.description-block h3{margin:0 0 9px;color:#eaf4ff;font-size:14px}
+.description-block p{margin:0;color:#b5c2d3;font-size:13px;line-height:1.75;white-space:pre-wrap}
+.stock.low{background:#fff4dc;color:#99620b}
+@media(max-width:700px){.detail-stock{padding:12px}.description-block{padding:13px}.detail-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
