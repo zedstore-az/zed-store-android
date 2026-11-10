@@ -1,4 +1,4 @@
-import React,{useEffect,useMemo,useState} from 'react';
+import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {createClient} from '@supabase/supabase-js';
 import BIRM_CATEGORIES from './data/birmarketCategories.json';
 import {LayoutDashboard,Boxes,ShoppingCart,BadgeDollarSign,Calculator,Ban,ChartNoAxesCombined,Settings,LogOut,Plus,Search,RefreshCw,ArrowDownToLine,Pencil,Trash2,X,CheckCircle2,Wallet,TrendingUp,AlertTriangle,CalendarDays,Menu,Bot,Bell,History,ScanBarcode,RotateCcw,FileText,Users,MessageSquareText,Moon,Sun} from 'lucide-react';
@@ -111,7 +111,27 @@ function App(){
  const [c,SC]=useState({cost:'',price:'',category:'',payment:'card',months:3,weight:'',length:'',width:'',height:'',qty:1});
  const [sett,SS]=useState({store_name:'ZED STORE',default_marketplace_commission_pct:8,default_logistics_fee:0,default_bank_fee:0});
  useEffect(()=>{const timer=setTimeout(()=>SD(true),2400);let active=true;async function acceptSession(session){if(!active)return;if(!session?.user){U(null);return}const access=await sb.from('admin_access').select('user_id').eq('user_id',session.user.id).maybeSingle();if(!active)return;if(access.error||!access.data){await sb.auth.signOut({scope:'local'});U(null);return}U(session.user)}sb.auth.getSession().then(x=>{acceptSession(x.data.session);R(true)});const {data:{subscription}}=sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){U(null);return}if(session)setTimeout(()=>acceptSession(session),0)});return()=>{active=false;clearTimeout(timer);subscription.unsubscribe()}},[]);
- useEffect(()=>{const syncPath=()=>T(tabFromPath(window.location.pathname));window.addEventListener('popstate',syncPath);return()=>window.removeEventListener('popstate',syncPath)},[]);
+ const overlayHistory=useRef({modal:'',category:null});
+ const handlingOverlayPop=useRef(false);
+ useEffect(()=>{
+  const syncPath=()=>{
+   if(modal){handlingOverlayPop.current=true;MO('');return}
+   if(selectedStockCategory){handlingOverlayPop.current=true;SSC(null);SE('');F('all');return}
+   T(tabFromPath(window.location.pathname));
+  };
+  window.addEventListener('popstate',syncPath);
+  return()=>window.removeEventListener('popstate',syncPath);
+ },[modal,selectedStockCategory]);
+ useEffect(()=>{
+  const previous=overlayHistory.current;
+  const current={modal,category:selectedStockCategory};
+  if(handlingOverlayPop.current){handlingOverlayPop.current=false;overlayHistory.current=current;return}
+  const opened=(!previous.modal&&!!current.modal)||(!previous.category&&!!current.category);
+  const closed=(!!previous.modal&&!current.modal)|| (!!previous.category&&!current.category);
+  if(opened)window.history.pushState({zedOverlay:true},'');
+  else if(closed&&window.history.state?.zedOverlay)window.history.back();
+  overlayHistory.current=current;
+ },[modal,selectedStockCategory]);
  function navigateTab(id){const path=tabPaths[id]||'/';if(window.location.pathname!==path)window.history.pushState({tab:id},'',path);const group=navGroups.find(item=>item.ids.includes(id));if(group)EG(old=>({...old,[group.label]:true}));T(id);M(false)}
  const say=s=>{Q(s);setTimeout(()=>Q(''),3000)};
  async function loadAllRows(table,selection,orderColumn){
