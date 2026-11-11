@@ -958,3 +958,5 @@
   font-synthesis:none!important;
  }
 }
+
+.cr-stat-action{font:inherit;text-align:left;color:inherit;width:100%;cursor:pointer;transition:border-color .18s,box-shadow .18s,transform .18s}.cr-stat-action:hover,.cr-stat-action:focus-visible{border-color:#9fc4f4;box-shadow:0 5px 18px rgba(22,91,170,.09);outline:none}.cr-stat-action>span{font-size:10px;font-weight:700;color:#1764c8;margin-top:1px}
