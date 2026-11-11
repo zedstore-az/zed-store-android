@@ -1490,3 +1490,68 @@
 .cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td .badge{
   color:#fff!important;
 }
+
+
+/* Customer rating table — refined graphite and sage-green finish */
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap{
+  border:1px solid #cbd2da!important;
+  border-radius:12px!important;
+  overflow:auto;
+  background:#303840!important;
+  box-shadow:0 3px 12px rgba(22,32,43,.08);
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table{
+  border-collapse:separate!important;
+  border-spacing:0!important;
+  background:#303840!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>thead>tr>th{
+  background:#596574!important;
+  color:#fff!important;
+  border:0!important;
+  border-bottom:1px solid #707c89!important;
+  padding:13px 12px!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  letter-spacing:.15px;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td{
+  background:#303840!important;
+  color:#f2f5f7!important;
+  border:0!important;
+  border-bottom:1px solid #46515c!important;
+  padding:13px 12px!important;
+  font-size:11px!important;
+  line-height:1.45!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr:nth-child(even)>td{
+  background:#37414b!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr:hover>td{
+  background:#414d59!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr:last-child>td{
+  border-bottom:0!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td:first-child,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td:first-child b{
+  color:#fff!important;
+  font-weight:800!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td:nth-child(4),
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td:nth-child(4) b{
+  color:#55df91!important;
+  font-weight:850!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td .badge{
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.12);
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td .cr-detail-button{
+  border-color:#8291a0!important;
+  color:#fff!important;
+  background:#465361!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td .cr-detail-button:hover{
+  background:#566575!important;
+}
