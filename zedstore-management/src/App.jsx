@@ -102,6 +102,32 @@ function App(){
  const [apiKeyText,AKT]=useState(''),[apiKeyBusy,AKB]=useState(false);
  const [modal,MO]=useState(''),[editing,ED]=useState(null),[search,SE]=useState(''),[filter,F]=useState('all');
  const [customerSearch,CS]=useState('');
+ const customerSearchResults=useMemo(()=>{
+  const query=String(customerSearch||'').normalize('NFKC').toLocaleLowerCase('az-AZ').replace(/\\s+/g,' ').trim();
+  if(query.length<2)return [];
+  const matches=[];
+  const add=(name,kind,record,date,phone,orderId)=>{
+   const display=String(name||'').trim();
+   if(!display||!display.normalize('NFKC').toLocaleLowerCase('az-AZ').includes(query))return;
+   matches.push({name:display,kind,record,date,phone,orderId});
+  };
+  const ordersById=new Map(data.orders.map(order=>[String(order.id),order]));
+  for(const order of data.orders)add(order.customer_name,'Sifariş',order,order.ordered_at||order.created_at,order.customer_phone,order.order_number);
+  for(const row of data.cancel){
+   const order=ordersById.get(String(row.order_id||''));
+   add(row.customer_name||order?.customer_name,'Ləğv edilib',row,row.cancelled_at||order?.cancelled_at,row.customer_phone||order?.customer_phone,row.order_id||order?.order_number);
+  }
+  for(const sale of data.sales){
+   const order=ordersById.get(String(sale.order_id||''));
+   if(order)add(order.customer_name,'Satış',sale,sale.sold_at||sale.created_at,order.customer_phone,order.order_number);
+  }
+  const unique=new Map();
+  for(const item of matches){
+   const key=[item.name.normalize('NFKC').toLocaleLowerCase('az-AZ').replace(/\\s+/g,' ').trim(),item.kind,String(item.orderId||item.record?.id||'')].join('|');
+   if(!unique.has(key))unique.set(key,item);
+  }
+  return [...unique.values()].sort((x,y)=>new Date(y.date||0)-new Date(x.date||0)).slice(0,12);
+ },[customerSearch,data.orders,data.cancel,data.sales]);
  const [cancelTarget,CT]=useState(null),[cancelReason,CR]=useState(''),[archiveTarget,AT]=useState(null);
  const [cancelDates,CD]=useState([]),[cancelDateDraft,CDD]=useState(new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10));
  const [orderEditTarget,OET]=useState(null),[orderEditPayment,OEP]=useState('card'),[orderEditMonths,OEM]=useState(3),[orderEditNumber,OEN]=useState(''),[selectedRepeatCustomer,SR]=useState('');
@@ -396,32 +422,7 @@ function App(){
  function csv(rows,name){if(!rows.length)return say('Məlumat yoxdur');const s='\ufeff'+[Object.keys(rows[0]).join(';'),...rows.map(x=>Object.values(x).join(';'))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/csv;charset=utf-8'}));a.download=name+'.csv';a.click()}
  if(!ready||!splashDone)return <div className="splash"><img src="/Picsart_26-10-14_20-57-41-838.png" alt="ZED STORE"/><span>MANAGEMENT SYSTEM</span><i/></div>;if(!user)return <Login/>;
  const heading=menu.find(x=>x[0]===tab)?.[1];
- const customerSearchResults=useMemo(()=>{
-  const query=String(customerSearch||'').normalize('NFKC').toLocaleLowerCase('az-AZ').replace(/\\s+/g,' ').trim();
-  if(query.length<2)return [];
-  const matches=[];
-  const add=(name,kind,record,date,phone,orderId)=>{
-   const display=String(name||'').trim();
-   if(!display||!display.normalize('NFKC').toLocaleLowerCase('az-AZ').includes(query))return;
-   matches.push({name:display,kind,record,date,phone,orderId});
-  };
-  const ordersById=new Map(data.orders.map(order=>[String(order.id),order]));
-  for(const order of data.orders)add(order.customer_name,'Sifariş',order,order.ordered_at||order.created_at,order.customer_phone,order.order_number);
-  for(const row of data.cancel){
-   const order=ordersById.get(String(row.order_id||''));
-   add(row.customer_name||order?.customer_name,'Ləğv edilib',row,row.cancelled_at||order?.cancelled_at,row.customer_phone||order?.customer_phone,row.order_id||order?.order_number);
-  }
-  for(const sale of data.sales){
-   const order=ordersById.get(String(sale.order_id||''));
-   if(order)add(order.customer_name,'Satış',sale,sale.sold_at||sale.created_at,order.customer_phone,order.order_number);
-  }
-  const unique=new Map();
-  for(const item of matches){
-   const key=[item.name.normalize('NFKC').toLocaleLowerCase('az-AZ').replace(/\\s+/g,' ').trim(),item.kind,String(item.orderId||item.record?.id||'')].join('|');
-   if(!unique.has(key))unique.set(key,item);
-  }
-  return [...unique.values()].sort((x,y)=>new Date(y.date||0)-new Date(x.date||0)).slice(0,12);
- },[customerSearch,data.orders,data.cancel,data.sales]);
+
  const unreadNotifications=data.notifications.filter(x=>!x.read_at).length;
  async function readNotification(id){const r=await sb.from('notifications').update({read_at:new Date().toISOString()}).eq('id',id);if(r.error)say(r.error.message);else load()}
  async function readAllNotifications(){const r=await sb.from('notifications').update({read_at:new Date().toISOString()}).is('read_at',null);if(r.error)say(r.error.message);else load()}
