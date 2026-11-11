@@ -1726,18 +1726,25 @@
 }
 
 
-/* Final override: remove any colored fill from the customer-name cell and its bold label */
+/* Customer name cell: use exactly the same graphite row fill as every other data cell */
 html body .cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr > td:first-child,
-html body .cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr > td:first-child b,
+html body .cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr > td:first-child b {
+  background:#303840!important;
+  background-color:#303840!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
 html body .cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr:nth-child(even) > td:first-child,
 html body .cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr:nth-child(even) > td:first-child b {
-  background:transparent!important;
-  background-color:transparent!important;
+  background:#37414b!important;
+  background-color:#37414b!important;
   background-image:none!important;
   box-shadow:none!important;
 }
 html body .cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr:hover > td:first-child,
 html body .cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr:hover > td:first-child b {
   background:#414d59!important;
+  background-color:#414d59!important;
   background-image:none!important;
+  box-shadow:none!important;
 }
