@@ -1438,3 +1438,27 @@
 .cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody tr:hover td:not(:first-child){
  background:#f1f7fc!important;
 }
+
+
+/* Customer rating — navy header, charcoal columns and white row text */
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>thead>tr>th{
+  background:#173b63!important;
+  color:#fff!important;
+  border-color:#294f76!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr:nth-child(even)>td,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr:hover>td{
+  background:#343b43!important;
+  color:#fff!important;
+  border-bottom:1px solid #4a535d!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td:first-child,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td:first-child b,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td:nth-child(4) b{
+  color:#fff!important;
+  font-weight:800!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td .badge{
+  color:#fff!important;
+}
