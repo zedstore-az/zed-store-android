@@ -47,7 +47,7 @@ export function CustomerAnalyticsPanel({orders=[],sales=[],returns=[],searchValu
   }
   return [...byKey.values()].map(c=>({...c,orderCount:c.orders.length,orders:c.orders.sort((a,b)=>new Date(b.delivered_at||b.ordered_at)-new Date(a.delivered_at||a.ordered_at))})).sort((a,b)=>b.total-a.total||b.orderCount-a.orderCount);
  },[orders,sales]);
- const filtered=customers.filter(c=>(c.name+' '+c.phone+' '+c.orders.map(o=>o.order_number||o.order_code||o.id||'').join(' ')).toLocaleLowerCase('az').includes(query.toLocaleLowerCase('az'))&&(segment==='all'||(segment==='repeat'?c.orderCount>=2:c.orderCount===1));
+ const filtered=customers.filter(c=>(c.name+' '+c.phone+' '+c.orders.map(o=>o.order_number||o.order_code||o.id||'').join(' ')).toLocaleLowerCase('az').includes(query.toLocaleLowerCase('az'))&&(segment==='all'||(segment==='repeat'?c.orderCount>=2:c.orderCount===1)));
  const repeat=customers.filter(c=>c.orderCount>=2);
  const chosen=customers.find(c=>c.key===selected);
  return <div className="cr-page cr-customer-analytics">
