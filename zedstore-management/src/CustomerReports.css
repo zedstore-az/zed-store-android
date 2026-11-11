@@ -1365,3 +1365,39 @@
  .cr-customer-analytics .cr-customer-filters button{width:100%;justify-content:space-between}
  .cr-customer-analytics .cr-result-count{align-self:flex-start}
 }
+
+
+/* Customer rating — full navy table with white text and green sales totals */
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap{
+ border:1px solid #173b63!important;
+ background:#173b63!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap table{
+ background:#173b63!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody tr,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody tr:nth-child(even){
+ background:#173b63!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody td,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody tr:nth-child(even) td{
+ background:#173b63!important;
+ color:#fff!important;
+ border-bottom:1px solid #355777!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody tr:hover td{
+ background:#21496d!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody td:first-child,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody td:first-child b{
+ color:#fff!important;
+ font-weight:800!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody td:nth-child(4),
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody td:nth-child(4) b{
+ color:#55df91!important;
+ font-weight:850!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody td .badge{
+ color:#fff!important;
+}
