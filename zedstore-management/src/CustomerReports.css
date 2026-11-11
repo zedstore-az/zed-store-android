@@ -960,3 +960,9 @@
 }
 
 .cr-stat-action{font:inherit;text-align:left;color:inherit;width:100%;cursor:pointer;transition:border-color .18s,box-shadow .18s,transform .18s}.cr-stat-action:hover,.cr-stat-action:focus-visible{border-color:#9fc4f4;box-shadow:0 5px 18px rgba(22,91,170,.09);outline:none}.cr-stat-action>span{font-size:10px;font-weight:700;color:#1764c8;margin-top:1px}
+
+/* Compact order and purchased-product details in repeat-customer list */
+.cr-repeat-order-list{display:grid;gap:6px;min-width:190px;max-width:340px}
+.cr-repeat-order{display:grid;gap:2px;padding:6px 8px;border:1px solid #edf1f5;border-radius:7px;background:#f8fafc}
+.cr-repeat-order-number{font-size:10px;color:#234b72;line-height:1.3}
+.cr-repeat-order>span{font-size:9px;line-height:1.45;color:#748397;overflow-wrap:anywhere}
