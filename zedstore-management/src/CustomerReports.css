@@ -1401,3 +1401,40 @@
 .cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody td .badge{
  color:#fff!important;
 }
+
+
+/* Customer rating — restore table body; keep navy column headers */
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap{
+ border:1px solid #dfe8f0!important;
+ background:#fff!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap table{
+ background:#fff!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody tr,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody tr:nth-child(even){
+ background:transparent!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody td,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody tr:nth-child(even) td{
+ background:#fff!important;
+ color:#52677e!important;
+ border-bottom:1px solid #edf1f5!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody tr:nth-child(even) td{
+ background:#f8fbfd!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody td:first-child,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody td:first-child b{
+ background:#173b63!important;
+ color:#fff!important;
+ font-weight:800!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody td:nth-child(4),
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody td:nth-child(4) b{
+ color:#21834a!important;
+ font-weight:850!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap tbody tr:hover td:not(:first-child){
+ background:#f1f7fc!important;
+}
