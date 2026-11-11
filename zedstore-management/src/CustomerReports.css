@@ -983,3 +983,51 @@
 .cr-panel:has(.cr-repeat-order-list) table{min-width:880px}
 .cr-panel:has(.cr-repeat-order-list) tbody tr:hover td{background:#f8fbff}
 @media(max-width:700px){.cr-panel .cr-repeat-order-list{min-width:210px;max-width:300px}.cr-panel .cr-repeat-order{padding:8px}.cr-panel .cr-repeat-order-head{align-items:flex-start;flex-direction:column;gap:4px}}
+
+
+/* High-contrast professional repeat-customer order cards */
+.cr-panel .cr-repeat-order-list{min-width:230px;max-width:410px;gap:9px}
+.cr-panel .cr-repeat-order{
+  padding:11px 12px;
+  gap:9px;
+  border:1px solid #294d70;
+  border-left:4px solid #42a5f5;
+  border-radius:10px;
+  background:linear-gradient(135deg,#142b45 0%,#1d3c5d 58%,#24496d 100%);
+  box-shadow:0 3px 10px rgba(15,35,58,.16);
+  color:#f5f9ff;
+}
+.cr-panel .cr-repeat-order-head{border-bottom:1px solid rgba(219,235,250,.2);padding-bottom:8px}
+.cr-panel .cr-repeat-order-number{
+  background:#2f80c9;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.35px;
+  padding:5px 8px;
+}
+.cr-panel .cr-repeat-order-head small{color:#d2e2f2;font-size:10px;font-weight:600}
+.cr-panel .cr-repeat-products{gap:6px}
+.cr-panel .cr-repeat-product{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(220,237,255,.24);
+  color:#f7fbff;
+  padding:6px 8px;
+  border-radius:7px;
+  font-size:10px;
+  line-height:1.4;
+}
+.cr-panel .cr-repeat-product-name{color:#f7fbff;font-weight:650}
+.cr-panel .cr-repeat-product b{
+  color:#fff;
+  background:#2477b9;
+  border-radius:5px;
+  padding:2px 5px;
+  font-size:9px;
+}
+.cr-panel .cr-repeat-no-products{color:#d5e4f3}
+@media(max-width:700px){
+ .cr-panel .cr-repeat-order-list{min-width:210px;max-width:300px}
+ .cr-panel .cr-repeat-order{padding:9px 10px}
+}
