@@ -1462,3 +1462,31 @@
 .cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td .badge{
   color:#fff!important;
 }
+
+
+/* Customer rating — light neutral header, charcoal data cells, green sales */
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>thead>tr>th{
+  background:#e9edf2!important;
+  color:#526274!important;
+  border-color:#d5dce4!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr:nth-child(even)>td,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr:hover>td{
+  background:#343b43!important;
+  color:#fff!important;
+  border-bottom:1px solid #4a535d!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td:first-child,
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td:first-child b{
+  color:#fff!important;
+  font-weight:800!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td:nth-child(4),
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td:nth-child(4) b{
+  color:#55df91!important;
+  font-weight:850!important;
+}
+.cr-customer-analytics>section:not(.cr-repeat-customers-panel) .tablewrap>table>tbody>tr>td .badge{
+  color:#fff!important;
+}
