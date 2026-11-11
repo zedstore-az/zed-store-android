@@ -19,7 +19,7 @@ function exportExcel(sheets,name){
 function SectionTitle({title,description}){return <div className="cr-section-title"><div><h3>{title}</h3><p>{description}</p></div></div>}
 
 export function CustomerAnalyticsPanel({orders=[],sales=[],returns=[],searchValue=''}) {
- const [query,Q]=useState(searchValue),[selected,S]=useState('');
+ const [query,Q]=useState(searchValue),[selected,S]=useState(''),[showRepeat,SR]=useState(false);
  const customers=useMemo(()=>{
   const completed=orders.filter(o=>o.delivery_status==='delivered'&&o.payment_status==='paid'&&!!o.paid_at);
   const byKey=new Map();
@@ -50,14 +50,14 @@ export function CustomerAnalyticsPanel({orders=[],sales=[],returns=[],searchValu
  const repeat=customers.filter(c=>c.orderCount>=2);
  const chosen=customers.find(c=>c.key===selected);
  return <div className="cr-page">
-  <div className="cr-stats"><div className="cr-stat"><Users/><small>Alış etmiş müştərilər</small><b>{customers.length}</b></div><div className="cr-stat"><Repeat2/><small>Təkrar alış edənlər</small><b>{repeat.length}</b></div><div className="cr-stat"><FileText/><small>Ümumi satış dövriyyəsi</small><b>{money(customers.reduce((n,c)=>n+c.total,0))}</b></div><div className="cr-stat"><CalendarDays/><small>Satış qeydi olanlar</small><b>{customers.filter(c=>c.total>0).length}</b></div></div>
+  <div className="cr-stats"><div className="cr-stat"><Users/><small>Alış etmiş müştərilər</small><b>{customers.length}</b></div><button type="button" className="cr-stat cr-stat-action" onClick={()=>{SR(v=>!v);S('')}} aria-expanded={showRepeat}><Repeat2/><small>Təkrar alış edənlər</small><b>{repeat.length}</b><span>{showRepeat?'Siyahını bağla':'Siyahıya bax'}</span></button><div className="cr-stat"><FileText/><small>Ümumi satış dövriyyəsi</small><b>{money(customers.reduce((n,c)=>n+c.total,0))}</b></div><div className="cr-stat"><CalendarDays/><small>Satış qeydi olanlar</small><b>{customers.filter(c=>c.total>0).length}</b></div></div>
   <section className="panel cr-panel"><SectionTitle title="Müştəri reytinqi" description="Təhvil edilmiş sifarişlər əsasında. Ləğv edilən və tamamlanmamış sifarişlər hesablanmır."/>
    <div className="cr-toolbar"><div className="search"><Search/><input placeholder="Müştəri adı və ya telefon axtar..." value={query} onChange={e=>Q(e.target.value)}/></div><span>{filtered.length} müştəri</span></div>
    <div className="tablewrap"><table><thead><tr><th>Müştəri</th><th>Telefon</th><th>Sifariş sayı</th><th>Ümumi satış</th><th>Məhsul sayı</th><th>Son alış</th><th></th></tr></thead><tbody>{filtered.map(c=><tr key={c.key}><td><b>{c.name}</b></td><td>{c.phone||'—'}</td><td><span className={'badge '+(c.orderCount>=2?'green':'yellow')}>{c.orderCount}</span></td><td><b>{money(c.total)}</b></td><td>{c.quantity}</td><td>{date(c.last)}</td><td><button className="outline cr-detail-button" onClick={()=>S(selected===c.key?'':c.key)}>{selected===c.key?'Bağla':'Tarixçə'}</button></td></tr>)}</tbody></table>{!filtered.length&&<p className="empty">Müştəri tapılmadı.</p>}</div>
   </section>
-  <section className="panel cr-panel"><SectionTitle title="Təkrar alış edən müştərilər" description="İki və daha çox təhvil edilmiş sifarişi olan müştərilər."/>
+  {showRepeat&&<section className="panel cr-panel"><SectionTitle title="Təkrar alış edən müştərilərin siyahısı" description="İki və daha çox təhvil edilmiş sifarişi olan müştərilər."/>
    <div className="tablewrap"><table><thead><tr><th>Müştəri</th><th>Telefon</th><th>Alış sayı</th><th>Ümumi satış</th><th>Son alış</th></tr></thead><tbody>{repeat.map(c=><tr key={c.key}><td><b>{c.name}</b></td><td>{c.phone||'—'}</td><td>{c.orderCount}</td><td>{money(c.total)}</td><td>{date(c.last)}</td></tr>)}</tbody></table>{!repeat.length&&<p className="empty">Hələ təkrar alış qeydi yoxdur.</p>}</div>
-  </section>
+  </section>}
   {chosen&&<section className="panel cr-panel"><SectionTitle title={chosen.name+' — alış tarixçəsi'} description={(chosen.phone||'Telefon qeyd edilməyib')+' · '+chosen.orderCount+' təhvil edilmiş sifariş'}/><div className="tablewrap"><table><thead><tr><th>Sifariş</th><th>Mənbə</th><th>Tarix</th><th>Məhsullar</th><th>Ödəniş</th></tr></thead><tbody>{chosen.orders.map(o=><tr key={o.id}><td>#{o.order_number||String(o.id).slice(0,8).toUpperCase()}</td><td>{o.source||'—'}</td><td>{date(o.delivered_at||o.ordered_at)}</td><td>{(o.order_items||[]).map(i=>i.product_name+' × '+i.quantity).join(', ')||'—'}</td><td>{o.payment_status==='paid'?'Ödənilib':'Gözləyir'}</td></tr>)}</tbody></table></div></section>}
   <p className="cr-footnote">Qeyd: telefon nömrəsi yoxdursa, müştərilər adına görə qruplaşdırılır. Eyni adlı fərqli şəxslər birləşə bilər.</p>
  </div>;
