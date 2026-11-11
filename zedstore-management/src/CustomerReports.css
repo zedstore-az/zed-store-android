@@ -1714,3 +1714,13 @@
   border-color:#c18a32!important;
   color:#fff0c7!important;
 }
+
+
+/* Customer rating — remove blue background behind customer names */
+.cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr > td:first-child,
+.cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr:nth-child(even) > td:first-child{
+  background:#303840!important;
+}
+.cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr:hover > td:first-child{
+  background:#414d59!important;
+}
