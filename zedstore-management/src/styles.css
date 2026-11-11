@@ -1020,3 +1020,7 @@ html body,html body *{font-family:'Noto Sans',sans-serif!important}
 :root[data-theme="dark"] .customer-lookup-result{border-color:#39424e}
 :root[data-theme="dark"] .customer-lookup-result b{color:#e0e7ef}
 @media(max-width:760px){.customer-lookup{order:3;flex:1 1 100%;max-width:none;margin:9px 0 0}.top{flex-wrap:wrap}.customer-lookup-results{max-height:300px}}
+
+.customer-lookup-result{width:100%;border-left:0;border-right:0;border-bottom:0;background:transparent;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.customer-lookup-result:hover,.customer-lookup-result:focus-visible{background:var(--surface-hover,rgba(100,116,139,.10));outline:none}
+.customer-lookup-result>span{display:flex;flex-direction:column;gap:3px;min-width:0}
