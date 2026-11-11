@@ -20,7 +20,7 @@ function exportExcel(sheets,name){
 function SectionTitle({title,description}){return <div className="cr-section-title"><div><h3>{title}</h3><p>{description}</p></div></div>}
 
 export function CustomerAnalyticsPanel({orders=[],sales=[],returns=[],searchValue=''}) {
- const [query,Q]=useState(searchValue),[selected,S]=useState(''),[showRepeat,SR]=useState(false);
+ const [query,Q]=useState(searchValue),[selected,S]=useState(''),[showRepeat,SR]=useState(false),[segment,SS]=useState('all');
  const customers=useMemo(()=>{
   const completed=orders.filter(o=>o.delivery_status==='delivered'&&o.payment_status==='paid'&&!!o.paid_at);
   const byKey=new Map();
@@ -47,13 +47,13 @@ export function CustomerAnalyticsPanel({orders=[],sales=[],returns=[],searchValu
   }
   return [...byKey.values()].map(c=>({...c,orderCount:c.orders.length,orders:c.orders.sort((a,b)=>new Date(b.delivered_at||b.ordered_at)-new Date(a.delivered_at||a.ordered_at))})).sort((a,b)=>b.total-a.total||b.orderCount-a.orderCount);
  },[orders,sales]);
- const filtered=customers.filter(c=>(c.name+' '+c.phone).toLocaleLowerCase('az').includes(query.toLocaleLowerCase('az')));
+ const filtered=customers.filter(c=>(c.name+' '+c.phone+' '+c.orders.map(o=>o.order_number||o.order_code||o.id||'').join(' ')).toLocaleLowerCase('az').includes(query.toLocaleLowerCase('az'))&&(segment==='all'||(segment==='repeat'?c.orderCount>=2:c.orderCount===1));
  const repeat=customers.filter(c=>c.orderCount>=2);
  const chosen=customers.find(c=>c.key===selected);
- return <div className="cr-page">
+ return <div className="cr-page cr-customer-analytics">
   <div className="cr-stats"><div className="cr-stat"><Users/><small>Alış etmiş müştərilər</small><b>{customers.length}</b></div><button type="button" className="cr-stat cr-stat-action" onClick={()=>{SR(v=>!v);S('')}} aria-expanded={showRepeat}><Repeat2/><small>Təkrar alış edənlər</small><b>{repeat.length}</b><span>{showRepeat?'Siyahını bağla':'Siyahıya bax'}</span></button><div className="cr-stat"><FileText/><small>Ümumi satış dövriyyəsi</small><b>{money(customers.reduce((n,c)=>n+c.total,0))}</b></div><div className="cr-stat"><CalendarDays/><small>Satış qeydi olanlar</small><b>{customers.filter(c=>c.total>0).length}</b></div></div>
   <section className="panel cr-panel"><SectionTitle title="Müştəri reytinqi" description="Təhvil edilmiş sifarişlər əsasında. Ləğv edilən və tamamlanmamış sifarişlər hesablanmır."/>
-   <div className="cr-toolbar"><div className="search"><Search/><input placeholder="Müştəri adı və ya telefon axtar..." value={query} onChange={e=>Q(e.target.value)}/></div><span>{filtered.length} müştəri</span></div>
+   <div className="cr-toolbar cr-customer-toolbar"><div className="search"><Search/><input aria-label="Müştəri, telefon və sifariş axtar" placeholder="Müştəri adı, telefon və ya sifariş nömrəsi..." value={query} onChange={e=>Q(e.target.value)}/>{query&&<button type="button" className="cr-search-clear" onClick={()=>Q('')} aria-label="Axtarışı təmizlə">×</button>}</div><span className="cr-result-count">{filtered.length} / {customers.length} müştəri</span></div><div className="cr-customer-filters" role="group" aria-label="Müştəri filtri"><button type="button" className={segment==='all'?'active':''} onClick={()=>SS('all')}>Bütün müştərilər <b>{customers.length}</b></button><button type="button" className={segment==='repeat'?'active':''} onClick={()=>SS('repeat')}>Təkrar alış <b>{repeat.length}</b></button><button type="button" className={segment==='single'?'active':''} onClick={()=>SS('single')}>Bir dəfə alış <b>{customers.filter(c=>c.orderCount===1).length}</b></button></div>
    <div className="tablewrap"><table><thead><tr><th>Müştəri</th><th>Telefon</th><th>Sifariş sayı</th><th>Ümumi satış</th><th>Məhsul sayı</th><th>Son alış</th><th></th></tr></thead><tbody>{filtered.map(c=><tr key={c.key}><td><b>{c.name}</b></td><td>{c.phone||'—'}</td><td><span className={'badge '+(c.orderCount>=2?'green':'yellow')}>{c.orderCount}</span></td><td><b>{money(c.total)}</b></td><td>{c.quantity}</td><td>{date(c.last)}</td><td><button className="outline cr-detail-button" onClick={()=>S(selected===c.key?'':c.key)}>{selected===c.key?'Bağla':'Tarixçə'}</button></td></tr>)}</tbody></table>{!filtered.length&&<p className="empty">Müştəri tapılmadı.</p>}</div>
   </section>
   {showRepeat&&<section className="panel cr-panel cr-repeat-customers-panel"><SectionTitle title="Təkrar alış edən müştərilərin siyahısı" description="İki və daha çox təhvil edilmiş sifarişi olan müştərilər."/>
