@@ -1053,3 +1053,5 @@ html body,html body *{font-family:'Noto Sans',sans-serif!important}
 :root[data-theme="dark"] .customer-history-summary{background:#20262e;border-color:#39424e}
 :root[data-theme="dark"] .customer-history-summary b,:root[data-theme="dark"] .customer-history>h3,:root[data-theme="dark"] .customer-history-head b,:root[data-theme="dark"] .customer-history-product b,:root[data-theme="dark"] .customer-history-product strong,:root[data-theme="dark"] .customer-history-values b{color:#e0e7ef}
 @media(max-width:650px){.record-search{margin-bottom:9px}.customer-history{max-height:68vh}.customer-history-card{padding:9px}.customer-history-product img{width:40px;height:40px}}
+
+.order-item-profit{display:flex;gap:7px 14px;flex-wrap:wrap;padding:5px 0 8px;font-size:10px;color:var(--muted,#8290a2)}.order-item-profit span{white-space:nowrap}.order-item-profit b{color:var(--text,#26364b)}.order-item-profit .good{color:#15945a}.order-item-profit .bad{color:#d64b4b}
