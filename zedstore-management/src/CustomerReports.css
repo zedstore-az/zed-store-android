@@ -1684,3 +1684,33 @@
     width:100%!important;min-height:40px!important;padding:8px 12px!important;
   }
 }
+
+
+/* Customer rating — readable order-count badges on graphite rows */
+.cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr > td:nth-child(3) .badge{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:34px!important;
+  min-height:27px!important;
+  padding:4px 10px!important;
+  border-radius:7px!important;
+  font-size:12px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  color:#f7fbff!important;
+  background:#465565!important;
+  border:1px solid #718092!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+.cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr > td:nth-child(3) .badge.green{
+  background:#145c43!important;
+  border-color:#2c9a70!important;
+  color:#d9ffeb!important;
+}
+.cr-page.cr-customer-analytics > section.panel.cr-panel:not(.cr-repeat-customers-panel) > .tablewrap > table > tbody > tr > td:nth-child(3) .badge.yellow{
+  background:#72501a!important;
+  border-color:#c18a32!important;
+  color:#fff0c7!important;
+}
