@@ -1141,3 +1141,72 @@
  .cr-repeat-customers-panel .cr-repeat-order-date{text-align:left}
  .cr-repeat-customers-panel .cr-repeat-order-date strong{font-size:11px}
 }
+
+
+/* Customer analytics — consistent layout, accessible contrast and responsive tables */
+.cr-customer-analytics{gap:16px;min-width:0}
+.cr-customer-analytics>.cr-stats{gap:12px}
+.cr-customer-analytics>.cr-stats>.cr-stat{position:relative;min-height:116px;justify-content:space-between;border:1px solid #e2eaf3;border-radius:13px;background:linear-gradient(155deg,#fff 0%,#f8fbff 100%);box-shadow:0 3px 12px rgba(31,61,93,.045)}
+.cr-customer-analytics>.cr-stats>.cr-stat small{font-size:11px;font-weight:650;color:#6e7f94;line-height:1.4}
+.cr-customer-analytics>.cr-stats>.cr-stat b{font-size:clamp(17px,2vw,22px);letter-spacing:-.35px;color:#183653}
+.cr-customer-analytics>.cr-stats>.cr-stat svg{width:32px;height:32px;padding:7px;background:#eaf3ff;color:#246db4}
+.cr-customer-analytics>.cr-stats>.cr-stat-action{border-color:#d9e8f7;background:linear-gradient(155deg,#fff 0%,#f2f8ff 100%)}
+.cr-customer-analytics .cr-panel{min-width:0;border:1px solid #e7edf4;border-radius:14px;box-shadow:0 5px 18px rgba(28,55,84,.045)}
+.cr-customer-analytics .cr-section-title h3{font-size:16px;font-weight:800;color:#1d3550}
+.cr-customer-analytics .cr-section-title p{font-size:11px;line-height:1.6;color:#8190a2}
+.cr-customer-toolbar{align-items:center;justify-content:space-between;gap:12px}
+.cr-customer-toolbar .search{position:relative;display:flex;align-items:center;gap:9px;width:min(100%,560px);min-width:0;padding:0 12px;border:1px solid #dce6f0;border-radius:10px;background:#fbfdff}
+.cr-customer-toolbar .search:focus-within{border-color:#8bb9e8;box-shadow:0 0 0 3px rgba(42,123,194,.1)}
+.cr-customer-toolbar .search>svg{width:17px;height:17px;flex:none;color:#7c91a8}
+.cr-customer-toolbar .search input{width:100%;min-width:0;height:42px;border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;color:#263c54;font-size:12px}
+.cr-customer-toolbar .search input::placeholder{color:#9aa8b7}
+.cr-customer-toolbar .cr-search-clear{flex:none;border:0;background:transparent;color:#73869b;font-size:20px;line-height:1;cursor:pointer}
+.cr-customer-toolbar .cr-result-count{padding:7px 10px;border:1px solid #e4ebf2;border-radius:8px;background:#f7f9fc;color:#64768c;font-size:10px;font-weight:800}
+.cr-customer-filters{display:flex;flex-wrap:wrap;gap:7px;margin:-2px 0 13px}
+.cr-customer-filters button{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid #e1e8f0;border-radius:8px;background:#fff;color:#63758a;font-size:10px;font-weight:750;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.cr-customer-filters button b{display:inline-grid;place-items:center;min-width:19px;height:19px;padding:0 5px;border-radius:6px;background:#f0f4f8;color:#66788d;font-size:9px}
+.cr-customer-filters button.active{border-color:#9fc4ea;background:#edf6ff;color:#185d9b}
+.cr-customer-filters button.active b{background:#d8eaff;color:#185d9b}
+.cr-customer-analytics .tablewrap{max-width:100%;overflow:auto;border:1px solid #e8edf3;border-radius:10px}
+.cr-customer-analytics .tablewrap table{width:100%;min-width:760px;border-collapse:separate;border-spacing:0}
+.cr-customer-analytics .tablewrap thead th{position:sticky;top:0;z-index:1;padding:12px 11px;background:#f3f7fb;color:#687c92;font-size:10px;font-weight:850;white-space:nowrap;border-bottom:1px solid #e1e8f0}
+.cr-customer-analytics .tablewrap tbody td{padding:12px 11px;color:#53677e;font-size:11px;vertical-align:middle;border-bottom:1px solid #edf1f5}
+.cr-customer-analytics .tablewrap tbody tr:last-child td{border-bottom:0}
+.cr-customer-analytics .tablewrap tbody tr:hover td{background:#f8fbff}
+.cr-customer-analytics .tablewrap tbody td:first-child b{color:#243d58;font-size:11px}
+.cr-customer-analytics .tablewrap .badge{display:inline-flex;align-items:center;justify-content:center;min-width:25px;padding:4px 7px;border-radius:7px;font-size:10px;font-weight:850}
+.cr-customer-analytics .cr-detail-button{min-width:72px;border-radius:7px}
+.cr-customer-analytics .empty{margin:0;padding:25px 14px;text-align:center;color:#8291a2;font-size:11px}
+.cr-customer-analytics .cr-footnote{padding:0 3px;color:#8795a5}
+.cr-customer-analytics .cr-repeat-customers-panel{border-color:#294e70}
+.cr-customer-analytics .cr-repeat-customers-panel .tablewrap{max-width:100%}
+.cr-customer-analytics .cr-repeat-customers-panel table{min-width:880px}
+.cr-customer-analytics .cr-repeat-customers-panel .cr-repeat-order-list{max-width:390px}
+.cr-customer-analytics .cr-repeat-customers-panel .cr-repeat-order{min-width:0}
+.cr-customer-analytics .cr-repeat-customers-panel .cr-repeat-product-name{overflow-wrap:anywhere}
+@media(max-width:900px){
+ .cr-customer-analytics>.cr-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .cr-customer-analytics .cr-customer-toolbar{align-items:stretch}
+ .cr-customer-analytics .cr-customer-toolbar .search{width:100%}
+}
+@media(max-width:620px){
+ .cr-customer-analytics{gap:12px}
+ .cr-customer-analytics>.cr-stats{gap:8px}
+ .cr-customer-analytics>.cr-stats>.cr-stat{min-height:102px;padding:11px;border-radius:11px;gap:5px}
+ .cr-customer-analytics>.cr-stats>.cr-stat svg{width:29px;height:29px}
+ .cr-customer-analytics>.cr-stats>.cr-stat small{font-size:9px}
+ .cr-customer-analytics>.cr-stats>.cr-stat b{font-size:16px}
+ .cr-customer-analytics .cr-panel{padding:13px;border-radius:11px}
+ .cr-customer-analytics .cr-section-title{margin-bottom:12px}
+ .cr-customer-analytics .cr-section-title h3{font-size:14px}
+ .cr-customer-analytics .cr-section-title p{font-size:10px}
+ .cr-customer-analytics .cr-customer-toolbar{gap:8px}
+ .cr-customer-analytics .cr-customer-toolbar .search input{height:40px;font-size:11px}
+ .cr-customer-analytics .cr-result-count{align-self:flex-start}
+ .cr-customer-analytics .cr-customer-filters{gap:6px;margin-bottom:10px}
+ .cr-customer-analytics .cr-customer-filters button{flex:1 1 auto;justify-content:center;padding:8px 7px;font-size:9px}
+ .cr-customer-analytics .tablewrap{border-radius:8px}
+ .cr-customer-analytics .tablewrap thead th,.cr-customer-analytics .tablewrap tbody td{padding:9px 8px}
+ .cr-customer-analytics .cr-repeat-customers-panel{padding:12px}
+}
+@media(prefers-reduced-motion:reduce){.cr-customer-analytics *{transition:none!important}}
