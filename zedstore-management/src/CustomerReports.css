@@ -1235,14 +1235,14 @@
 }
 .cr-customer-analytics .cr-customer-filters button:nth-child(1).active{background:#e8f3ff!important;border-color:#a9cbed!important;color:#155b96!important}
 .cr-customer-analytics .cr-customer-filters button:nth-child(1).active b{background:#cfe5fc!important;color:#155b96!important}
-.cr-customer-analytics .cr-customer-filters button:nth-child(2){background:#f7f4ff!important;border-color:#e6defb!important;color:#7250a5!important}
-.cr-customer-analytics .cr-customer-filters button:nth-child(2) b{background:#eee7ff!important;color:#7250a5!important}
-.cr-customer-analytics .cr-customer-filters button:nth-child(2).active{background:#eee8ff!important;border-color:#cbb8f2!important;color:#603c9b!important}
-.cr-customer-analytics .cr-customer-filters button:nth-child(2).active b{background:#ddcffb!important;color:#603c9b!important}
-.cr-customer-analytics .cr-customer-filters button:nth-child(3){background:#fff8ed!important;border-color:#f3e5ca!important;color:#94631d!important}
-.cr-customer-analytics .cr-customer-filters button:nth-child(3) b{background:#ffedcf!important;color:#94631d!important}
-.cr-customer-analytics .cr-customer-filters button:nth-child(3).active{background:#fff1d8!important;border-color:#edcf98!important;color:#87540c!important}
-.cr-customer-analytics .cr-customer-filters button:nth-child(3).active b{background:#ffe1aa!important;color:#87540c!important}
+.cr-customer-analytics .cr-customer-filters button:nth-child(2),
+.cr-customer-analytics .cr-customer-filters button:nth-child(3){background:#f7f9fc!important;border-color:#dfe7ef!important;color:#536b83!important}
+.cr-customer-analytics .cr-customer-filters button:nth-child(2) b,
+.cr-customer-analytics .cr-customer-filters button:nth-child(3) b{background:#eaf0f6!important;color:#536b83!important}
+.cr-customer-analytics .cr-customer-filters button:nth-child(2).active,
+.cr-customer-analytics .cr-customer-filters button:nth-child(3).active{background:#e8f3ff!important;border-color:#a9cbed!important;color:#155b96!important}
+.cr-customer-analytics .cr-customer-filters button:nth-child(2).active b,
+.cr-customer-analytics .cr-customer-filters button:nth-child(3).active b{background:#cfe5fc!important;color:#155b96!important}
 .cr-customer-analytics .cr-customer-filters button:hover{filter:brightness(.98);transform:translateY(-1px)}
 .cr-customer-analytics .cr-panel:not(.cr-repeat-customers-panel) .tablewrap{border-color:#e0e8f0;background:#fff}
 .cr-customer-analytics .cr-panel:not(.cr-repeat-customers-panel) .tablewrap thead th{background:#edf4fa!important;color:#536d86!important;border-bottom-color:#dce6ef}
