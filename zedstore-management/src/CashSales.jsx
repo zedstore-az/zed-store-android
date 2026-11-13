@@ -20,17 +20,15 @@ export default function CashSales({client,products=[],sales=[],onRefresh=()=>{}}
   if(!Number.isInteger(q)||q<1||q>Number(chosen.stock_qty))return alert('Miqdar mövcud anbar qalığına uyğun olmalıdır.');
   if(!Number.isFinite(unitPrice)||unitPrice<=0)return alert('Satış qiymətini düzgün daxil et.');
   setBusy(true);
-  const {error}=await client.from('sales').insert({
-   product_id:chosen.id,product_name:chosen.name,product_image_url:chosen.image_urls?.[0]||chosen.image_url||null,
-   quantity:q,unit_cost:Number(chosen.cost_price||0),customer_sale_price:unitPrice,birmarket_sale_price:unitPrice,
-   marketplace_commission:0,logistics_fee:0,bank_fee:0,transferred_amount:unitPrice,paid_at:null,sale_channel:'cash'
+  const {error}=await client.rpc('create_cash_sale',{
+   p_product_id:chosen.id,p_quantity:q,p_unit_price:unitPrice
   });
   setBusy(false);
   if(error){alert('Nağd satış yaradılmadı: '+error.message);return}
   setOpen(false);await onRefresh();
  }
  async function confirmPaid(sale){
-  if(!window.confirm('Ödənişi təsdiqləyirsən? Təsdiqdən sonra məhsul anbardan çıxılacaq və satış hesabatlara daxil ediləcək.'))return;
+  if(!window.confirm('Ödənişi təsdiqləyirsən? Məhsul artıq satış yaradılan anda anbardan çıxarılıb. Təsdiqdən sonra satış hesabatlara daxil ediləcək.'))return;
   setBusy(true);
   const {error}=await client.rpc('confirm_cash_sale_payment',{p_sale_id:sale.id});
   setBusy(false);
@@ -44,7 +42,7 @@ export default function CashSales({client,products=[],sales=[],onRefresh=()=>{}}
   {open&&<div className="shade" onClick={e=>e.target===e.currentTarget&&!busy&&setOpen(false)}><section className="modal cash-sale-modal"><header><b>Yeni nağd satış</b><button type="button" onClick={()=>setOpen(false)}>×</button></header><form className="formmodal" onSubmit={createSale}>
    <div className="search cash-product-search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Məhsul adı, SKU və ya barkod axtar..."/></div>
    <div className="cash-product-list">{matches.slice(0,40).map(p=><button type="button" key={p.id} className={'cash-product-option '+(productId===p.id?'selected':'')} onClick={()=>{setProductId(p.id);setPrice(String(p.sale_price||''))}}><span>{(p.image_urls?.[0]||p.image_url)?<img src={p.image_urls?.[0]||p.image_url} alt=""/>:<Boxes size={20}/>}</span><b>{p.name}</b><small>Stok: {p.stock_qty} · {p.sku||'SKU yoxdur'}</small></button>)}{!matches.length&&<p className="empty">Məhsul tapılmadı.</p>}</div>
-   {chosen&&<><div className="cash-selected"><b>{chosen.name}</b><span>Maya dəyəri: {money(chosen.cost_price)} / ədəd</span></div><div className="fields"><label>Miqdar<input type="number" min="1" max={chosen.stock_qty} step="1" value={qty} onChange={e=>setQty(e.target.value)}/></label><label>Satış qiyməti (AZN)<input type="number" min="0.01" step="0.01" required value={price} onChange={e=>setPrice(e.target.value)} placeholder="Öz qiymətini yaz"/></label></div><div className="cash-sale-preview"><span>Komissiya <b>0,00 AZN</b></span><span>Yekun satış <b>{money(total)}</b></span><span>Gözlənilən mənfəət <b>{money(profit)}</b></span></div><p className="cash-sale-note">Məhsul indi anbardan silinməyəcək. Yalnız “Ödənilib qeyd et” etdikdə stokdan çıxacaq və hesabatlara daxil olacaq.</p></>}
+   {chosen&&<><div className="cash-selected"><b>{chosen.name}</b><span>Maya dəyəri: {money(chosen.cost_price)} / ədəd</span></div><div className="fields"><label>Miqdar<input type="number" min="1" max={chosen.stock_qty} step="1" value={qty} onChange={e=>setQty(e.target.value)}/></label><label>Satış qiyməti (AZN)<input type="number" min="0.01" step="0.01" required value={price} onChange={e=>setPrice(e.target.value)} placeholder="Öz qiymətini yaz"/></label></div><div className="cash-sale-preview"><span>Komissiya <b>0,00 AZN</b></span><span>Yekun satış <b>{money(total)}</b></span><span>Gözlənilən mənfəət <b>{money(profit)}</b></span></div><p className="cash-sale-note">Satışı yaratdıqda məhsul dərhal anbardan çıxacaq və Nağd satış bölməsində “Ödəniş gözləyir” statusu ilə saxlanacaq. Ödəniş təsdiqlənənədək hesabatlara daxil edilməyəcək.</p></>}
    <button className="primary" disabled={busy||!chosen}>Nağd satışı yarat</button>
   </form></section></div>}
  </div>
