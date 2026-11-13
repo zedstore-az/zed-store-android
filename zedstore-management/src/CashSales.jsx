@@ -9,6 +9,16 @@ export default function CashSales({client,products=[],sales=[],onRefresh=()=>{}}
  const available=useMemo(()=>products.filter(p=>p.is_active!==false&&Number(p.stock_qty)>0),[products]);
  const chosen=available.find(p=>p.id===productId)||null;
  const rows=useMemo(()=>sales.filter(s=>s.sale_channel==='cash').sort((a,b)=>new Date(b.sold_at)-new Date(a.sold_at)),[sales]);
+ const financials=useMemo(()=>rows.reduce((acc,s)=>{
+  const quantity=Number(s.quantity)||0;
+  const revenue=Number(s.customer_sale_price||s.transferred_amount||0)*quantity;
+  const cost=Number(s.unit_cost||0)*quantity;
+  acc.revenue+=revenue;
+  acc.cost+=cost;
+  acc.profit+=revenue-cost;
+  if(!s.paid_at)acc.pending+=revenue;
+  return acc;
+ },{revenue:0,cost:0,profit:0,pending:0}),[rows]);
  const matches=available.filter(p=>(p.name+' '+(p.sku||'')+' '+(p.barcode||'')).toLocaleLowerCase('az').includes(query.toLocaleLowerCase('az')));
  const total=Math.max(0,Number(price)||0)*Math.max(1,Number(qty)||1);
  const profit=(Math.max(0,Number(price)||0)-Number(chosen?.cost_price||0))*Math.max(1,Number(qty)||1);
@@ -37,7 +47,7 @@ export default function CashSales({client,products=[],sales=[],onRefresh=()=>{}}
  }
  return <div className="cash-sales">
   <div className="toolbar"><div><h2>Nağd satış</h2><p>Satış qiymətini özün təyin et. Komissiya və əlavə tutulma yoxdur.</p></div><button className="primary" onClick={startCreate}><Plus size={17}/> Yeni nağd satış</button></div>
-  <div className="cash-sales-summary"><div><Wallet/><span><small>Nağd satış qeydləri</small><b>{rows.length}</b></span></div><div><CheckCircle2/><span><small>Ödənilmiş satışlar</small><b>{rows.filter(x=>x.paid_at).length}</b></span></div><div><Clock3/><span><small>Ödəniş gözləyir</small><b>{rows.filter(x=>!x.paid_at).length}</b></span></div></div>
+  <div className="cash-sales-summary"><div><Wallet/><span><small>Ümumi nağd satış</small><b>{money(financials.revenue)}</b></span></div><div><Boxes/><span><small>Ümumi maya dəyəri</small><b>{money(financials.cost)}</b></span></div><div><CheckCircle2/><span><small>Ümumi mənfəət</small><b>{money(financials.profit)}</b></span></div><div><Clock3/><span><small>Köçürülməsi gözlənilən</small><b>{money(financials.pending)}</b></span></div><div><span><small>Satış qeydləri</small><b>{rows.length}</b></span></div></div>
   <section className="panel cash-sales-list"><div className="cash-sales-list-head"><b>Satış tarixçəsi</b><span>{rows.length} qeyd</span></div>{rows.map(s=><article className="cash-sale-row" key={s.id}><div className="cash-sale-thumb">{s.product_image_url?<img src={s.product_image_url} alt=""/>:<Boxes size={23}/>}</div><div className="cash-sale-info"><b>{s.product_name}</b><small>{date(s.sold_at)} · {s.quantity} ədəd · Maya: {money(Number(s.unit_cost)*Number(s.quantity))}</small><small>Satış qiyməti: {money(s.customer_sale_price)} × {s.quantity} · Mənfəət: {money(s.net_profit)}</small></div><div className="cash-sale-total"><b>{money(Number(s.customer_sale_price)*Number(s.quantity))}</b><span className={s.paid_at?'is-paid':'is-unpaid'}>{s.paid_at?'Ödənilib':'Ödəniş gözləyir'}</span>{!s.paid_at&&<button className="pay pay-confirm" disabled={busy} onClick={()=>confirmPaid(s)}><CheckCircle2 size={14}/> Ödənilib qeyd et</button>}</div></article>)}{!rows.length&&<p className="empty">Hələ nağd satış yaradılmayıb.</p>}</section>
   {open&&<div className="shade" onClick={e=>e.target===e.currentTarget&&!busy&&setOpen(false)}><section className="modal cash-sale-modal"><header><b>Yeni nağd satış</b><button type="button" onClick={()=>setOpen(false)}>×</button></header><form className="formmodal" onSubmit={createSale}>
    <div className="search cash-product-search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Məhsul adı, SKU və ya barkod axtar..."/></div>
