@@ -4,7 +4,7 @@ import {Plus,Search,CheckCircle2,Clock3,Boxes,Wallet} from 'lucide-react';
 const money=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).format(Number(n||0));
 const date=d=>d?new Date(d).toLocaleString('az-AZ'):'—';
 
-export default function CashSales({products=[],sales=[],onRefresh=()=>{}}){
+export default function CashSales({client,products=[],sales=[],onRefresh=()=>{}}){
  const [open,setOpen]=useState(false),[query,setQuery]=useState(''),[productId,setProductId]=useState(''),[qty,setQty]=useState(1),[price,setPrice]=useState(''),[busy,setBusy]=useState(false);
  const available=useMemo(()=>products.filter(p=>p.is_active!==false&&Number(p.stock_qty)>0),[products]);
  const chosen=available.find(p=>p.id===productId)||null;
@@ -20,7 +20,7 @@ export default function CashSales({products=[],sales=[],onRefresh=()=>{}}){
   if(!Number.isInteger(q)||q<1||q>Number(chosen.stock_qty))return alert('Miqdar mövcud anbar qalığına uyğun olmalıdır.');
   if(!Number.isFinite(unitPrice)||unitPrice<=0)return alert('Satış qiymətini düzgün daxil et.');
   setBusy(true);
-  const {error}=await window.__zedSupabaseClient.from('sales').insert({
+  const {error}=await client.from('sales').insert({
    product_id:chosen.id,product_name:chosen.name,product_image_url:chosen.image_urls?.[0]||chosen.image_url||null,
    quantity:q,unit_cost:Number(chosen.cost_price||0),customer_sale_price:unitPrice,birmarket_sale_price:unitPrice,
    marketplace_commission:0,logistics_fee:0,bank_fee:0,transferred_amount:unitPrice,paid_at:null,sale_channel:'cash'
@@ -32,7 +32,7 @@ export default function CashSales({products=[],sales=[],onRefresh=()=>{}}){
  async function confirmPaid(sale){
   if(!window.confirm('Ödənişi təsdiqləyirsən? Təsdiqdən sonra məhsul anbardan çıxılacaq və satış hesabatlara daxil ediləcək.'))return;
   setBusy(true);
-  const {error}=await window.__zedSupabaseClient.rpc('confirm_cash_sale_payment',{p_sale_id:sale.id});
+  const {error}=await client.rpc('confirm_cash_sale_payment',{p_sale_id:sale.id});
   setBusy(false);
   if(error){alert('Ödənişi təsdiqləmək olmadı: '+error.message);return}
   await onRefresh();
