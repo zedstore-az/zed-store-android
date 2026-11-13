@@ -93,6 +93,20 @@ const navGroups=[
 const tabPaths={home:'/',stock:'/products',purchases:'/purchases',barcode:'/barcode',receipts:'/receipts',orders:'/orders','cash-sales':'/cash-sales',birmarket:'/birmarket-sms',sales:'/sales',customers:'/customers',calc:'/calculator',cancel:'/cancellations','stock-movements':'/stock-movements',reports:'/reports',documents:'/documents',performance:'/performance',analytics:'/analytics',notifications:'/notifications',activity:'/activity',ai:'/ai-manager',security:'/security',settings:'/settings'};
 const pathTabs=Object.fromEntries(Object.entries(tabPaths).map(([id,path])=>[path,id]));
 function tabFromPath(pathname){const path=pathname.length>1&&pathname.endsWith('/')?pathname.slice(0,-1):pathname;return pathTabs[path||'/']||'home';}
+async function optimizeProductImage(file){
+ if(typeof createImageBitmap!=='function')return file;
+ let bitmap;
+ try{bitmap=await createImageBitmap(file)}catch{return file}
+ try{
+  const maxSide=1600,scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
+  const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+  const ctx=canvas.getContext('2d');if(!ctx)return file;ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',0.82));
+  if(!blob||blob.size>=file.size)return file;
+  const base=file.name.replace(/\\.[^.]+$/,'');
+  return new File([blob],base+'.webp',{type:'image/webp',lastModified:Date.now()});
+ }finally{bitmap.close?.()}
+}
 function Login(){const [email,E]=useState(''),[pass,P]=useState(''),[err,Er]=useState('');async function go(e){e.preventDefault();Er('');const r=await sb.auth.signInWithPassword({email,password:pass});if(r.error){Er(r.error.message);return}if(!r.data.session||!r.data.user){Er('Giriş sessiyası yaradılmadı.');return}const access=await sb.from('admin_access').select('user_id').eq('user_id',r.data.user.id).maybeSingle();if(access.error||!access.data){await sb.auth.signOut({scope:'local'});Er('Bu hesabın ZED STORE admin panelinə giriş icazəsi yoxdur.');return}let sessionId=null;try{const part=r.data.session.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');sessionId=JSON.parse(atob(part)).session_id||null}catch{}const log=await sb.from('login_events').insert({owner_id:r.data.user.id,session_id:sessionId,event_type:'sign_in',device_info:(navigator.userAgent||'').slice(0,500)});if(log.error)console.warn('Giriş tarixçəsi yazılmadı:',log.error.message)}return <div className="login"><form onSubmit={go}><img className="brand-logo login-logo" src="/Picsart_26-10-14_20-57-41-838.png" alt="ZED STORE loqosu"/><small>ZED STORE MANAGEMENT</small><h1>Xoş gəlmisən</h1><p>Yalnız səlahiyyətli administrator üçün giriş.</p><label>E-poçt<input type="email" autoComplete="username" required value={email} onChange={e=>E(e.target.value)}/></label><label>Şifrə<input type="password" autoComplete="current-password" required value={pass} onChange={e=>P(e.target.value)}/></label>{err&&<div className="error">{err}</div>}<button className="primary">Daxil ol</button></form></div>}function Modal({title,close,children}){return <div className="shade" onClick={e=>e.target===e.currentTarget&&close()}><section className="modal"><header><b>{title}</b><button onClick={close}><X/></button></header>{children}</section></div>}
 function App(){
  const [user,U]=useState(null),[ready,R]=useState(false),[splashDone,SD]=useState(false),[tab,T]=useState(()=>tabFromPath(window.location.pathname)),[mobile,M]=useState(false),[expandedGroups,EG]=useState({'İCMAL':true,'SATIŞ VƏ SİFARİŞ':true,'ANBAR VƏ TƏCHİZAT':true,'MALİYYƏ VƏ HESABAT':true,'ANALİTİKA':true,'SİSTEM VƏ TƏHLÜKƏSİZLİK':false}),[data,D]=useState({products:[],orders:[],sales:[],cancel:[],settings:null,notifications:[],activity:[],returns:[],stockMovements:[],financeEntries:[],purchases:[],suppliers:[],loginEvents:[],birmarket:[]}),[toast,Q]=useState(''),[busy,B]=useState(false);
