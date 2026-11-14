@@ -312,39 +312,35 @@ function App(){
   await load();
   return result;
  }
- function handleOrderProductSearch(value){
-  const query=String(value||'').trim();
-  OPS(value);
-  if(!query)return;
-  const normalized=query.toLocaleLowerCase('az-AZ');
-  const exact=products.find(x=>String(x.barcode||'').trim().toLocaleLowerCase('az-AZ')===normalized);
-  if(exact){
-   if(Number(exact.stock_qty)>0){
-    SO(old=>({...old,product_id:exact.id,quantity:1}));
-    OPS('');
-    say('Barkod oxundu — '+exact.name+' seçildi');
-   }else{
-    SO(old=>({...old,product_id:''}));
-    say('Bu məhsul tapıldı, amma anbarda stok yoxdur.');
-   }
+ function normalizeOrderBarcode(value){
+  return String(value||'').replace(/\\D/g,'');
+ }
+ function findOrderProductByBarcode(value){
+  const code=normalizeOrderBarcode(value);
+  if(code.length<8)return null;
+  return products.find(x=>normalizeOrderBarcode(x.barcode)===code)||null;
+ }
+ function selectScannedOrderProduct(value){
+  const code=normalizeOrderBarcode(value);
+  if(code.length<8)return;
+  const exact=findOrderProductByBarcode(value);
+  if(!exact){say('Bu barkodla məhsul tapılmadı: '+String(value||'').trim());return;}
+  if(Number(exact.stock_qty)>0){
+   SO(old=>({...old,product_id:exact.id,quantity:1}));
+   say('Barkod oxundu — '+exact.name+' seçildi');
+  }else{
+   SO(old=>({...old,product_id:''}));
+   say('Bu məhsul tapıldı, amma anbarda stok yoxdur.');
   }
+ }
+ function handleOrderProductSearch(value){
+  OPS(value);
+  selectScannedOrderProduct(value);
  }
  function handleOrderProductScannerKeyDown(e){
   if(e.key!=='Enter')return;
   e.preventDefault();
-  const query=String(orderProductSearch||'').trim();
-  if(!query)return;
-  const exact=products.find(x=>String(x.barcode||'').trim()===query);
-  if(exact){
-   if(Number(exact.stock_qty)>0){
-    SO(old=>({...old,product_id:exact.id,quantity:1}));
-    OPS('');
-    say('Barkod oxundu — '+exact.name+' seçildi');
-   }else say('Bu məhsul tapıldı, amma anbarda stok yoxdur.');
-   return;
-  }
-  const found=products.find(x=>String(x.barcode||'').trim()===query);
-  say(found?'Bu məhsul anbarda yoxdur.':'Bu barkodla məhsul tapılmadı.');
+  selectScannedOrderProduct(e.currentTarget.value);
  }
  const chosen=products.find(x=>x.id===o.product_id),orderCosts=chosen?calculateOrderCosts(chosen,o.quantity,o.payment,o.months):{ready:false},orderProductMatches=products.filter(x=>+x.stock_qty>0&&(x.name+' '+(x.sku||'')+' '+(x.barcode||'')+' '+(x.category||'')).toLocaleLowerCase('az').includes(orderProductSearch.toLocaleLowerCase('az')));
  async function saveOrderAddress(item,address){
