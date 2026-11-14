@@ -105,3 +105,34 @@ export function ReturnsPanel({sb,user,products,orders,say,load}){
   <section className="panel"><div className="return-history-head"><h3>Son qaytarılmalar</h3><button type="button" className="outline" onClick={refresh}>Yenilə</button></div><div className="tablewrap"><table><thead><tr><th>Tarix</th><th>Müştəri / sifariş</th><th>Məhsul</th><th>Əməliyyat</th><th>Miqdar</th><th>Vəziyyət</th><th>Məbləğ</th></tr></thead><tbody>{history.map(r=><tr key={r.id}><td>{dateText(r.created_at)}</td><td>{r.orders?.customer_name||'—'}<small>#{r.orders?.order_number||r.order_id?.slice(0,8)||'—'}</small></td><td>{r.products?.name||'—'}</td><td>{r.return_type==='exchange'?'Dəyişdirilmə':'Qaytarılma'}</td><td>{r.quantity}</td><td>{r.item_condition==='restock'?'Stoka qaytarıldı':'Zədəlidir'}</td><td>{money(r.refund_amount)}</td></tr>)}</tbody></table>{!history.length&&<p className="empty">Hələ qaytarılma qeydi yoxdur.</p>}</div></section>
  </div>
 }
+
+export function BarcodePrintButton({product,compact=false}){
+ const [count,setCount]=useState(1);
+ function printLabels(){
+  const code=String(product?.barcode||'').trim();
+  if(!code){window.alert('Bu məhsul üçün barkod qeyd edilməyib. Əvvəlcə məhsulu redaktə edib barkod əlavə et.');return}
+  const safe=value=>String(value??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+  const copies=Math.max(1,Math.min(100,Number(count)||1));
+  const labels=Array.from({length:copies},()=>`<article class="label"><div class="name">${safe(product.name)}</div><svg class="barcode"></svg><div class="digits">${safe(code)}</div>${product.sku?`<div class="sku">Kod: ${safe(product.sku)}</div>`:''}</article>`).join('');
+  const html=`<!doctype html><html lang="az"><head><meta charset="utf-8"><title>Barkod etiketi</title><style>
+   @page{size:58mm 40mm;margin:0}*{box-sizing:border-box}html,body{margin:0;padding:0;width:58mm;background:#fff;color:#000;font-family:Arial,sans-serif}
+   .label{width:58mm;height:40mm;padding:2mm 2.5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;page-break-after:always;break-after:page}
+   .label:last-child{page-break-after:auto;break-after:auto}.name{font-size:10pt;font-weight:700;line-height:1.1;text-align:center;max-height:8mm;overflow:hidden;width:100%;margin-bottom:1mm}
+   .barcode{width:52mm;height:19mm;max-width:100%}.digits{font-size:9pt;letter-spacing:1.2px;line-height:1.1;margin-top:.3mm}.sku{font-size:7pt;margin-top:1mm}
+   @media screen{body{margin:10px auto}.label{outline:1px dashed #ddd}}
+   @media print{body{margin:0}.label{outline:0}}
+  </style></head><body>${labels}<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"><\/script><script>
+   function render(){if(!window.JsBarcode){document.body.insertAdjacentHTML('afterbegin','<p style="padding:8px;font:12px Arial">Barkod kitabxanası yüklənmədi. İnternet bağlantısını yoxlayıb yenidən çap et.</p>');return}
+    document.querySelectorAll('.label').forEach(el=>{const svg=el.querySelector('svg');const value=el.querySelector('.digits').textContent;try{JsBarcode(svg,value,{format:'CODE128',displayValue:false,margin:0,width:1.7,height:58});}catch(e){svg.outerHTML='<div style="font:8px Arial">Barkod yaradıla bilmədi</div>'}});
+    setTimeout(()=>window.print(),300);
+   }if(document.readyState==='complete')render();else window.addEventListener('load',render);
+  </script></body></html>`;
+  const win=window.open('','_blank','width=500,height=700');
+  if(!win){window.alert('Çap pəncərəsi bloklandı. Brauzerdə pop-up icazəsi ver.');return}
+  win.document.open();win.document.write(html);win.document.close();
+ }
+ return <div className="barcode-print-control">
+  <input aria-label="Çap ediləcək etiket sayı" type="number" min="1" max="100" value={count} onChange={e=>setCount(e.target.value)} />
+  <button type="button" className={compact?'outline':'outline'} onClick={printLabels}><ScanBarcode size={15}/> Barkod çap et</button>
+ </div>
+}
