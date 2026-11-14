@@ -313,7 +313,7 @@ function App(){
   return result;
  }
  function normalizeOrderBarcode(value){
-  return String(value||'').replace(/\\D/g,'');
+  return String(value||'').replace(/[^0-9]/g,'');
  }
  function findOrderProductByBarcode(value){
   const code=normalizeOrderBarcode(value);
