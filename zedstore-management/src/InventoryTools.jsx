@@ -9,7 +9,8 @@ const dateText=d=>{const x=dateValue(d);if(!x)return '—';const day=String(x.ge
 export function BarcodePanel({products}){
  const [code,setCode]=useState(''),[streaming,setStreaming]=useState(false),[cameraError,setCameraError]=useState(''),[selected,setSelected]=useState(null),[bulk,setBulk]=useState({});
  const video=useRef(null),stream=useRef(null),raf=useRef(0),lastScan=useRef(0),detector=useRef(null);
- const matches=products.filter(p=>code.trim()&&[p.barcode,p.sku].some(v=>String(v||'').toLocaleLowerCase('az').includes(code.trim().toLocaleLowerCase('az'))));
+ const term=code.trim().toLocaleLowerCase('az');
+ const matches=products.filter(p=>!term||[p.name,p.barcode,p.sku].some(v=>String(v||'').toLocaleLowerCase('az').includes(term)));
  function setBulkQty(id,value){setBulk(old=>({...old,[id]:value}))}
  const bulkProducts=products.filter(p=>Object.prototype.hasOwnProperty.call(bulk,p.id));
  function printBulk(){
@@ -74,8 +75,8 @@ export function BarcodePanel({products}){
    </div>
    <video ref={video} className="barcode-video" playsInline muted autoPlay hidden={!streaming}/>
    {cameraError&&<div className="barcode-warning"><AlertTriangle size={17}/>{cameraError}</div>}
-   <label className="barcode-input-label">Fiziki skaner / Barkod / SKU<input autoComplete="off" value={code} onChange={e=>{setCode(e.target.value);setSelected(null);setCameraError('')}} onKeyDown={handleScannerKeyDown} placeholder="Skaner ilə oxutmaq üçün bura kliklə, sonra barkodu oxut"/></label>
-   <div className="barcode-bulk-title"><b>Toplu barkod çapı</b><small>{bulkProducts.length} məhsul seçilib · Hər məhsul üçün istədiyin etiket sayını yaz</small></div>
+   <label className="barcode-input-label">Məhsul siyahısında axtarış / Fiziki skaner / Barkod / SKU<input autoComplete="off" value={code} onChange={e=>{setCode(e.target.value);setSelected(null);setCameraError('')}} onKeyDown={handleScannerKeyDown} placeholder="Bütün məhsullar siyahıdadır — ad, barkod və ya SKU ilə axtar; skaneri də burada istifadə edə bilərsən"/></label>
+   <div className="barcode-bulk-title"><b>Məhsul siyahısı — toplu barkod çapı</b><small>{matches.length} məhsul göstərilir · {bulkProducts.length} məhsul seçilib · Seçilən hər məhsul üçün başlanğıc say 1-dir, istəsən dəyiş</small></div>
    <div className="barcode-results">{matches.map(p=><div className="barcode-bulk-row" key={p.id}><label className="barcode-bulk-select"><input type="checkbox" checked={Object.prototype.hasOwnProperty.call(bulk,p.id)} disabled={!String(p.barcode||'').trim()} onChange={e=>setBulk(old=>{const next={...old};if(e.target.checked)next[p.id]=1;else delete next[p.id];return next})}/></label><div className="barcode-result"><span>{p.image_url?<img src={p.image_url} alt=""/>:<ScanBarcode/>}</span><span><b>{p.name}</b><small>{p.barcode||'Barkod yoxdur'} · SKU: {p.sku||'—'}</small></span><strong>Stok: {p.stock_qty}</strong></div>{Object.prototype.hasOwnProperty.call(bulk,p.id)&&<label className="barcode-bulk-qty">Etiket sayı<input type="number" min="1" max="100" step="1" value={bulk[p.id]} onChange={e=>setBulkQty(p.id,e.target.value)}/></label>}</div>)}{code.trim()&&!matches.length&&<p className="empty">Bu barkod və ya SKU ilə məhsul tapılmadı. Məhsul kartına barkod əlavə et.</p>}</div>
    <div className="barcode-bulk-footer"><button type="button" className="outline" onClick={()=>setBulk({})} disabled={!bulkProducts.length}>Seçimi təmizlə</button><button type="button" className="primary" onClick={printBulk} disabled={!bulkProducts.some(p=>String(p.barcode||'').trim()&&Number(bulk[p.id])>0)}><ScanBarcode size={16}/> Seçilmiş barkodları çap et</button></div>
    {selected&&<div className="barcode-selected"><CheckCircle2/><div><b>{selected.name}</b><small>Anbar qalığı: {selected.stock_qty} · Maya: {money(selected.cost_price)}</small></div></div>}
