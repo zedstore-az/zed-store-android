@@ -36,3 +36,14 @@
 .barcode-captured{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap}
 .barcode-captured img{display:block;width:min(100%,420px);max-height:260px;object-fit:contain;border:1px solid #e5ebf2;border-radius:10px;background:#f7f9fc}
 @media(max-width:600px){.barcode-actions .outline{width:100%;justify-content:center}.barcode-captured img{width:100%}}
+
+/* Product barcode entry and 58 × 40 mm thermal label controls */
+.barcode-edit-row,.owner-mq-barcode-row{display:flex;align-items:center;gap:8px;width:100%}
+.barcode-edit-row input,.owner-mq-barcode-row input{flex:1;min-width:0}
+.barcode-edit-row button,.owner-mq-barcode-row button{flex:none;white-space:nowrap;min-height:40px}
+.barcode-print-control{display:flex;align-items:center;gap:7px}
+.barcode-print-control input{width:62px;min-width:62px;height:36px;border:1px solid #dce5ed;border-radius:8px;padding:6px 8px;color:#25354a;background:#fff}
+.barcode-print-control button{min-height:36px;white-space:nowrap}
+.owner-mq-barcode-field{display:grid;gap:7px;font-size:11px;font-weight:700;color:#5b6b80}
+.owner-mq-barcode-row input{min-height:40px;border:1px solid #dce5ed;border-radius:9px;padding:10px 12px;background:#fff;color:#25354a}
+@media(max-width:600px){.barcode-edit-row,.owner-mq-barcode-row{align-items:stretch;flex-direction:column}.barcode-edit-row button,.owner-mq-barcode-row button{width:100%}.barcode-print-control{flex-wrap:wrap}.barcode-print-control button{flex:1}}
