@@ -32,6 +32,7 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
  const operatingExpenses=monthlyExpenses.filter(x=>x.source_type!=="purchase").reduce((n,x)=>n+Number(x.amount||0),0);
  const profit=currentSales.reduce((n,x)=>n+Number(x.net_profit||0),0)-operatingExpenses;
  const stockValue=products.reduce((n,x)=>n+Number(x.cost_price||0)*Number(x.stock_qty||0),0);
+ const stockSaleValue=products.reduce((n,x)=>n+Number(x.sale_price||0)*Number(x.stock_qty||0),0);
  const deliveredUnpaid=sales.filter(x=>!x.paid_at&&orders.some(o=>o.id===x.order_id&&o.delivery_status==="delivered"&&o.payment_status!=="paid"));
  const waitingAmount=deliveredUnpaid.reduce((n,x)=>n+Number(x.transferred_amount||0)*Number(x.quantity||0),0);
  const purchaseTotal=purchases.filter(x=>monthKey(x.purchased_at||x.created_at)===currentMonth).reduce((n,x)=>n+Number(x.total_amount||0),0);
@@ -50,6 +51,7 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
    <article className="owner-metric"><span>Gözləmədə</span><b>{money(waitingAmount)}</b><small>{deliveredUnpaid.length} təhvil verilmiş, ödənişi gözləyən satış</small></article>
    <article className="owner-metric"><span>Xalis mənfəət</span><b>{money(profit)}</b><small>Ödənişi təsdiqlənmiş satış mənfəəti − əlavə əməliyyat xərcləri</small></article>
    <article className="owner-metric"><span>Anbarın maya dəyəri</span><b>{money(stockValue)}</b><small>{products.length} aktiv məhsul</small></article>
+   <article className="owner-metric"><span>Anbarın satış dəyəri</span><b>{money(stockSaleValue)}</b><small>Stokdakı malların satış qiyməti ilə ümumi dəyəri</small></article>
   </div>
   <div className="owner-dashboard-grid">
    <section className="owner-card owner-chart-card"><div className="owner-card-head"><div><h3>Satış dinamikası</h3><p>Günlər üzrə yalnız yeni yaradılmış sifarişlərin sayı. Sütuna toxunaraq həmin günü seç.</p></div><select value={period} onChange={e=>{setPeriod(e.target.value);setSelectedDay(dateKey(new Date()))}}><option value="7">7 gün</option><option value="14">14 gün</option><option value="30">30 gün</option></select></div><div className="owner-chart">{chart.map(x=><button type="button" className={"owner-chart-col owner-chart-day"+(selectedDay===x.key?" selected":"")} key={x.key} aria-pressed={selectedDay===x.key} onClick={()=>setSelectedDay(x.key)} title={x.fullDate+" · "+x.count+" sifariş"}><span className="owner-chart-count">{x.count}</span><div className="owner-chart-bar-wrap"><i style={{height:(x.count/maxChart*100)+"%"}}/></div><small>{x.label}</small></button>)}</div><div className="owner-selected-day"><div><small>Seçilmiş gün</small><b>{selectedDayLabel}</b></div><strong>{selectedDayOrders.length}</strong><span>yeni sifariş</span></div><div className="owner-chart-refresh-note">Yeni sifarişlər avtomatik olaraq hər 10 saniyədən bir yoxlanılır. Paneldə yaradılan sifarişdən sonra məlumat dərhal yenilənir.</div></section>
