@@ -370,3 +370,7 @@
 @media(max-width:1120px){.owner-dashboard-grid{grid-template-columns:1fr}}
 @media(max-width:760px){.owner-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-dashboard-grid{grid-template-columns:1fr}.owner-chart{overflow-x:auto}.owner-chart-day{min-width:17px}}
 @media(min-width:761px){.owner-lower-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(250px,1fr)}}
+
+.owner-line-chart{height:232px;display:grid;grid-template-rows:1fr 22px;min-width:0;margin-top:8px}.owner-line-chart svg{width:100%;height:100%;overflow:visible;color:#64748b}.owner-line-labels{display:flex;justify-content:space-between;gap:8px;padding:0 2%;align-items:center}.owner-line-labels button{border:0;background:transparent;color:#728198;font-size:9px;padding:3px}.owner-line-labels button.selected{color:#1765e8;font-weight:900}
+:root[data-theme="dark"] .owner-line-chart svg{color:#b3c0d1}:root[data-theme="dark"] .owner-line-labels button{color:#aab8ca}:root[data-theme="dark"] .owner-line-labels button.selected{color:#79aaff}
+@media(max-width:760px){.owner-line-chart{height:210px}.owner-line-labels button{font-size:8px}}
