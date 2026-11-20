@@ -1081,3 +1081,59 @@ html body,html body *{font-family:'Noto Sans',sans-serif!important}
 :root[data-theme="dark"] .cash-sales-summary b,:root[data-theme="dark"] .cash-sale-info>b,:root[data-theme="dark"] .cash-sale-total>b,:root[data-theme="dark"] .cash-product-option b,:root[data-theme="dark"] .cash-sale-preview b{color:#e0e7ef}
 :root[data-theme="dark"] .cash-sale-row,:root[data-theme="dark"] .cash-sales-list-head{border-color:#39424e}
 @media(max-width:650px){.cash-sales-summary{grid-template-columns:1fr}.cash-sales-summary>div{padding:11px}.cash-sale-row{grid-template-columns:46px minmax(0,1fr);gap:9px;padding:11px}.cash-sale-thumb{width:46px;height:46px}.cash-sale-total{grid-column:2;justify-items:start;display:flex;align-items:center;flex-wrap:wrap}.cash-product-list{grid-template-columns:1fr}.cash-sales-list-head{padding:14px}}
+
+
+/* ZED STORE — unified premium dashboard finish */
+:root{--zed-blue:#1765e8;--zed-cyan:#38a6f5;--zed-deep:#101d33;--zed-accent:linear-gradient(120deg,#1765e8,#258de8)}
+body{font-family:'DM Sans','Noto Sans',sans-serif;background:#f3f6fb}
+.sidebar{background:linear-gradient(180deg,#111e33 0%,#0c1729 100%);border-right:1px solid #26364d;padding-top:22px}
+.sidebrand{padding-bottom:25px}
+.sidebrand b{font-family:'Manrope','DM Sans',sans-serif;font-size:15px;letter-spacing:1.35px}
+.brand-mark{width:45px;height:45px}
+.nav-group{margin-bottom:10px}
+.nav-group-title{padding-top:11px;padding-bottom:7px;letter-spacing:1.45px}
+.nav-group .nav{min-height:39px;border-radius:9px;font-weight:500;transition:background .18s ease,color .18s ease,transform .18s ease}
+.nav-group .nav svg{opacity:.88;flex:none}
+.nav-group .nav:hover{background:#1b2c45;transform:translateX(2px)}
+.nav-group .nav.selected{background:linear-gradient(100deg,#173c70,#153456);color:#8dc8ff;box-shadow:inset 3px 0 #3995f6}
+.nav-group .nav.selected svg{color:#69b7ff}
+.sidebottom{background:#0c1729;border-color:#293a52}
+.top{box-shadow:0 3px 14px #152c4908;backdrop-filter:blur(14px)}
+.top h1{font-family:'Manrope','DM Sans',sans-serif;font-size:21px;letter-spacing:-.35px}
+.body{padding-top:30px}
+.intro h2,.toolbar h2{font-family:'Manrope','DM Sans',sans-serif;letter-spacing:-.55px;color:#17263d}
+.intro p,.toolbar p{line-height:1.55}
+.primary{background:var(--zed-accent);border-radius:10px;box-shadow:0 6px 16px #1765e82b}
+.primary:hover{background:linear-gradient(120deg,#1056d2,#1679d5);transform:translateY(-1px)}
+.stat,.panel{border-color:#e6ebf2;border-radius:15px;box-shadow:0 3px 14px #203a5b08}
+.stat{padding:19px;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.stat:hover{border-color:#d3e2f5;box-shadow:0 9px 24px #203a5b10}
+.stat svg{color:#1765e8;background:#edf4ff;border-radius:11px}
+.stat b{font-family:'Manrope','DM Sans',sans-serif;color:#17263d;letter-spacing:-.4px}
+.panel{padding:21px}
+.panel h3{font-family:'Manrope','DM Sans',sans-serif}
+th{background:#f6f8fc;color:#718198}
+td{border-color:#edf1f6}
+.search,.tools select,.toolbar input[type=month],.outline{border-color:#e1e8f1;border-radius:10px}
+.search:focus-within{border-color:#8bb8f4;box-shadow:0 0 0 3px #1765e812}
+.outline:hover{border-color:#b8cdee;background:#f7faff;color:#1559bd}
+.theme-toggle{border-radius:10px!important}
+:root[data-theme="dark"] .stat{background:#142238;border-color:#293b54;box-shadow:none}
+:root[data-theme="dark"] .stat b{color:#edf4ff}
+:root[data-theme="dark"] .stat svg{background:#1d3555;color:#83bdff}
+:root[data-theme="dark"] .panel{border-color:#293b54;box-shadow:none}
+:root[data-theme="dark"] th{background:#17263a;color:#a8b8cd}
+:root[data-theme="dark"] td{border-color:#26364b}
+:root[data-theme="dark"] .intro h2,:root[data-theme="dark"] .toolbar h2{color:#edf4ff}
+@media(max-width:720px){
+ .top{box-shadow:0 2px 12px #152c490a}
+ .body{padding-top:20px}
+ .intro h2,.toolbar h2{font-size:22px}
+ .stat{padding:15px;border-radius:13px}
+ .panel{padding:15px;border-radius:13px}
+ .nav-group .nav:hover{transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .nav-group .nav,.primary,.stat{transition:none}
+ .primary:hover,.nav-group .nav:hover{transform:none}
+}
