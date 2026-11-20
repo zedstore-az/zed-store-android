@@ -13,55 +13,47 @@ const todayKey=dateKey(new Date());
 const currentMonth=monthKey(new Date());
 
 export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[],cancellations=[],purchases=[],returns=[],navigate=()=>{},load=()=>{}}){
- const [period,setPeriod]=useState("14");
- const [selectedDay,setSelectedDay]=useState(dateKey(new Date()));
+ const [period,setPeriod]=useState("30"),[selectedDay,setSelectedDay]=useState(dateKey(new Date()));
  useEffect(()=>{const timer=setInterval(()=>{if(document.visibilityState==="visible")load()},10000);return()=>clearInterval(timer)},[]);
- const todayKey=dateKey(new Date()),currentMonth=monthKey(new Date());
- const previousMonth=monthKey(new Date(new Date().getFullYear(),new Date().getMonth()-1,1));
- const orderPayout=order=>(order.order_items||[]).reduce((n,item)=>n+Number(item.transferred_amount||0)*Number(item.quantity||0),0);
- const paidOrderIds=new Set(orders.filter(x=>x.delivery_status==="delivered"&&x.payment_status==="paid"&&!!x.paid_at).map(x=>x.id));
- const paidSales=sales.filter(x=>!!x.paid_at&&paidOrderIds.has(x.order_id));
- const currentSales=paidSales.filter(x=>monthKey(x.paid_at)===currentMonth);
- const previousSales=paidSales.filter(x=>monthKey(x.paid_at)===previousMonth);
+ const todayKey=dateKey(new Date()),currentMonth=monthKey(new Date()),previousMonth=monthKey(new Date(new Date().getFullYear(),new Date().getMonth()-1,1));
+ const paidIds=new Set(orders.filter(x=>x.delivery_status==="delivered"&&x.payment_status==="paid"&&x.paid_at).map(x=>x.id));
+ const paidSales=sales.filter(x=>x.paid_at&&paidIds.has(x.order_id)),currentSales=paidSales.filter(x=>monthKey(x.paid_at)===currentMonth),previousSales=paidSales.filter(x=>monthKey(x.paid_at)===previousMonth);
  const turnover=list=>list.reduce((n,x)=>n+Number(x.transferred_amount||0)*Number(x.quantity||0),0);
- const cancelledOrderIds=new Set(cancellations.map(x=>String(x.order_id||"")).filter(Boolean));
- const todayOrders=orders.filter(x=>!["cancelled","canceled"].includes(String(x.delivery_status||"").trim().toLowerCase())&&!x.cancelled_at&&!cancelledOrderIds.has(String(x.id))&&dateKey(x.ordered_at||x.created_at)===todayKey);
- const todayTurnover=todayOrders.reduce((n,x)=>n+orderPayout(x),0);
- const monthTurnover=turnover(currentSales),previousTurnover=turnover(previousSales);
- const monthlyExpenses=financeEntries.filter(x=>x.entry_type==="expense"&&x.status==="paid"&&monthKey(x.paid_at||x.created_at)===currentMonth);
- const operatingExpenses=monthlyExpenses.filter(x=>x.source_type!=="purchase").reduce((n,x)=>n+Number(x.amount||0),0);
- const profit=currentSales.reduce((n,x)=>n+Number(x.net_profit||0),0)-operatingExpenses;
- const stockValue=products.reduce((n,x)=>n+Number(x.cost_price||0)*Number(x.stock_qty||0),0);
- const stockSaleValue=products.reduce((n,x)=>n+Number(x.sale_price||0)*Number(x.stock_qty||0),0);
- const deliveredUnpaid=sales.filter(x=>!x.paid_at&&orders.some(o=>o.id===x.order_id&&o.delivery_status==="delivered"&&o.payment_status!=="paid"));
- const waitingAmount=deliveredUnpaid.reduce((n,x)=>n+Number(x.transferred_amount||0)*Number(x.quantity||0),0);
- const purchaseTotal=purchases.filter(x=>monthKey(x.purchased_at||x.created_at)===currentMonth).reduce((n,x)=>n+Number(x.total_amount||0),0);
- const change=previousTurnover?((monthTurnover-previousTurnover)/previousTurnover)*100:(monthTurnover?100:0);
- const chart=useMemo(()=>{const count=Number(period);return Array.from({length:count},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(count-1-i));const key=dateKey(d);const dayOrders=orders.filter(x=>dateKey(x.ordered_at||x.created_at)===key);return {key,label:String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0"),fullDate:dateLabel(d),count:dayOrders.length}})},[orders,period]);
- const maxChart=Math.max(1,...chart.map(x=>x.count));
- const selectedDayOrders=orders.filter(x=>dateKey(x.ordered_at||x.created_at)===selectedDay);
- const selectedDayLabel=selectedDay?selectedDay.split("-").reverse().join("."):"—";
- const low=products.filter(x=>Number(x.stock_qty||0)<=Number(x.low_stock_threshold||0));
- const activeOrders=orders.filter(x=>!["delivered","cancelled"].includes(x.delivery_status));
+ const cancelledIds=new Set(cancellations.map(x=>String(x.order_id||"")));
+ const todayOrders=orders.filter(x=>!["cancelled","canceled"].includes(String(x.delivery_status||"").toLowerCase())&&!x.cancelled_at&&!cancelledIds.has(String(x.id))&&dateKey(x.ordered_at||x.created_at)===todayKey);
+ const todayTurnover=todayOrders.reduce((n,x)=>n+(x.order_items||[]).reduce((v,i)=>v+Number(i.transferred_amount||0)*Number(i.quantity||0),0),0);
+ const monthTurnover=turnover(currentSales),prevTurnover=turnover(previousSales),change=prevTurnover?(monthTurnover-prevTurnover)/prevTurnover*100:(monthTurnover?100:0);
+ const expenses=financeEntries.filter(x=>x.entry_type==="expense"&&x.status==="paid"&&x.source_type!=="purchase"&&monthKey(x.paid_at||x.created_at)===currentMonth).reduce((n,x)=>n+Number(x.amount||0),0);
+ const profit=currentSales.reduce((n,x)=>n+Number(x.net_profit||0),0)-expenses;
+ const stockValue=products.reduce((n,x)=>n+Number(x.cost_price||0)*Number(x.stock_qty||0),0),stockSale=products.reduce((n,x)=>n+Number(x.sale_price||0)*Number(x.stock_qty||0),0);
+ const chart=useMemo(()=>Array.from({length:Number(period)},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(Number(period)-1-i));const key=dateKey(d);return {key,label:String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0"),count:orders.filter(x=>dateKey(x.ordered_at||x.created_at)===key&&!["cancelled","canceled"].includes(String(x.delivery_status||"").toLowerCase())).length}}),[orders,period]);
+ const maxChart=Math.max(1,...chart.map(x=>x.count)),selectedOrders=orders.filter(x=>dateKey(x.ordered_at||x.created_at)===selectedDay);
+ const active=orders.filter(x=>!["delivered","cancelled","canceled"].includes(String(x.delivery_status||"").toLowerCase()));
+ const low=products.filter(x=>Number(x.stock_qty||0)<=Number(x.low_stock_threshold||0)).sort((a,b)=>Number(a.stock_qty||0)-Number(b.stock_qty||0)).slice(0,4);
+ const recent=[...orders].filter(x=>!["cancelled","canceled"].includes(String(x.delivery_status||"").toLowerCase())).sort((a,b)=>new Date(b.ordered_at||b.created_at||0)-new Date(a.ordered_at||a.created_at||0)).slice(0,5);
+ const ranking=[...sales.reduce((m,x)=>{const k=x.product_id||x.product_name,v=m.get(k)||{key:k,name:x.product_name||"Məhsul",qty:0,image:products.find(p=>String(p.id)===String(x.product_id))?.image_url};v.qty+=Number(x.quantity||0);m.set(k,v);return m},new Map()).values()].sort((a,b)=>b.qty-a.qty).slice(0,4);
+ const label=s=>({ready_for_pickup:"Hazırlanır",ready:"Hazırlanır",delivered:"Təhvil edilib",shipped:"Kuryerə verilib",on_pudo:"PUDO-da",at_pickup_point:"Paylama məntəqəsində",pending:"Gözləyir"}[String(s||"").toLowerCase()]||String(s||"Gözləyir").replaceAll("_"," "));
+ const cls=s=>String(s||"").includes("delivered")?"delivered":String(s||"").includes("ready")?"ready":String(s||"pudo").includes("pudo")?"pudo":"moving";
  return <div className="owner-dashboard">
-  <div className="owner-welcome"><div><span className="owner-kicker">SAHİBKAR PANELİ</span><h2>ZED STORE — Biznes icmalı</h2><p>Sifariş, satış dinamikası və anbar vəziyyətini bir ekranda izlə.</p></div><button className="owner-refresh" onClick={load}><RefreshCw size={16}/> Yenilə</button></div>
+  <div className="owner-welcome"><div><span className="owner-kicker">ZED STORE · İDARƏETMƏ</span><h2>Biznesinizin vəziyyəti bir baxışda</h2><p>Satış, sifariş və anbar göstəricilərinə ümumi nəzarət.</p></div><button className="owner-refresh" onClick={load}><RefreshCw size={16}/> Yenilə</button></div>
   <div className="owner-metrics">
-   <article className="owner-metric accent"><span>Bu gün satış</span><b>{money(todayTurnover)}</b><small>{todayOrders.length} yeni sifariş · komissiyalar çıxıldıqdan sonra</small></article>
-   <article className="owner-metric"><span>Bu ay dövriyyə</span><b>{money(monthTurnover)}</b><small className={change>=0?"positive":"negative"}>{change>=0?"↑":"↓"} {Math.abs(change).toFixed(1)}% · yalnız ödənişi təsdiqlənənlər</small></article>
-   <article className="owner-metric"><span>Gözləmədə</span><b>{money(waitingAmount)}</b><small>{deliveredUnpaid.length} təhvil verilmiş, ödənişi gözləyən satış</small></article>
-   <article className="owner-metric"><span>Xalis mənfəət</span><b>{money(profit)}</b><small>Ödənişi təsdiqlənmiş satış mənfəəti − əlavə əməliyyat xərcləri</small></article>
-   <article className="owner-metric"><span>Anbarın maya dəyəri</span><b>{money(stockValue)}</b><small>{products.length} aktiv məhsul</small></article>
-   <article className="owner-metric"><span>Anbarın satış dəyəri</span><b>{money(stockSaleValue)}</b><small>Stokdakı malların satış qiyməti ilə ümumi dəyəri</small></article>
+   <article className="owner-metric metric-blue"><span>Bu günün satışları</span><b>{money(todayTurnover)}</b><small>{todayOrders.length} yeni sifariş</small></article>
+   <article className="owner-metric metric-indigo"><span>Bu ayın xalis dövriyyəsi</span><b>{money(monthTurnover)}</b><small className={change>=0?"positive":"negative"}>{change>=0?"↑":"↓"} {Math.abs(change).toFixed(1)}% · ötən ayla müqayisə</small></article>
+   <article className="owner-metric metric-green"><span>Ümumi mənfəət</span><b>{money(profit)}</b><small>Ödənişi təsdiqlənmiş satışlardan</small></article>
+   <article className="owner-metric metric-red"><span>Anbarın maya dəyəri</span><b>{money(stockValue)}</b><small>{products.length} məhsul çeşidi</small></article>
+   <article className="owner-metric metric-gold"><span>Anbarın satış dəyəri</span><b>{money(stockSale)}</b><small>Stokdakı məhsulların xalis satış dəyəri</small></article>
+   <article className="owner-metric metric-violet"><span>Aktiv sifarişlər</span><b>{active.length}</b><small>Hazırlanma və çatdırılma mərhələsində</small></article>
   </div>
   <div className="owner-dashboard-grid">
-   <section className="owner-card owner-chart-card"><div className="owner-card-head"><div><h3>Satış dinamikası</h3><p>Günlər üzrə yalnız yeni yaradılmış sifarişlərin sayı. Sütuna toxunaraq həmin günü seç.</p></div><select value={period} onChange={e=>{setPeriod(e.target.value);setSelectedDay(dateKey(new Date()))}}><option value="7">7 gün</option><option value="14">14 gün</option><option value="30">30 gün</option></select></div><div className="owner-chart">{chart.map(x=><button type="button" className={"owner-chart-col owner-chart-day"+(selectedDay===x.key?" selected":"")} key={x.key} aria-pressed={selectedDay===x.key} onClick={()=>setSelectedDay(x.key)} title={x.fullDate+" · "+x.count+" sifariş"}><span className="owner-chart-count">{x.count}</span><div className="owner-chart-bar-wrap"><i style={{height:(x.count/maxChart*100)+"%"}}/></div><small>{x.label}</small></button>)}</div><div className="owner-selected-day"><div><small>Seçilmiş gün</small><b>{selectedDayLabel}</b></div><strong>{selectedDayOrders.length}</strong><span>yeni sifariş</span></div><div className="owner-chart-refresh-note">Yeni sifarişlər avtomatik olaraq hər 10 saniyədən bir yoxlanılır. Paneldə yaradılan sifarişdən sonra məlumat dərhal yenilənir.</div></section>
+   <section className="owner-card owner-chart-card"><div className="owner-card-head"><div><h3>Yeni sifarişlərin qrafiki</h3><p>Günlər üzrə yeni sifariş sayı · məbləğ göstərilmir.</p></div><select value={period} onChange={e=>{setPeriod(e.target.value);setSelectedDay(dateKey(new Date()))}}><option value="7">7 gün</option><option value="30">30 gün</option><option value="90">90 gün</option></select></div><div className="owner-chart">{chart.map(x=><button type="button" className={"owner-chart-col owner-chart-day"+(selectedDay===x.key?" selected":"")} key={x.key} onClick={()=>setSelectedDay(x.key)} title={x.label+" · "+x.count+" sifariş"}><span className="owner-chart-count">{x.count}</span><div className="owner-chart-bar-wrap"><i style={{height:(x.count/maxChart*100)+"%"}}/></div><small>{x.label}</small></button>)}</div><div className="owner-selected-day"><div><small>Seçilmiş gün</small><b>{selectedDay.split("-").reverse().join(".")}</b></div><strong>{selectedOrders.length}</strong><span>yeni sifariş</span></div><div className="owner-chart-refresh-note">Məlumatlar avtomatik olaraq hər 10 saniyədən bir yenilənir.</div></section>
+   <section className="owner-card"><div className="owner-card-head"><div><h3>Son sifarişlər</h3><p>Ən son yaradılmış sifarişlər</p></div><button className="owner-text-link" onClick={()=>navigate("orders")}>Hamısına bax →</button></div><div className="owner-recent-list">{recent.map((x,i)=><button className="owner-recent-row" key={x.id||i} onClick={()=>navigate("orders")}><b>#{x.order_number||String(x.id||"").slice(0,6)}</b><span>{(x.order_items||[]).map(y=>y.product_name).filter(Boolean).join(", ")||x.customer_name||"Sifariş"}</span><em className={"owner-status "+cls(x.delivery_status)}>{label(x.delivery_status)}</em><time>{dateLabel(x.ordered_at||x.created_at)}</time></button>)}{!recent.length&&<p className="owner-order-empty">Hələ sifariş yoxdur.</p>}</div></section>
   </div>
-  <div className="owner-shortcuts">
-   <button onClick={()=>navigate("orders")}><Store size={18}/><span><b>{activeOrders.length}</b><small>Prosesdə sifariş</small></span></button>
-   <button onClick={()=>navigate("stock")}><Boxes size={18}/><span><b>{low.length}</b><small>Az qalan məhsul</small></span></button>
-   <button onClick={()=>navigate("purchases")}><ArrowDownToLine size={18}/><span><b>{money(purchaseTotal)}</b><small>Bu ay alışlar</small></span></button>
+  <div className="owner-lower-grid">
+   <section className="owner-card"><div className="owner-card-head"><div><h3>Ən çox satılan məhsullar</h3><p>Satış qeydlərinə əsasən</p></div><button className="owner-text-link" onClick={()=>navigate("performance")}>Hamısına bax</button></div><div className="owner-ranking-list">{ranking.map((x,i)=><div className="owner-ranking-row" key={x.key}><b className="owner-rank">{i+1}</b><span className="owner-ranking-image">{x.image?<img src={x.image} alt=""/>:<Boxes size={18}/>}</span><span className="owner-ranking-name">{x.name}</span><strong>{x.qty} ədəd</strong><i><span style={{width:(x.qty/Math.max(1,ranking[0]?.qty||1)*100)+"%"}}/></i></div>)}{!ranking.length&&<p className="owner-order-empty">Satış məlumatı hələ yoxdur.</p>}</div></section>
+   <section className="owner-card"><div className="owner-card-head"><div><h3>Stok xəbərdarlıqları</h3><p>Az qalan və bitmiş məhsullar</p></div><button className="owner-text-link" onClick={()=>navigate("stock")}>Anbara bax →</button></div><div className="owner-low-list">{low.map((x,i)=><button className="owner-low-row" key={x.id||i} onClick={()=>navigate("stock")}><span className="owner-ranking-image">{x.image_url?<img src={x.image_url} alt=""/>:<Boxes size={18}/>}</span><span><b>{x.name}</b><small>Stok: {x.stock_qty} ədəd</small></span><em>{Number(x.stock_qty)<=0?"Bitib":"Az qalıb"}</em></button>)}{!low.length&&<p className="owner-order-empty">Stok xəbərdarlığı yoxdur.</p>}</div></section>
+   <section className="owner-promo-card"><div><span>ZED STORE</span><h3>Biznesinizi daha effektiv idarə edin!</h3><button onClick={()=>navigate("analytics")}>Analitikaya keç →</button></div><div className="owner-promo-bars"><i/><i/><i/><i/></div></section>
   </div>
-  <p className="owner-footnote">“Satış dinamikası” sifarişin yaradılma tarixinə əsaslanır, bütün yeni sifarişləri statusundan asılı olmayaraq sayır və məbləğ göstərmir. “Bu ay dövriyyə” yalnız təhvil verilmiş və ödənişi təsdiqlənmiş satışların komissiyalar çıxıldıqdan sonra köçən məbləğini göstərir. “Gözləmədə” yalnız təhvil verilmiş, lakin ödənişi təsdiqlənməmiş satışları göstərir.</p>
+  <p className="owner-footnote">Qrafik yalnız yeni sifariş sayını göstərir. Dövriyyə və mənfəət yalnız təhvil verilmiş, ödənişi təsdiqlənmiş satışlardan hesablanır.</p>
  </div>
 }
 export function PurchasesPanel({sb,user,products=[],purchases=[],suppliers=[],say,load,calculateProductPayout}){
