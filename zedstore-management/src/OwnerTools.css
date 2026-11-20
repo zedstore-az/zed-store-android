@@ -330,3 +330,22 @@
 @media(max-width:760px){.owner-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-metric{padding-left:54px;min-height:94px}.owner-metric:before{left:11px;width:33px;height:33px}.owner-metric>b{font-size:16px}.owner-lower-grid{grid-template-columns:1fr}.owner-promo-card{grid-column:auto}.owner-welcome h2{font-size:20px}.owner-chart{height:180px}.owner-chart-day .owner-chart-bar-wrap{height:135px}}
 @media(max-width:420px){.owner-metric{padding:12px 9px 12px 46px}.owner-metric:before{left:8px;width:29px;height:29px}.owner-metric>b{font-size:14px}.owner-metric>span{font-size:9px}}
 :root[data-theme="dark"] .owner-welcome{background:transparent}:root[data-theme="dark"] .owner-welcome h2{color:#edf4ff}:root[data-theme="dark"] .owner-card{background:#17263a;border-color:#293b54}:root[data-theme="dark"] .owner-card-head h3,:root[data-theme="dark"] .owner-recent-row>b,:root[data-theme="dark"] .owner-recent-row>span,:root[data-theme="dark"] .owner-ranking-name,:root[data-theme="dark"] .owner-ranking-row>strong,:root[data-theme="dark"] .owner-low-row b{color:#e7eef8}
+
+/* Keep premium metric gradients in both themes and use real metric icons */
+.owner-metric:before{display:none!important}
+.owner-metric{padding-left:68px!important}
+.owner-metric-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:#ffffff30;color:#fff;font-style:normal}
+.owner-metric.metric-gold .owner-metric-icon{background:#ffffff65;color:#9a6100}
+:root[data-theme="dark"] .owner-metric.metric-blue{background:linear-gradient(115deg,#1765e8,#3b91f6);border-color:transparent;color:white}
+:root[data-theme="dark"] .owner-metric.metric-indigo{background:linear-gradient(115deg,#304ed8,#6377ed);border-color:transparent;color:white}
+:root[data-theme="dark"] .owner-metric.metric-green{background:linear-gradient(115deg,#078c68,#23b58d);border-color:transparent;color:white}
+:root[data-theme="dark"] .owner-metric.metric-red{background:linear-gradient(115deg,#e64b59,#f47d86);border-color:transparent;color:white}
+:root[data-theme="dark"] .owner-metric.metric-gold{background:linear-gradient(115deg,#f5c85e,#ffdf8a);border-color:transparent;color:#171b27}
+:root[data-theme="dark"] .owner-metric.metric-violet{background:linear-gradient(115deg,#7154df,#a397f5);border-color:transparent;color:white}
+:root[data-theme="dark"] .owner-metric.metric-blue>span,:root[data-theme="dark"] .owner-metric.metric-indigo>span,:root[data-theme="dark"] .owner-metric.metric-green>span,:root[data-theme="dark"] .owner-metric.metric-red>span,:root[data-theme="dark"] .owner-metric.metric-violet>span{color:#ffffffed}
+:root[data-theme="dark"] .owner-metric.metric-blue>b,:root[data-theme="dark"] .owner-metric.metric-indigo>b,:root[data-theme="dark"] .owner-metric.metric-green>b,:root[data-theme="dark"] .owner-metric.metric-red>b,:root[data-theme="dark"] .owner-metric.metric-violet>b{color:#fff}
+:root[data-theme="dark"] .owner-metric.metric-blue>small,:root[data-theme="dark"] .owner-metric.metric-indigo>small,:root[data-theme="dark"] .owner-metric.metric-green>small,:root[data-theme="dark"] .owner-metric.metric-red>small,:root[data-theme="dark"] .owner-metric.metric-violet>small{color:#ffffffdf}
+:root[data-theme="dark"] .owner-metric.metric-gold>span,:root[data-theme="dark"] .owner-metric.metric-gold>small{color:#593b0c}
+:root[data-theme="dark"] .owner-metric.metric-gold>b{color:#171b27}
+@media(max-width:760px){.owner-metric{padding-left:54px!important}.owner-metric-icon{left:11px;width:33px;height:33px}}
+@media(max-width:420px){.owner-metric{padding-left:46px!important}.owner-metric-icon{left:8px;width:29px;height:29px}}
