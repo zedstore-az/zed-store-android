@@ -349,3 +349,24 @@
 :root[data-theme="dark"] .owner-metric.metric-gold>b{color:#171b27}
 @media(max-width:760px){.owner-metric{padding-left:54px!important}.owner-metric-icon{left:11px;width:33px;height:33px}}
 @media(max-width:420px){.owner-metric{padding-left:46px!important}.owner-metric-icon{left:8px;width:29px;height:29px}}
+
+/* Final premium color treatment: gradients must override legacy dark surfaces */
+.owner-metric.metric-blue{background:linear-gradient(115deg,#1765e8,#3b91f6)!important;border:0!important;color:#fff!important}
+.owner-metric.metric-indigo{background:linear-gradient(115deg,#304ed8,#6377ed)!important;border:0!important;color:#fff!important}
+.owner-metric.metric-green{background:linear-gradient(115deg,#078c68,#23b58d)!important;border:0!important;color:#fff!important}
+.owner-metric.metric-red{background:linear-gradient(115deg,#e64b59,#f47d86)!important;border:0!important;color:#fff!important}
+.owner-metric.metric-gold{background:linear-gradient(115deg,#f5c85e,#ffdf8a)!important;border:0!important;color:#171b27!important}
+.owner-metric.metric-violet{background:linear-gradient(115deg,#7154df,#a397f5)!important;border:0!important;color:#fff!important}
+.owner-metric.metric-blue>span,.owner-metric.metric-indigo>span,.owner-metric.metric-green>span,.owner-metric.metric-red>span,.owner-metric.metric-violet>span{color:#ffffffed!important}
+.owner-metric.metric-blue>b,.owner-metric.metric-indigo>b,.owner-metric.metric-green>b,.owner-metric.metric-red>b,.owner-metric.metric-violet>b{color:#fff!important}
+.owner-metric.metric-blue>small,.owner-metric.metric-indigo>small,.owner-metric.metric-green>small,.owner-metric.metric-red>small,.owner-metric.metric-violet>small{color:#ffffffdf!important}
+.owner-metric.metric-gold>span,.owner-metric.metric-gold>small{color:#593b0c!important}.owner-metric.metric-gold>b{color:#171b27!important}
+.owner-metric-icon{z-index:1}
+.owner-dashboard-grid{grid-template-columns:minmax(0,1.45fr) minmax(330px,1fr)}
+.owner-chart{position:relative;display:flex;align-items:stretch}
+.owner-chart-day .owner-chart-bar-wrap{border-bottom-color:#dfe7f2}
+.owner-chart-day .owner-chart-bar-wrap i{box-shadow:0 2px 8px #1765e830}
+:root[data-theme="dark"] .owner-metric.metric-blue,:root[data-theme="dark"] .owner-metric.metric-indigo,:root[data-theme="dark"] .owner-metric.metric-green,:root[data-theme="dark"] .owner-metric.metric-red,:root[data-theme="dark"] .owner-metric.metric-gold,:root[data-theme="dark"] .owner-metric.metric-violet{box-shadow:0 5px 16px #0002}
+@media(max-width:1120px){.owner-dashboard-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.owner-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-dashboard-grid{grid-template-columns:1fr}.owner-chart{overflow-x:auto}.owner-chart-day{min-width:17px}}
+@media(min-width:761px){.owner-lower-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(250px,1fr)}}
