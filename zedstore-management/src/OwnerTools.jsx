@@ -1,5 +1,5 @@
 import React,{useEffect,useMemo,useState} from "react";
-import {ArrowDownToLine,ArrowUpFromLine,Boxes,CalendarDays,CheckCircle2,Clock3,Download,LockKeyhole,Plus,RefreshCw,ShieldCheck,Store,Trash2,Upload,X} from "lucide-react";
+import {ArrowDownToLine,ArrowUpFromLine,Boxes,CalendarDays,CheckCircle2,Clock3,Download,LockKeyhole,Plus,RefreshCw,ShieldCheck,Store,Trash2,Upload,X,ShoppingCart,ChartNoAxesCombined,Wallet,Package,ClipboardList} from "lucide-react";
 import BIRM_CATEGORIES from "./data/birmarketCategories.json";
 import "./OwnerTools.css";
 
@@ -37,12 +37,12 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
  return <div className="owner-dashboard">
   <div className="owner-welcome"><div><span className="owner-kicker">ZED STORE · İDARƏETMƏ</span><h2>Biznesinizin vəziyyəti bir baxışda</h2><p>Satış, sifariş və anbar göstəricilərinə ümumi nəzarət.</p></div><button className="owner-refresh" onClick={load}><RefreshCw size={16}/> Yenilə</button></div>
   <div className="owner-metrics">
-   <article className="owner-metric metric-blue"><span>Bu günün satışları</span><b>{money(todayTurnover)}</b><small>{todayOrders.length} yeni sifariş</small></article>
-   <article className="owner-metric metric-indigo"><span>Bu ayın xalis dövriyyəsi</span><b>{money(monthTurnover)}</b><small className={change>=0?"positive":"negative"}>{change>=0?"↑":"↓"} {Math.abs(change).toFixed(1)}% · ötən ayla müqayisə</small></article>
-   <article className="owner-metric metric-green"><span>Ümumi mənfəət</span><b>{money(profit)}</b><small>Ödənişi təsdiqlənmiş satışlardan</small></article>
-   <article className="owner-metric metric-red"><span>Anbarın maya dəyəri</span><b>{money(stockValue)}</b><small>{products.length} məhsul çeşidi</small></article>
-   <article className="owner-metric metric-gold"><span>Anbarın satış dəyəri</span><b>{money(stockSale)}</b><small>Stokdakı məhsulların xalis satış dəyəri</small></article>
-   <article className="owner-metric metric-violet"><span>Aktiv sifarişlər</span><b>{active.length}</b><small>Hazırlanma və çatdırılma mərhələsində</small></article>
+   <article className="owner-metric metric-blue"><i className="owner-metric-icon"><ShoppingCart size={23}/></i><span>Bu günün satışları</span><b>{money(todayTurnover)}</b><small>{todayOrders.length} yeni sifariş</small></article>
+   <article className="owner-metric metric-indigo"><i className="owner-metric-icon"><ChartNoAxesCombined size={23}/></i><span>Bu ayın xalis dövriyyəsi</span><b>{money(monthTurnover)}</b><small className={change>=0?"positive":"negative"}>{change>=0?"↑":"↓"} {Math.abs(change).toFixed(1)}% · ötən ayla müqayisə</small></article>
+   <article className="owner-metric metric-green"><i className="owner-metric-icon"><Wallet size={23}/></i><span>Ümumi mənfəət</span><b>{money(profit)}</b><small>Ödənişi təsdiqlənmiş satışlardan</small></article>
+   <article className="owner-metric metric-red"><i className="owner-metric-icon"><Package size={23}/></i><span>Anbarın maya dəyəri</span><b>{money(stockValue)}</b><small>{products.length} məhsul çeşidi</small></article>
+   <article className="owner-metric metric-gold"><i className="owner-metric-icon"><Boxes size={23}/></i><span>Anbarın satış dəyəri</span><b>{money(stockSale)}</b><small>Stokdakı məhsulların xalis satış dəyəri</small></article>
+   <article className="owner-metric metric-violet"><i className="owner-metric-icon"><ClipboardList size={23}/></i><span>Aktiv sifarişlər</span><b>{active.length}</b><small>Hazırlanma və çatdırılma mərhələsində</small></article>
   </div>
   <div className="owner-dashboard-grid">
    <section className="owner-card owner-chart-card"><div className="owner-card-head"><div><h3>Yeni sifarişlərin qrafiki</h3><p>Günlər üzrə yeni sifariş sayı · məbləğ göstərilmir.</p></div><select value={period} onChange={e=>{setPeriod(e.target.value);setSelectedDay(dateKey(new Date()))}}><option value="7">7 gün</option><option value="30">30 gün</option><option value="90">90 gün</option></select></div><div className="owner-chart">{chart.map(x=><button type="button" className={"owner-chart-col owner-chart-day"+(selectedDay===x.key?" selected":"")} key={x.key} onClick={()=>setSelectedDay(x.key)} title={x.label+" · "+x.count+" sifariş"}><span className="owner-chart-count">{x.count}</span><div className="owner-chart-bar-wrap"><i style={{height:(x.count/maxChart*100)+"%"}}/></div><small>{x.label}</small></button>)}</div><div className="owner-selected-day"><div><small>Seçilmiş gün</small><b>{selectedDay.split("-").reverse().join(".")}</b></div><strong>{selectedOrders.length}</strong><span>yeni sifariş</span></div><div className="owner-chart-refresh-note">Məlumatlar avtomatik olaraq hər 10 saniyədən bir yenilənir.</div></section>
