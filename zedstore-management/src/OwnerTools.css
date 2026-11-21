@@ -547,3 +547,23 @@
  .owner-recent-row time{grid-column:2;grid-row:4;justify-self:start}
  .owner-card-head .owner-text-link{min-height:34px;padding:7px 10px!important;font-size:10px!important}
 }
+
+
+/* Pending Birmarket transfer */
+.owner-metric.metric-pending{
+ background:linear-gradient(115deg,#123d56 0%,#167b83 100%);
+ border:1px solid rgba(115,226,218,.22);
+}
+.owner-metric.metric-pending>span,
+.owner-metric.metric-pending>small{color:#c8f2ef}
+.owner-metric.metric-pending>b{color:#fff}
+.owner-metric.metric-pending .owner-metric-icon{color:#b8fff0}
+.owner-metric.metric-pending:after{
+ content:"";
+ position:absolute;
+ width:120px;height:120px;
+ right:-38px;bottom:-62px;
+ border-radius:50%;
+ background:rgba(161,255,236,.13);
+ pointer-events:none;
+}
