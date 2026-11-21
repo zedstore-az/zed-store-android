@@ -1497,3 +1497,69 @@ button.primary,.primary{min-height:42px}
 .order-total-summary b{font-size:13px;color:var(--text,#26364b);overflow-wrap:anywhere}
 .order-edit-addresses>small{font-size:11px;color:var(--muted,#8290a2);line-height:1.45}
 @media(max-width:650px){.order-total-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.order-total-summary b{font-size:12px}}
+
+
+/* Premium, high-contrast order financial summary */
+.order-total-summary{
+  position:relative!important;
+  isolation:isolate;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:0!important;
+  overflow:hidden;
+  margin:14px 0!important;
+  padding:28px 26px 22px!important;
+  border:1px solid rgba(139,180,224,.28)!important;
+  border-radius:20px!important;
+  background:linear-gradient(135deg,#17263a 0%,#203750 58%,#1b3048 100%)!important;
+  box-shadow:0 14px 32px rgba(5,16,32,.22),inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+.order-total-summary:before{
+  content:"SİFARİŞİN MALİYYƏ XÜLASƏSİ";
+  grid-column:1/-1;
+  display:block;
+  margin:0 0 15px;
+  color:#9fb5cc;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.5px;
+}
+.order-total-summary>div{
+  position:relative;
+  display:flex!important;
+  flex-direction:column;
+  justify-content:center;
+  gap:8px!important;
+  min-width:0;
+  min-height:94px;
+  padding:15px 18px!important;
+  border:0!important;
+  border-top:1px solid rgba(188,211,235,.13);
+  background:transparent;
+}
+.order-total-summary>div:nth-child(odd){border-right:1px solid rgba(188,211,235,.13)!important}
+.order-total-summary>div small{
+  color:#b5c5d7!important;
+  font-size:12px!important;
+  font-weight:600;
+  line-height:1.4;
+}
+.order-total-summary>div b{
+  color:#f5f8fc!important;
+  font-size:clamp(19px,2.2vw,26px)!important;
+  font-weight:800!important;
+  line-height:1.15;
+  letter-spacing:-.35px;
+  font-variant-numeric:tabular-nums;
+}
+.order-total-summary>div:nth-child(2) b{color:#ffaaa8!important}
+.order-total-summary>div:nth-child(3) b{color:#78d7ff!important}
+.order-total-summary>div:nth-child(4) b{color:#70e0b1!important}
+.order-total-summary>div:nth-child(4){border-right:0!important}
+@media(max-width:650px){
+  .order-total-summary{padding:19px 12px 12px!important;border-radius:16px!important}
+  .order-total-summary:before{margin:0 0 10px 5px;font-size:9px}
+  .order-total-summary>div{min-height:82px;padding:12px 10px!important;gap:7px!important}
+  .order-total-summary>div small{font-size:10px!important}
+  .order-total-summary>div b{font-size:18px!important}
+}
