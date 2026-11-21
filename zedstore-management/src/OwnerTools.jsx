@@ -35,7 +35,7 @@ export function DashboardPanel({products=[],sales=[],financeEntries=[],orders=[]
 
  const active=orders.filter(x=>!["delivered","cancelled","canceled"].includes(String(x.delivery_status||"").toLowerCase()));
  const pendingPayoutOrders=orders.filter(x=>String(x.delivery_status||"").toLowerCase()==="delivered"&&x.payment_status!=="paid"&&!x.paid_at&&!["cancelled","canceled"].includes(String(x.delivery_status||"").toLowerCase()));
- const pendingPayout=pendingPayoutOrders.reduce((sum,order)=>sum+(order.order_items||[]).reduce((n,item)=>n+Number(item.transferred_amount||0),0),0);
+ const pendingPayout=pendingPayoutOrders.reduce((sum,order)=>sum+(order.order_items||[]).reduce((n,item)=>n+Number(item.transferred_amount||0)*Number(item.quantity||1),0),0);
  const low=products.filter(x=>Number(x.stock_qty||0)<=Number(x.low_stock_threshold||0)).sort((a,b)=>Number(a.stock_qty||0)-Number(b.stock_qty||0)).slice(0,4);
  const recent=[...orders].filter(x=>!["cancelled","canceled"].includes(String(x.delivery_status||"").toLowerCase())).sort((a,b)=>new Date(b.ordered_at||b.created_at||0)-new Date(a.ordered_at||a.created_at||0)).slice(0,5);
  const ranking=[...sales.reduce((m,x)=>{const k=x.product_id||x.product_name,v=m.get(k)||{key:k,name:x.product_name||"Məhsul",qty:0,image:products.find(p=>String(p.id)===String(x.product_id))?.image_url};v.qty+=Number(x.quantity||0);m.set(k,v);return m},new Map()).values()].sort((a,b)=>b.qty-a.qty).slice(0,4);
