@@ -1,5 +1,5 @@
 import React,{useMemo,useState} from 'react';
-import { MessageSquareText, RefreshCw, Clock3, Smartphone, ShieldCheck, Radio, Hash, Check, Archive, Inbox, RotateCcw, AlertCircle } from 'lucide-react';
+import { MessageSquareText, RefreshCw, Clock3, Smartphone, ShieldCheck, Radio, Hash, Check, Archive, Inbox, RotateCcw, AlertCircle, Volume2, VolumeX } from 'lucide-react';
 
 const dateParts = value => {
   if (!value) return null;
@@ -19,11 +19,12 @@ const ago = value => {
 };
 
 export default function BirmarketInbox({rows=[],onRefresh,busy=false,client}) {
-  const [view,setView]=useState('new'),[saving,setSaving]=useState(''),[error,setError]=useState('');
+  const [view,setView]=useState('new'),[saving,setSaving]=useState(''),[error,setError]=useState(''),[soundOn,setSoundOn]=useState(()=>localStorage.getItem('zed_birmarket_sms_sound')!=='off');
   const unread=useMemo(()=>rows.filter(x=>!x.is_read),[rows]);
   const read=useMemo(()=>rows.filter(x=>!!x.is_read),[rows]);
   const latest=rows.reduce((best,row)=>{const p=dateParts(row.received_at);return p&&(!best||p.epoch>best.epoch)?p:best},null);
   const visible=view==='new'?unread:read;
+  function toggleSound(){const next=!soundOn;setSoundOn(next);localStorage.setItem('zed_birmarket_sms_sound',next?'on':'off')}
   async function setRead(row,next){
     if(!client||saving)return;
     setSaving(row.id);setError('');
@@ -42,7 +43,7 @@ export default function BirmarketInbox({rows=[],onRefresh,busy=false,client}) {
         <h2>Birmarket <span>SMS</span></h2>
         <p>Birmarket-dən gələn sifariş bildirişlərini bir yerdə idarə et.</p>
       </div>
-      <button className="birmarket-refresh" type="button" onClick={onRefresh} disabled={busy}><RefreshCw size={16} className={busy?'birmarket-spin':''}/> Yenilə</button>
+      <div className="birmarket-hero-actions"><button className="birmarket-sound-toggle" type="button" onClick={toggleSound} aria-pressed={soundOn}><span>{soundOn?<Volume2 size={16}/>:<VolumeX size={16}/>}</span>{soundOn?'Səs aktiv':'Səs bağlı'}</button><button className="birmarket-refresh" type="button" onClick={onRefresh} disabled={busy}><RefreshCw size={16} className={busy?'birmarket-spin':''}/> Yenilə</button></div>
       <div className="birmarket-hero-glow"/>
     </section>
 
