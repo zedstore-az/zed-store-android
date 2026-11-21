@@ -1488,3 +1488,12 @@ button.primary,.primary{min-height:42px}
     .record-card-body{padding:12px}
   }
 }
+
+
+/* Shared order totals */
+.order-total-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0;padding:11px;border:1px solid var(--border,#dce3eb);border-radius:12px;background:var(--surface-soft,#f8fafc)}
+.order-total-summary>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.order-total-summary small{font-size:10px;color:var(--muted,#8290a2);line-height:1.35}
+.order-total-summary b{font-size:13px;color:var(--text,#26364b);overflow-wrap:anywhere}
+.order-edit-addresses>small{font-size:11px;color:var(--muted,#8290a2);line-height:1.45}
+@media(max-width:650px){.order-total-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.order-total-summary b{font-size:12px}}
