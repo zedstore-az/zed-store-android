@@ -9,6 +9,25 @@ const dateParts = value => {
   const timeText = new Intl.DateTimeFormat('az-AZ',{timeZone:'Asia/Baku',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(date);
   return {date:dateText,time:timeText,full:dateText+' · '+timeText,epoch:date.getTime()};
 };
+function playPremiumSmsChime(ctx){
+  const now=ctx.currentTime;
+  const notes=[659.25,830.61,987.77];
+  notes.forEach((frequency,index)=>{
+    const start=now+index*0.14;
+    const master=ctx.createGain();
+    master.gain.setValueAtTime(0.0001,start);
+    master.gain.exponentialRampToValueAtTime(0.075,start+0.025);
+    master.gain.exponentialRampToValueAtTime(0.0001,start+0.62);
+    master.connect(ctx.destination);
+    [[frequency,'sine',1],[frequency*2,'sine',0.16],[frequency*0.5,'triangle',0.08]].forEach(([hz,type,level])=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.type=type;osc.frequency.setValueAtTime(hz,start);
+      gain.gain.value=level;
+      osc.connect(gain);gain.connect(master);
+      osc.start(start);osc.stop(start+0.64);
+    });
+  });
+}
 const ago = value => {
   const p=dateParts(value); if(!p)return 'Vaxt qeydə alınmayıb';
   const sec=Math.max(0,Math.floor((Date.now()-p.epoch)/1000));
@@ -30,17 +49,10 @@ export default function BirmarketInbox({rows=[],onRefresh,busy=false,client}) {
       const AudioCtx=window.AudioContext||window.webkitAudioContext;
       if(!AudioCtx){setError('Bu brauzer səs önizləməsini dəstəkləmir.');return}
       const ctx=new AudioCtx();
-      const now=ctx.currentTime;
-      [0,0.22].forEach((delay,index)=>{
-        const osc=ctx.createOscillator(),gain=ctx.createGain();
-        osc.type='sine';osc.frequency.value=index?1046:784;
-        gain.gain.setValueAtTime(0.0001,now+delay);
-        gain.gain.exponentialRampToValueAtTime(0.13,now+delay+0.018);
-        gain.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.17);
-        osc.connect(gain);gain.connect(ctx.destination);
-        osc.start(now+delay);osc.stop(now+delay+0.18);
-      });
-      window.setTimeout(()=>ctx.close().catch(()=>{}),800);
+      const play=()=>playPremiumSmsChime(ctx);
+      if(ctx.state==='suspended')ctx.resume().then(play).catch(()=>setError('Səs səsləndirilə bilmədi.'));
+      else play();
+      window.setTimeout(()=>ctx.close().catch(()=>{}),1800);
     }catch(err){setError('Səs səsləndirilə bilmədi. Brauzerin səs icazəsini yoxla.')}
   }
   async function setRead(row,next){
