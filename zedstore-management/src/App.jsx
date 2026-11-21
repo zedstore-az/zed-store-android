@@ -144,6 +144,7 @@ function BarcodeCameraModal({onDetected,close}){
 function App(){
  const [user,U]=useState(null),[ready,R]=useState(false),[splashDone,SD]=useState(false),[tab,T]=useState(()=>tabFromPath(window.location.pathname)),[mobile,M]=useState(false),[expandedGroups,EG]=useState({'İCMAL':true,'SATIŞ VƏ SİFARİŞ':true,'ANBAR VƏ TƏCHİZAT':true,'MALİYYƏ VƏ HESABAT':true,'ANALİTİKA':true,'SİSTEM VƏ TƏHLÜKƏSİZLİK':false}),[data,D]=useState({products:[],orders:[],sales:[],cancel:[],settings:null,notifications:[],activity:[],returns:[],stockMovements:[],financeEntries:[],purchases:[],suppliers:[],loginEvents:[],birmarket:[]}),[toast,Q]=useState(''),[busy,B]=useState(false);
  const [theme,setTheme]=useState(()=>localStorage.getItem('zed_store_theme')==='dark'?'dark':'light');
+ const smsSeenIds=useRef(null),smsAudioContext=useRef(null);
  const lastAutoRefreshAt=useRef(0);
  useEffect(()=>{document.documentElement.dataset.theme=theme;localStorage.setItem('zed_store_theme',theme)},[theme]);
  const [storeEmail,SEmail]=useState(()=>localStorage.getItem('zed_store_contact_email')||''),[storePhone,SPhone]=useState(()=>localStorage.getItem('zed_store_contact_phone')||'');
@@ -283,6 +284,40 @@ function App(){
  async function refreshOrders(){if(!user)return;const result=await loadAllRows('orders','*,order_items(*)','ordered_at');if(!result.error)D(prev=>({...prev,orders:result.data||[]}))}
  useEffect(()=>{if(!user||tab!=="home")return;const channel=sb.channel("zed-overview-orders-"+user.id).on("postgres_changes",{event:"*",schema:"public",table:"orders"},()=>refreshOrders()).subscribe();return()=>{sb.removeChannel(channel)}},[user,tab]);
  useEffect(()=>{load()},[user]);
+ useEffect(()=>{
+  if(!user||!Array.isArray(data.birmarket))return;
+  const ids=new Set(data.birmarket.map(row=>String(row.id)));
+  if(smsSeenIds.current===null){smsSeenIds.current=ids;return;}
+  const arrived=data.birmarket.filter(row=>!smsSeenIds.current.has(String(row.id))&&!row.is_read);
+  smsSeenIds.current=ids;
+  if(!arrived.length||localStorage.getItem('zed_birmarket_sms_sound')==='off')return;
+  const ctx=smsAudioContext.current;
+  if(!ctx||ctx.state!=='running')return;
+  try{
+   const now=ctx.currentTime;
+   [0,0.22].forEach((delay,index)=>{
+    const osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.type='sine';osc.frequency.value=index?1046:784;
+    gain.gain.setValueAtTime(0.0001,now+delay);
+    gain.gain.exponentialRampToValueAtTime(0.13,now+delay+0.018);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.17);
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.start(now+delay);osc.stop(now+delay+0.18);
+   });
+  }catch(err){console.warn('SMS notification sound unavailable',err)}
+ },[data.birmarket,user]);
+ useEffect(()=>{
+  const unlock=()=>{
+   if(!smsAudioContext.current){
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(AudioCtx)smsAudioContext.current=new AudioCtx();
+   }
+   if(smsAudioContext.current?.state==='suspended')smsAudioContext.current.resume().catch(()=>{});
+  };
+  window.addEventListener('pointerdown',unlock,{passive:true});
+  window.addEventListener('keydown',unlock);
+  return()=>{window.removeEventListener('pointerdown',unlock);window.removeEventListener('keydown',unlock)};
+ },[]);
  useEffect(()=>{
   if(!user)return;
   const refreshIfDue=()=>{
