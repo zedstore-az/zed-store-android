@@ -1563,3 +1563,74 @@ button.primary,.primary{min-height:42px}
   .order-total-summary>div small{font-size:10px!important}
   .order-total-summary>div b{font-size:18px!important}
 }
+
+
+/* Premium Birmarket SMS inbox */
+.birmarket-inbox{display:grid;gap:16px;min-width:0}
+.birmarket-inbox-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px 26px;border:1px solid rgba(104,151,255,.24);border-radius:20px;background:radial-gradient(circle at 85% 15%,rgba(52,111,255,.28),transparent 35%),linear-gradient(120deg,#101e35,#172d4b 65%,#183d5a);box-shadow:0 12px 30px rgba(3,13,29,.18)}
+.birmarket-inbox-hero-copy{min-width:0}
+.birmarket-inbox-eyebrow{display:flex;align-items:center;gap:7px;margin-bottom:9px;color:#8db7ff;font-size:9px;font-weight:850;letter-spacing:1.5px}
+.birmarket-inbox-hero h2{margin:0;color:#f5f8ff;font-size:clamp(21px,3vw,29px);font-weight:850;letter-spacing:-.6px}
+.birmarket-inbox-hero p{margin:7px 0 0;color:#b8c9df;font-size:12px;line-height:1.55}
+.birmarket-refresh{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:43px;padding:0 16px;border:1px solid rgba(163,196,255,.32);border-radius:12px;background:rgba(255,255,255,.09);color:#f3f7ff;font-size:11px;font-weight:750;white-space:nowrap;cursor:pointer}
+.birmarket-refresh:disabled{opacity:.6;cursor:wait}
+.birmarket-spin{animation:birmarketRotate 1s linear infinite}
+@keyframes birmarketRotate{to{transform:rotate(360deg)}}
+.birmarket-inbox-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.birmarket-stat-card{display:flex;align-items:center;gap:13px;min-width:0;padding:17px;border:1px solid var(--border,#e4eaf1);border-radius:16px;background:var(--card,#fff);box-shadow:0 5px 18px rgba(14,34,60,.05)}
+.birmarket-stat-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:13px;background:#eaf1ff;color:#3975dc}
+.birmarket-stat-card>div{display:grid;gap:4px;min-width:0}
+.birmarket-stat-card small{color:var(--muted,#8492a4);font-size:10px;font-weight:700}
+.birmarket-stat-card strong{color:var(--text,#20334b);font-size:22px;font-weight:850;line-height:1.1}
+.birmarket-stat-card span:not(.birmarket-stat-icon){color:var(--muted,#8492a4);font-size:9px;line-height:1.4}
+.birmarket-stat-card .birmarket-stat-time{font-size:19px;font-variant-numeric:tabular-nums}
+.birmarket-stat-live .birmarket-stat-icon{background:#e5f8f0;color:#14966d}
+.birmarket-stat-live strong{color:#14966d}
+.birmarket-inbox-panel{overflow:hidden;border:1px solid var(--border,#e4eaf1);border-radius:17px;background:var(--card,#fff);box-shadow:0 7px 24px rgba(14,34,60,.05)}
+.birmarket-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:19px 21px;border-bottom:1px solid var(--border,#e8edf3)}
+.birmarket-panel-head h3{margin:0;color:var(--text,#20334b);font-size:14px;font-weight:850}
+.birmarket-panel-head p{margin:5px 0 0;color:var(--muted,#8492a4);font-size:10px}
+.birmarket-count{padding:6px 10px;border-radius:20px;background:#edf3ff;color:#3975dc;font-size:10px;font-weight:800;white-space:nowrap}
+.birmarket-sms-list{display:grid;padding:4px 18px}
+.birmarket-sms-row{display:flex;align-items:center;gap:14px;min-width:0;padding:16px 4px;border-bottom:1px solid var(--border,#edf0f4)}
+.birmarket-sms-row:last-child{border-bottom:0}
+.birmarket-sms-symbol{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border:1px solid #dce8ff;border-radius:13px;background:#f0f5ff;color:#3975dc}
+.birmarket-sms-main{display:grid;gap:5px;min-width:0;flex:1}
+.birmarket-sms-main>small{color:var(--muted,#8492a4);font-size:8px;font-weight:850;letter-spacing:1px}
+.birmarket-sms-main>strong{display:flex;align-items:center;gap:2px;color:var(--text,#20334b);font-size:15px;font-weight:850;letter-spacing:.3px;overflow-wrap:anywhere}
+.birmarket-sms-time{display:flex;align-items:center;gap:5px;color:var(--muted,#8492a4);font-size:10px;line-height:1.4;flex-wrap:wrap}
+.birmarket-sms-meta{display:grid;justify-items:end;gap:7px}
+.birmarket-sms-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid #cceedd;border-radius:30px;background:#edfbf4;color:#16865f;font-size:9px;font-weight:800;white-space:nowrap}
+.birmarket-sms-badge>span{width:6px;height:6px;border-radius:50%;background:#19ad76;box-shadow:0 0 0 3px rgba(25,173,118,.12)}
+.birmarket-sms-meta>small{color:var(--muted,#8a98a9);font-size:9px}
+.birmarket-empty{display:grid;justify-items:center;text-align:center;padding:38px 20px}
+.birmarket-empty>span{display:grid;place-items:center;width:54px;height:54px;margin-bottom:12px;border-radius:17px;background:#eef3ff;color:#477bda}
+.birmarket-empty strong{color:var(--text,#20334b);font-size:13px}
+.birmarket-empty p{max-width:360px;margin:6px 0 0;color:var(--muted,#8492a4);font-size:10px;line-height:1.6}
+.birmarket-inbox-note{display:flex;align-items:flex-start;gap:11px;padding:15px 17px;border:1px solid #d9e6fa;border-radius:14px;background:linear-gradient(110deg,#f2f7ff,#f8fbff);color:#3975bd}
+.birmarket-inbox-note>svg{flex:0 0 auto;margin-top:1px}
+.birmarket-inbox-note strong{color:#2a4b75;font-size:11px}
+.birmarket-inbox-note p{margin:4px 0 0;color:#7087a3;font-size:10px;line-height:1.6}
+@media(max-width:700px){
+ .birmarket-inbox{gap:12px}
+ .birmarket-inbox-hero{align-items:flex-start;padding:19px 17px;border-radius:16px}
+ .birmarket-inbox-hero p{max-width:250px;font-size:11px}
+ .birmarket-refresh{min-height:40px;padding:0 11px;font-size:10px}
+ .birmarket-inbox-stats{grid-template-columns:1fr;gap:9px}
+ .birmarket-stat-card{padding:13px 15px}
+ .birmarket-stat-icon{width:38px;height:38px;flex-basis:38px}
+ .birmarket-stat-card strong{font-size:20px}
+ .birmarket-panel-head{padding:15px}
+ .birmarket-sms-list{padding:3px 12px}
+ .birmarket-sms-row{gap:10px;padding:14px 0;align-items:flex-start}
+ .birmarket-sms-symbol{width:36px;height:36px;flex-basis:36px}
+ .birmarket-sms-main>strong{font-size:13px}
+ .birmarket-sms-time{font-size:9px}
+ .birmarket-sms-badge{padding:5px 7px;font-size:8px}
+}
+@media(max-width:390px){
+ .birmarket-inbox-hero{display:grid}
+ .birmarket-refresh{justify-self:start}
+ .birmarket-sms-row{flex-wrap:wrap}
+ .birmarket-sms-meta{margin-left:46px;justify-items:start}
+}
