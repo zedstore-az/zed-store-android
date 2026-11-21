@@ -141,6 +141,25 @@ function BarcodeCameraModal({onDetected,close}){
  },[]);
  return <div className="shade" onClick={close}><section className="modal" style={{maxWidth:520}} onClick={e=>e.stopPropagation()}><header><b>Barkod scan et</b><button type="button" onClick={close}><X/></button></header><div style={{padding:14}}><video ref={video} playsInline muted autoPlay style={{display:active?'block':'none',width:'100%',maxHeight:300,objectFit:'cover',borderRadius:10,background:'#111'}}/><div style={{fontSize:13,color:'var(--muted)',marginTop:8}}>Barkodu kameraya yaxınlaşdır və çərçivədə saxla. Oxunan kimi avtomatik əlavə olunacaq.</div>{error&&<div role="alert" style={{marginTop:12,padding:12,borderRadius:8,background:'var(--surface-2,#f3f4f6)',fontSize:13}}>{error}</div>}</div></section></div>;
 }
+function playPremiumSmsChime(ctx){
+  const now=ctx.currentTime;
+  const notes=[659.25,830.61,987.77];
+  notes.forEach((frequency,index)=>{
+    const start=now+index*0.14;
+    const master=ctx.createGain();
+    master.gain.setValueAtTime(0.0001,start);
+    master.gain.exponentialRampToValueAtTime(0.075,start+0.025);
+    master.gain.exponentialRampToValueAtTime(0.0001,start+0.62);
+    master.connect(ctx.destination);
+    [[frequency,'sine',1],[frequency*2,'sine',0.16],[frequency*0.5,'triangle',0.08]].forEach(([hz,type,level])=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.type=type;osc.frequency.setValueAtTime(hz,start);
+      gain.gain.value=level;
+      osc.connect(gain);gain.connect(master);
+      osc.start(start);osc.stop(start+0.64);
+    });
+  });
+}
 function App(){
  const [user,U]=useState(null),[ready,R]=useState(false),[splashDone,SD]=useState(false),[tab,T]=useState(()=>tabFromPath(window.location.pathname)),[mobile,M]=useState(false),[expandedGroups,EG]=useState({'İCMAL':true,'SATIŞ VƏ SİFARİŞ':true,'ANBAR VƏ TƏCHİZAT':true,'MALİYYƏ VƏ HESABAT':true,'ANALİTİKA':true,'SİSTEM VƏ TƏHLÜKƏSİZLİK':false}),[data,D]=useState({products:[],orders:[],sales:[],cancel:[],settings:null,notifications:[],activity:[],returns:[],stockMovements:[],financeEntries:[],purchases:[],suppliers:[],loginEvents:[],birmarket:[]}),[toast,Q]=useState(''),[busy,B]=useState(false);
  const [theme,setTheme]=useState(()=>localStorage.getItem('zed_store_theme')==='dark'?'dark':'light');
@@ -294,16 +313,7 @@ function App(){
   const ctx=smsAudioContext.current;
   if(!ctx||ctx.state!=='running')return;
   try{
-   const now=ctx.currentTime;
-   [0,0.22].forEach((delay,index)=>{
-    const osc=ctx.createOscillator(),gain=ctx.createGain();
-    osc.type='sine';osc.frequency.value=index?1046:784;
-    gain.gain.setValueAtTime(0.0001,now+delay);
-    gain.gain.exponentialRampToValueAtTime(0.13,now+delay+0.018);
-    gain.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.17);
-    osc.connect(gain);gain.connect(ctx.destination);
-    osc.start(now+delay);osc.stop(now+delay+0.18);
-   });
+   playPremiumSmsChime(ctx);
   }catch(err){console.warn('SMS notification sound unavailable',err)}
  },[data.birmarket,user]);
  useEffect(()=>{
