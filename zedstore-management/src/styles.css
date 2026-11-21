@@ -1716,3 +1716,12 @@ button.primary,.primary{min-height:42px}
  .premium-inbox .birmarket-sms-row{flex-wrap:wrap}
  .premium-inbox .birmarket-sms-meta{margin-left:45px;align-items:flex-start}
 }
+
+
+/* Birmarket SMS sound controls */
+.premium-inbox .birmarket-hero-actions{position:relative;z-index:2;display:flex;align-items:center;gap:9px}
+.premium-inbox .birmarket-sound-toggle{display:inline-flex;align-items:center;gap:8px;min-height:43px;padding:0 13px;border:1px solid rgba(106,167,255,.25);border-radius:12px;background:rgba(255,255,255,.07);color:#c5dcfb;font-size:10px;font-weight:800;cursor:pointer}
+.premium-inbox .birmarket-sound-toggle span{display:grid;place-items:center;color:#72d9b5}
+.premium-inbox .birmarket-sound-toggle[aria-pressed="false"]{color:#8ea2bb}
+.premium-inbox .birmarket-sound-toggle[aria-pressed="false"] span{color:#8ea2bb}
+@media(max-width:700px){.premium-inbox .birmarket-hero-actions{margin-top:12px;flex-wrap:wrap}.premium-inbox .birmarket-sound-toggle,.premium-inbox .birmarket-refresh{min-height:40px}}
