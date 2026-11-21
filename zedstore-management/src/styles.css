@@ -1725,3 +1725,7 @@ button.primary,.primary{min-height:42px}
 .premium-inbox .birmarket-sound-toggle[aria-pressed="false"]{color:#8ea2bb}
 .premium-inbox .birmarket-sound-toggle[aria-pressed="false"] span{color:#8ea2bb}
 @media(max-width:700px){.premium-inbox .birmarket-hero-actions{margin-top:12px;flex-wrap:wrap}.premium-inbox .birmarket-sound-toggle,.premium-inbox .birmarket-refresh{min-height:40px}}
+
+.premium-inbox .birmarket-sound-preview{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:43px;padding:0 13px;border:1px solid rgba(105,184,255,.28);border-radius:12px;background:linear-gradient(110deg,rgba(54,123,209,.2),rgba(49,158,176,.14));color:#b9ddff;font-size:10px;font-weight:800;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
+.premium-inbox .birmarket-sound-preview:hover{border-color:rgba(119,190,255,.55);background:rgba(55,132,220,.25);transform:translateY(-1px)}
+@media(max-width:700px){.premium-inbox .birmarket-sound-preview{min-height:40px;padding:0 11px}}
