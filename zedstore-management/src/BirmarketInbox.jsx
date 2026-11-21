@@ -1,5 +1,5 @@
 import React,{useMemo,useState} from 'react';
-import { MessageSquareText, RefreshCw, Clock3, Smartphone, ShieldCheck, Radio, Hash, Check, Archive, Inbox, RotateCcw, AlertCircle, Volume2, VolumeX } from 'lucide-react';
+import { MessageSquareText, RefreshCw, Clock3, Smartphone, ShieldCheck, Radio, Hash, Check, Archive, Inbox, RotateCcw, AlertCircle, Volume2, VolumeX, Play } from 'lucide-react';
 
 const dateParts = value => {
   if (!value) return null;
@@ -25,6 +25,24 @@ export default function BirmarketInbox({rows=[],onRefresh,busy=false,client}) {
   const latest=rows.reduce((best,row)=>{const p=dateParts(row.received_at);return p&&(!best||p.epoch>best.epoch)?p:best},null);
   const visible=view==='new'?unread:read;
   function toggleSound(){const next=!soundOn;setSoundOn(next);localStorage.setItem('zed_birmarket_sms_sound',next?'on':'off')}
+  function previewSound(){
+    try{
+      const AudioCtx=window.AudioContext||window.webkitAudioContext;
+      if(!AudioCtx){setError('Bu brauzer səs önizləməsini dəstəkləmir.');return}
+      const ctx=new AudioCtx();
+      const now=ctx.currentTime;
+      [0,0.22].forEach((delay,index)=>{
+        const osc=ctx.createOscillator(),gain=ctx.createGain();
+        osc.type='sine';osc.frequency.value=index?1046:784;
+        gain.gain.setValueAtTime(0.0001,now+delay);
+        gain.gain.exponentialRampToValueAtTime(0.13,now+delay+0.018);
+        gain.gain.exponentialRampToValueAtTime(0.0001,now+delay+0.17);
+        osc.connect(gain);gain.connect(ctx.destination);
+        osc.start(now+delay);osc.stop(now+delay+0.18);
+      });
+      window.setTimeout(()=>ctx.close().catch(()=>{}),800);
+    }catch(err){setError('Səs səsləndirilə bilmədi. Brauzerin səs icazəsini yoxla.')}
+  }
   async function setRead(row,next){
     if(!client||saving)return;
     setSaving(row.id);setError('');
@@ -43,7 +61,7 @@ export default function BirmarketInbox({rows=[],onRefresh,busy=false,client}) {
         <h2>Birmarket <span>SMS</span></h2>
         <p>Birmarket-dən gələn sifariş bildirişlərini bir yerdə idarə et.</p>
       </div>
-      <div className="birmarket-hero-actions"><button className="birmarket-sound-toggle" type="button" onClick={toggleSound} aria-pressed={soundOn}><span>{soundOn?<Volume2 size={16}/>:<VolumeX size={16}/>}</span>{soundOn?'Səs aktiv':'Səs bağlı'}</button><button className="birmarket-refresh" type="button" onClick={onRefresh} disabled={busy}><RefreshCw size={16} className={busy?'birmarket-spin':''}/> Yenilə</button></div>
+      <div className="birmarket-hero-actions"><button className="birmarket-sound-toggle" type="button" onClick={toggleSound} aria-pressed={soundOn}><span>{soundOn?<Volume2 size={16}/>:<VolumeX size={16}/>}</span>{soundOn?'Səs aktiv':'Səs bağlı'}</button><button className="birmarket-sound-preview" type="button" onClick={previewSound}><Play size={14}/> Səsi yoxla</button><button className="birmarket-refresh" type="button" onClick={onRefresh} disabled={busy}><RefreshCw size={16} className={busy?'birmarket-spin':''}/> Yenilə</button></div>
       <div className="birmarket-hero-glow"/>
     </section>
 
