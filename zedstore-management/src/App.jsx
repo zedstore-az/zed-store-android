@@ -144,6 +144,7 @@ function BarcodeCameraModal({onDetected,close}){
 function App(){
  const [user,U]=useState(null),[ready,R]=useState(false),[splashDone,SD]=useState(false),[tab,T]=useState(()=>tabFromPath(window.location.pathname)),[mobile,M]=useState(false),[expandedGroups,EG]=useState({'İCMAL':true,'SATIŞ VƏ SİFARİŞ':true,'ANBAR VƏ TƏCHİZAT':true,'MALİYYƏ VƏ HESABAT':true,'ANALİTİKA':true,'SİSTEM VƏ TƏHLÜKƏSİZLİK':false}),[data,D]=useState({products:[],orders:[],sales:[],cancel:[],settings:null,notifications:[],activity:[],returns:[],stockMovements:[],financeEntries:[],purchases:[],suppliers:[],loginEvents:[],birmarket:[]}),[toast,Q]=useState(''),[busy,B]=useState(false);
  const [theme,setTheme]=useState(()=>localStorage.getItem('zed_store_theme')==='dark'?'dark':'light');
+ const lastAutoRefreshAt=useRef(0);
  useEffect(()=>{document.documentElement.dataset.theme=theme;localStorage.setItem('zed_store_theme',theme)},[theme]);
  const [storeEmail,SEmail]=useState(()=>localStorage.getItem('zed_store_contact_email')||''),[storePhone,SPhone]=useState(()=>localStorage.getItem('zed_store_contact_phone')||'');
  const [newPassword,NP]=useState(''),[confirmPassword,CP]=useState(''),[passwordBusy,PB]=useState(false);
@@ -277,11 +278,25 @@ function App(){
   }catch(error){
    console.error('ZED STORE data loading failed:',error);
    say('Məlumatları yeniləmək olmadı. Ekrandakı əvvəlki məlumatlar saxlanıldı.');
-  }finally{B(false)}
+  }finally{B(false);lastAutoRefreshAt.current=Date.now()}
  }
  async function refreshOrders(){if(!user)return;const result=await loadAllRows('orders','*,order_items(*)','ordered_at');if(!result.error)D(prev=>({...prev,orders:result.data||[]}))}
  useEffect(()=>{if(!user||tab!=="home")return;const channel=sb.channel("zed-overview-orders-"+user.id).on("postgres_changes",{event:"*",schema:"public",table:"orders"},()=>refreshOrders()).subscribe();return()=>{sb.removeChannel(channel)}},[user,tab]);
  useEffect(()=>{load()},[user]);
+ useEffect(()=>{
+  if(!user)return;
+  const refreshIfDue=()=>{
+   if(document.visibilityState!=='visible')return;
+   if(Date.now()-lastAutoRefreshAt.current<300000)return;
+   lastAutoRefreshAt.current=Date.now();
+   load();
+  };
+  const timer=setInterval(refreshIfDue,300000);
+  const onVisibility=()=>{if(document.visibilityState==='visible')refreshIfDue()};
+  window.addEventListener('focus',refreshIfDue);
+  document.addEventListener('visibilitychange',onVisibility);
+  return()=>{clearInterval(timer);window.removeEventListener('focus',refreshIfDue);document.removeEventListener('visibilitychange',onVisibility)};
+ },[user]);
  const adjustedSales=useMemo(()=>data.sales.map(sale=>{const rr=data.returns.filter(r=>r.return_type==='return'&&r.order_item_id===sale.order_item_id);const q=rr.reduce((n,r)=>n+Number(r.quantity||0),0);const refund=rr.reduce((n,r)=>n+Number(r.refund_amount||0),0);const recovered=rr.filter(r=>r.item_condition==='restock').reduce((n,r)=>n+Number(sale.unit_cost||0)*Number(r.quantity||0),0);const qty=Math.max(0,Number(sale.quantity||0)-q);const cash=Math.max(0,Number(sale.transferred_amount||0)*Number(sale.quantity||0)-refund);return {...sale,quantity:qty,transferred_amount:qty?cash/qty:0,net_profit:Number(sale.net_profit||0)-refund+recovered}}),[data.sales,data.returns]);
  const filteredSales=useMemo(()=>{const q=String(salesSearch||'').normalize('NFKC').toLocaleLowerCase('az-AZ').trim();if(!q)return adjustedSales;return adjustedSales.filter(row=>{const order=data.orders.find(item=>String(item.id)===String(row.order_id||''));return [order?.order_number,order?.id,order?.customer_name,row.product_name,row.id].some(value=>String(value||'').toLocaleLowerCase('az-AZ').includes(q));});},[salesSearch,adjustedSales,data.orders]);
  const products=data.products.filter(x=>x.is_active),categoryOptions=BIRM_CATEGORIES,pending=data.orders.filter(x=>!['delivered','cancelled'].includes(x.delivery_status)),low=products.filter(x=>+x.stock_qty<=+x.low_stock_threshold),monthSales=adjustedSales.filter(x=>!!x.paid_at&&monthKey(x.paid_at)===monthKey(new Date())),profit=monthSales.reduce((a,x)=>a+ +x.net_profit,0),turnover=monthSales.reduce((a,x)=>a+ +x.transferred_amount*+x.quantity,0);
