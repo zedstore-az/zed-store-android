@@ -1729,3 +1729,58 @@ button.primary,.primary{min-height:42px}
 .premium-inbox .birmarket-sound-preview{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:43px;padding:0 13px;border:1px solid rgba(105,184,255,.28);border-radius:12px;background:linear-gradient(110deg,rgba(54,123,209,.2),rgba(49,158,176,.14));color:#b9ddff;font-size:10px;font-weight:800;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
 .premium-inbox .birmarket-sound-preview:hover{border-color:rgba(119,190,255,.55);background:rgba(55,132,220,.25);transform:translateY(-1px)}
 @media(max-width:700px){.premium-inbox .birmarket-sound-preview{min-height:40px;padding:0 11px}}
+
+
+/* ZED STORE — compact premium order cards */
+.orders-panel{padding:12px!important;background:transparent!important;border:0!important;box-shadow:none!important}
+.orders-panel .record-card-list{gap:10px}
+.orders-panel .record-card{
+  grid-template-columns:112px minmax(0,1fr);
+  border:1px solid rgba(125,153,190,.22);
+  border-radius:13px;
+  box-shadow:0 5px 18px rgba(8,24,48,.10);
+}
+.orders-panel .record-card-media{width:112px;min-height:0;padding:8px;background:rgba(120,145,180,.08)}
+.orders-panel .record-card-media>img,.orders-panel .record-card-placeholder{
+  min-height:104px;max-height:124px;height:124px;object-fit:contain
+}
+.orders-panel .record-card-status{left:6px;right:6px;bottom:6px;padding:4px 6px;font-size:8px}
+.orders-panel .record-card-body{padding:10px 13px;justify-content:flex-start}
+.orders-panel .record-card-heading h3{font-size:13px}
+.orders-panel .record-card-payment{padding:5px 8px;font-size:8px}
+.orders-panel .record-card-products{gap:5px;padding:7px 0;margin-top:6px}
+.orders-panel .record-card-product-line{font-size:10px}
+.orders-panel .order-item-profit{display:flex;flex-wrap:wrap;gap:5px 14px;margin-top:4px}
+.orders-panel .order-item-profit>span{font-size:9px}
+.orders-panel .order-product-link{min-height:25px!important;padding:4px 8px!important;margin-top:5px;font-size:9px!important}
+.orders-panel .order-total-summary{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:0!important;margin:8px 0!important;padding:0!important;
+  border-radius:10px!important;box-shadow:none!important
+}
+.orders-panel .order-total-summary:before{margin:0;padding:7px 10px 4px;font-size:8px;letter-spacing:1px}
+.orders-panel .order-total-summary>div{min-height:0;padding:8px 10px!important;gap:4px!important}
+.orders-panel .order-total-summary>div:nth-of-type(odd){border-right:1px solid rgba(188,211,235,.12)!important}
+.orders-panel .order-total-summary>div:nth-of-type(n+3){border-top:1px solid rgba(188,211,235,.12)!important}
+.orders-panel .order-total-summary small{font-size:8px;line-height:1.25}
+.orders-panel .order-total-summary b{font-size:11px;line-height:1.25}
+.orders-panel .record-card-details{gap:7px 12px;padding-top:7px;margin-top:7px}
+.orders-panel .record-card-details small{font-size:8px}
+.orders-panel .record-card-details b{font-size:9px}
+.orders-panel .record-card-actions{align-items:center;gap:7px;padding-top:7px;margin-top:7px}
+.orders-panel .record-card-actions .outline,.orders-panel .record-card-actions .primary{min-height:29px;padding:5px 9px;font-size:9px}
+.orders-panel .record-status-control{min-width:135px;gap:3px;font-size:8px}
+.orders-panel .record-status-control select{min-height:29px;font-size:10px}
+:root[data-theme="dark"] .orders-panel .record-card{background:#202b3b;border-color:rgba(125,160,205,.22)}
+@media(max-width:760px){
+ .orders-panel{padding:7px!important}
+ .orders-panel .record-card{grid-template-columns:88px minmax(0,1fr)}
+ .orders-panel .record-card-media{width:88px}
+ .orders-panel .record-card-media>img,.orders-panel .record-card-placeholder{height:94px;min-height:94px;max-height:94px}
+ .orders-panel .record-card-body{padding:8px}
+ .orders-panel .order-total-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .orders-panel .order-total-summary>div{padding:7px 8px!important}
+ .orders-panel .record-card-details{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .orders-panel .record-card-actions{flex-wrap:wrap}
+ .orders-panel .record-status-control{min-width:100%;margin-right:0}
+}
