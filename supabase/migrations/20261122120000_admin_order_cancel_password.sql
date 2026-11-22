@@ -1,6 +1,10 @@
 -- Password-protected administrator cancellation for ZED STORE orders.
 create extension if not exists pgcrypto with schema extensions;
 
+create schema if not exists private;
+revoke all on schema private from public, anon;
+grant usage on schema private to authenticated;
+
 create table if not exists public.order_action_passwords (
   owner_id uuid primary key references auth.users(id) on delete cascade,
   password_hash text not null,
@@ -9,7 +13,7 @@ create table if not exists public.order_action_passwords (
 alter table public.order_action_passwords enable row level security;
 revoke all on public.order_action_passwords from public, anon, authenticated;
 
-create or replace function public.change_order_action_password(
+create or replace function private.change_order_action_password_impl(
   p_current_password text,
   p_new_password text,
   p_repeat_password text
@@ -48,7 +52,7 @@ begin
 end;
 $$;
 
-create or replace function public.admin_cancel_order(
+create or replace function private.admin_cancel_order_impl(
   p_order_id uuid,
   p_password text
 ) returns jsonb
@@ -78,16 +82,18 @@ begin
   if not found then raise exception 'Sifariş tapılmadı'; end if;
 
   -- Return every ordered quantity exactly once, within this transaction.
-  for v_item in
-    select product_id, sum(quantity)::numeric as quantity
-      from public.order_items
-     where order_id = p_order_id and product_id is not null
-     group by product_id
-  loop
-    update public.products
-       set stock_qty = coalesce(stock_qty,0) + v_item.quantity
-     where id = v_item.product_id and owner_id = v_owner;
-  end loop;
+  if v_order.stock_deducted_at is not null then
+    for v_item in
+      select product_id, sum(quantity)::numeric as quantity
+        from public.order_items
+       where order_id = p_order_id and owner_id = v_owner and product_id is not null
+       group by product_id
+    loop
+      update public.products
+         set stock_qty = coalesce(stock_qty,0) + v_item.quantity
+       where id = v_item.product_id and owner_id = v_owner;
+    end loop;
+  end if;
 
   -- Remove dependent business records so the admin-cancelled order leaves no
   -- cancellation, sales, or order-linked stock history behind.
@@ -103,7 +109,22 @@ begin
 end;
 $$;
 
-revoke all on function public.change_order_action_password(text,text,text) from public, anon;
+revoke all on function private.change_order_action_password_impl(text,text,text) from public, anon, authenticated;
+grant execute on function private.change_order_action_password_impl(text,text,text) to authenticated;
+revoke all on function private.admin_cancel_order_impl(uuid,text) from public, anon, authenticated;
+grant execute on function private.admin_cancel_order_impl(uuid,text) to authenticated;
+
+create or replace function public.change_order_action_password(
+  p_current_password text, p_new_password text, p_repeat_password text
+) returns jsonb language sql security invoker set search_path = ''
+as $ select private.change_order_action_password_impl(p_current_password,p_new_password,p_repeat_password); $;
+
+create or replace function public.admin_cancel_order(
+  p_order_id uuid, p_password text
+) returns jsonb language sql security invoker set search_path = ''
+as $ select private.admin_cancel_order_impl(p_order_id,p_password); $;
+
+revoke all on function public.change_order_action_password(text,text,text) from public, anon, authenticated;
 grant execute on function public.change_order_action_password(text,text,text) to authenticated;
-revoke all on function public.admin_cancel_order(uuid,text) from public, anon;
+revoke all on function public.admin_cancel_order(uuid,text) from public, anon, authenticated;
 grant execute on function public.admin_cancel_order(uuid,text) to authenticated;
