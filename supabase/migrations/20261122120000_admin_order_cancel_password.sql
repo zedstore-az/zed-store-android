@@ -117,12 +117,12 @@ grant execute on function private.admin_cancel_order_impl(uuid,text) to authenti
 create or replace function public.change_order_action_password(
   p_current_password text, p_new_password text, p_repeat_password text
 ) returns jsonb language sql security invoker set search_path = ''
-as $ select private.change_order_action_password_impl(p_current_password,p_new_password,p_repeat_password); $;
+as $$ select private.change_order_action_password_impl(p_current_password,p_new_password,p_repeat_password); $$;
 
 create or replace function public.admin_cancel_order(
   p_order_id uuid, p_password text
 ) returns jsonb language sql security invoker set search_path = ''
-as $ select private.admin_cancel_order_impl(p_order_id,p_password); $;
+as $$ select private.admin_cancel_order_impl(p_order_id,p_password); $$;
 
 revoke all on function public.change_order_action_password(text,text,text) from public, anon, authenticated;
 grant execute on function public.change_order_action_password(text,text,text) to authenticated;
