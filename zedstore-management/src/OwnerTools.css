@@ -567,3 +567,8 @@
  background:rgba(161,255,236,.13);
  pointer-events:none;
 }
+
+
+/* Keep long stock-alert lists scrollable without changing the dashboard card layout */
+.owner-low-list{max-height:360px;overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
+@media(max-width:760px){.owner-low-list{max-height:420px}}
