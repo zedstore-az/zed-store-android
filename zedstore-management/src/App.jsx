@@ -575,7 +575,25 @@ function App(){
  async function changeOrderActionPassword(e){e.preventDefault();if(actionNewPassword!==actionRepeatPassword){say('Yeni şifrələr uyğun gəlmir');return}APB(true);try{const result=await sb.rpc('change_order_action_password',{p_current_password:actionCurrentPassword,p_new_password:actionNewPassword,p_repeat_password:actionRepeatPassword});if(result.error)throw result.error;ACU('');ACN('');ACR('');say('Sifariş ləğvetmə təsdiqləmə şifrəsi yeniləndi.')}catch(err){say(err?.message||'Təsdiqləmə şifrəsini dəyişmək olmadı.')}finally{APB(false)}}
  async function saveSettings(e){e.preventDefault();const payload=data.settings?{store_name:sett.store_name}:sett;const r=data.settings?await sb.from('store_settings').update(payload).eq('id',data.settings.id):await sb.from('store_settings').insert(payload);if(r.error){say(r.error.message);return}localStorage.setItem('zed_store_contact_email',storeEmail.trim());localStorage.setItem('zed_store_contact_phone',storePhone.trim());say('Mağaza məlumatları saxlandı');load()}
  async function changePassword(e){e.preventDefault();if(newPassword.length<8){say('Yeni şifrə ən azı 8 simvol olmalıdır');return}if(newPassword!==confirmPassword){say('Şifrələr uyğun gəlmir');return}PB(true);const r=await sb.auth.updateUser({password:newPassword});if(r.error)say(r.error.message);else{NP('');CP('');say('Şifrə uğurla dəyişdirildi')}PB(false)}
- function csv(rows,name){if(!rows.length)return say('Məlumat yoxdur');const s='\ufeff'+[Object.keys(rows[0]).join(';'),...rows.map(x=>Object.values(x).join(';'))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/csv;charset=utf-8'}));a.download=name+'.csv';a.click()}
+ function csv(rows,name){
+  if(!rows.length)return say('Məlumat yoxdur');
+  // RFC 4180 CSV: quote every cell and escape embedded quotes, commas and line breaks.
+  // Comma delimiter is recognized by the mobile spreadsheet app that was opening
+  // the previous semicolon-delimited export as one long column.
+  const quote=value=>'"'+String(value??'').replace(/"/g,'""')+'"';
+  const headers=Object.keys(rows[0]);
+  const lines=[headers,...rows.map(row=>headers.map(key=>row[key]))];
+  const content='\ufeff'+lines.map(line=>line.map(quote).join(',')).join('\r\n');
+  const blob=new Blob([content],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=name+'.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+ }
  if(!ready||!splashDone)return <div className="splash"><img src="/Picsart_26-10-14_20-57-41-838.png" alt="ZED STORE"/><span>MANAGEMENT SYSTEM</span><i/></div>;if(!user)return <Login/>;
  const heading=menu.find(x=>x[0]===tab)?.[1];
 
