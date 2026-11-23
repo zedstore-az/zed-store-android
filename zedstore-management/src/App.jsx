@@ -580,7 +580,16 @@ function App(){
   // RFC 4180 CSV: quote every cell and escape embedded quotes, commas and line breaks.
   // Comma delimiter is recognized by the mobile spreadsheet app that was opening
   // the previous semicolon-delimited export as one long column.
-  const quote=value=>'"'+String(value??'').replace(/"/g,'""')+'"';
+  // Keep decimal amounts as text in CSV so spreadsheet apps do not
+  // auto-convert values such as 16.09 into calendar dates (16 Sep).
+  const safeValue=value=>{
+   if(typeof value==='number'&&Number.isFinite(value)&&!Number.isInteger(value)){
+    const decimal=value.toFixed(2);
+    return '="'+decimal+'"';
+   }
+   return value??'';
+  };
+  const quote=value=>'"'+String(safeValue(value)).replace(/"/g,'""')+'"';
   const headers=Object.keys(rows[0]);
   const lines=[headers,...rows.map(row=>headers.map(key=>row[key]))];
   const content='\ufeff'+lines.map(line=>line.map(quote).join(',')).join('\r\n');
