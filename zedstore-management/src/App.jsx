@@ -107,7 +107,77 @@ async function optimizeProductImage(file){
   return new File([blob],base+'.webp',{type:'image/webp',lastModified:Date.now()});
  }finally{bitmap.close?.()}
 }
-function Login(){const [email,E]=useState(''),[pass,P]=useState(''),[err,Er]=useState('');async function go(e){e.preventDefault();Er('');const r=await sb.auth.signInWithPassword({email,password:pass});if(r.error){Er(r.error.message);return}if(!r.data.session||!r.data.user){Er('Giriş sessiyası yaradılmadı.');return}const access=await sb.from('admin_access').select('user_id').eq('user_id',r.data.user.id).maybeSingle();if(access.error||!access.data){await sb.auth.signOut({scope:'local'});Er('Bu hesabın ZED STORE admin panelinə giriş icazəsi yoxdur.');return}let sessionId=null;try{const part=r.data.session.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');sessionId=JSON.parse(atob(part)).session_id||null}catch{}const log=await sb.from('login_events').insert({owner_id:r.data.user.id,session_id:sessionId,event_type:'sign_in',device_info:(navigator.userAgent||'').slice(0,500)});if(log.error)console.warn('Giriş tarixçəsi yazılmadı:',log.error.message)}return <div className="login"><form onSubmit={go}><img className="brand-logo login-logo" src="/Picsart_26-10-14_20-57-41-838.png" alt="ZED STORE loqosu"/><small>ZED STORE MANAGEMENT</small><h1>Xoş gəlmisən</h1><p>Yalnız səlahiyyətli administrator üçün giriş.</p><label>E-poçt<input type="email" autoComplete="username" required value={email} onChange={e=>E(e.target.value)}/></label><label>Şifrə<input type="password" autoComplete="current-password" required value={pass} onChange={e=>P(e.target.value)}/></label>{err&&<div className="error">{err}</div>}<button className="primary">Daxil ol</button></form></div>}function Modal({title,close,children}){return <div className="shade" onClick={e=>e.target===e.currentTarget&&close()}><section className="modal"><header><b>{title}</b><button onClick={close}><X/></button></header>{children}</section></div>}
+function Login(){
+ const [mode,setMode]=useState('login'),[email,E]=useState(''),[pass,P]=useState(''),[confirm,C]=useState(''),[code,Code]=useState(''),[err,Er]=useState(''),[message,Msg]=useState(''),[busy,Busy]=useState(false);
+ const redirectTo=window.location.origin;
+ function switchMode(next){setMode(next);Er('');Msg('');P('');C('');Code('')}
+ async function go(e){
+  e.preventDefault();Er('');Msg('');Busy(true);
+  try{
+   if(mode==='login'){
+    const r=await sb.auth.signInWithPassword({email:email.trim(),password:pass});
+    if(r.error){Er(r.error.message);return}
+    if(!r.data.session||!r.data.user){Er('Giriş sessiyası yaradılmadı.');return}
+    const access=await sb.from('admin_access').select('user_id').eq('user_id',r.data.user.id).maybeSingle();
+    if(access.error||!access.data){await sb.auth.signOut({scope:'local'});Er('Bu hesabın ZED STORE admin panelinə giriş icazəsi yoxdur.');return}
+    let sessionId=null;try{const part=r.data.session.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');sessionId=JSON.parse(atob(part)).session_id||null}catch{}
+    const log=await sb.from('login_events').insert({owner_id:r.data.user.id,session_id:sessionId,event_type:'sign_in',device_info:(navigator.userAgent||'').slice(0,500)});
+    if(log.error)console.warn('Giriş tarixçəsi yazılmadı:',log.error.message);
+    return;
+   }
+   if(mode==='signup'){
+    if(pass.length<8){Er('Şifrə ən azı 8 simvol olmalıdır.');return}
+    if(pass!==confirm){Er('Şifrələr eyni deyil.');return}
+    const r=await sb.auth.signUp({email:email.trim(),password:pass,options:{emailRedirectTo:redirectTo}});
+    if(r.error){Er(r.error.message);return}
+    Msg('Qeydiyyat sorğusu yaradıldı. E-poçtunu yoxla və təsdiq et. Təhlükəsizlik üçün yeni hesab admin icazəsi verilmədən idarəetmə panelinə daxil ola bilməz.');
+    P('');C('');
+    return;
+   }
+   if(mode==='forgot'){
+    const r=await sb.auth.resetPasswordForEmail(email.trim(),{redirectTo});
+    if(r.error){Er(r.error.message);return}
+    Msg('Təsdiq kodu e-poçtuna göndərildi. Gələnlər və Spam qovluğunu yoxla.');
+    setMode('verify');
+    return;
+   }
+   if(mode==='verify'){
+    if(!/^\d{6}$/.test(code.trim())){Er('6 rəqəmli təsdiq kodunu daxil et.');return}
+    const r=await sb.auth.verifyOtp({email:email.trim(),token:code.trim(),type:'recovery'});
+    if(r.error){Er(r.error.message);return}
+    setMode('reset');Msg('E-poçt təsdiqləndi. İndi yeni şifrə təyin et.');
+    return;
+   }
+   if(mode==='reset'){
+    if(pass.length<8){Er('Yeni şifrə ən azı 8 simvol olmalıdır.');return}
+    if(pass!==confirm){Er('Şifrələr eyni deyil.');return}
+    const r=await sb.auth.updateUser({password:pass});
+    if(r.error){Er(r.error.message);return}
+    await sb.auth.signOut({scope:'local'});
+    setMode('login');P('');C('');Code('');
+    Msg('Şifrən uğurla yeniləndi. Yeni şifrə ilə daxil ola bilərsən.');
+   }
+  }catch(e){Er(e?.message||'Əməliyyat zamanı xəta baş verdi.')}
+  finally{Busy(false)}
+ }
+ const title=mode==='login'?'Xoş gəlmisən':mode==='signup'?'Qeydiyyat':mode==='forgot'?'Şifrəni bərpa et':mode==='verify'?'Təsdiq kodu':'Yeni şifrə';
+ return <div className="login"><form onSubmit={go}>
+  <img className="brand-logo login-logo" src="/Picsart_26-10-14_20-57-41-838.png" alt="ZED STORE loqosu"/>
+  <small>ZED STORE MANAGEMENT</small><h1>{title}</h1>
+  <p>{mode==='login'?'Yalnız səlahiyyətli administrator üçün giriş.':mode==='signup'?'Yeni hesab yarat. Admin icazəsi ayrıca yoxlanılır.':mode==='forgot'?'Hesabına bağlı e-poçt ünvanını daxil et.':mode==='verify'?'E-poçtuna gələn 6 rəqəmli kodu daxil et.': 'Hesabın üçün yeni şifrə təyin et.'}</p>
+  {(mode==='login'||mode==='signup'||mode==='forgot'||mode==='verify')&&<label>E-poçt<input type="email" autoComplete="username" required value={email} onChange={e=>E(e.target.value)} disabled={mode==='verify'}/></label>}
+  {mode==='verify'&&<label>6 rəqəmli təsdiq kodu<input inputMode="numeric" autoComplete="one-time-code" maxLength={6} pattern="[0-9]{6}" required value={code} onChange={e=>Code(e.target.value.replace(/\D/g,'').slice(0,6))}/></label>}
+  {(mode==='login'||mode==='signup'||mode==='reset')&&<label>{mode==='reset'?'Yeni şifrə':'Şifrə'}<input type="password" autoComplete={mode==='login'?'current-password':'new-password'} minLength={8} required value={pass} onChange={e=>P(e.target.value)}/></label>}
+  {(mode==='signup'||mode==='reset')&&<label>Şifrəni təkrar daxil et<input type="password" autoComplete="new-password" minLength={8} required value={confirm} onChange={e=>C(e.target.value)}/></label>}
+  {err&&<div className="error" role="alert">{err}</div>}{message&&<div className="login-message" role="status">{message}</div>}
+  <button className="primary" disabled={busy}>{busy?'Gözləyin...':mode==='login'?'Daxil ol':mode==='signup'?'Qeydiyyatdan keç':mode==='forgot'?'Təsdiq kodu göndər':mode==='verify'?'Kodu təsdiqlə':'Şifrəni yenilə'}</button>
+  <div className="login-links">
+   {mode==='login'&&<><button type="button" className="link" onClick={()=>switchMode('forgot')}>Şifrəni unutdum</button><button type="button" className="link" onClick={()=>switchMode('signup')}>Qeydiyyat</button></>}
+   {mode!=='login'&&mode!=='signup'&&<button type="button" className="link" onClick={()=>switchMode('login')}>Girişə qayıt</button>}
+   {mode==='signup'&&<button type="button" className="link" onClick={()=>switchMode('login')}>Artıq hesabım var — Daxil ol</button>}
+  </div>
+ </form></div>
+}function Modal({title,close,children}){return <div className="shade" onClick={e=>e.target===e.currentTarget&&close()}><section className="modal"><header><b>{title}</b><button onClick={close}><X/></button></header>{children}</section></div>}
 function BarcodeCameraModal({onDetected,close}){
  const video=useRef(null),stream=useRef(null),frame=useRef(0),detector=useRef(null),busy=useRef(false);
  const [error,setError]=useState(''),[active,setActive]=useState(false);
@@ -218,7 +288,7 @@ function App(){
  const [o,SO]=useState({customer_name:'',customer_phone:'',product_id:'',quantity:1,delivery_address:'',source:'Birmarket',payment:'card',months:3});const [orderProductSearch,OPS]=useState('');const [orderItems,SOI]=useState([]);
  const [c,SC]=useState({cost:'',price:'',category:'',payment:'card',months:3,weight:'',length:'',width:'',height:'',qty:1});
  const [sett,SS]=useState({store_name:'ZED STORE',default_marketplace_commission_pct:8,default_logistics_fee:0,default_bank_fee:0});
- useEffect(()=>{const timer=setTimeout(()=>SD(true),2400);let active=true;async function acceptSession(session){if(!active)return;if(!session?.user){U(null);return}const access=await sb.from('admin_access').select('user_id').eq('user_id',session.user.id).maybeSingle();if(!active)return;if(access.error||!access.data){await sb.auth.signOut({scope:'local'});U(null);return}U(session.user)}sb.auth.getSession().then(x=>{acceptSession(x.data.session);R(true)});const {data:{subscription}}=sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){U(null);return}if(session)setTimeout(()=>acceptSession(session),0)});return()=>{active=false;clearTimeout(timer);subscription.unsubscribe()}},[]);
+ useEffect(()=>{const timer=setTimeout(()=>SD(true),2400);let active=true;async function acceptSession(session){if(!active)return;if(!session?.user){U(null);return}const access=await sb.from('admin_access').select('user_id').eq('user_id',session.user.id).maybeSingle();if(!active)return;if(access.error||!access.data){await sb.auth.signOut({scope:'local'});U(null);return}U(session.user)}sb.auth.getSession().then(x=>{acceptSession(x.data.session);R(true)});const {data:{subscription}}=sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){U(null);return}if(event==='PASSWORD_RECOVERY')return;if(session)setTimeout(()=>acceptSession(session),0)});return()=>{active=false;clearTimeout(timer);subscription.unsubscribe()}},[]);
  const overlayHistory=useRef({modal:'',category:null});
  const handlingOverlayPop=useRef(false);
  useEffect(()=>{
