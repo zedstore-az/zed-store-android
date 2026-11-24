@@ -236,7 +236,7 @@ function playPremiumSmsChime(ctx){
   });
 }
 function App(){
- const [user,U]=useState(null),[isAdmin,setIsAdmin]=useState(false),[storeRegistrations,setStoreRegistrations]=useState([]),[recoveryRequested,SetRecoveryRequested]=useState(false),[ready,R]=useState(false),[splashDone,SD]=useState(false),[tab,T]=useState(()=>tabFromPath(window.location.pathname)),[mobile,M]=useState(false),[expandedGroups,EG]=useState({'İCMAL':true,'SATIŞ VƏ SİFARİŞ':true,'ANBAR VƏ TƏCHİZAT':true,'MALİYYƏ VƏ HESABAT':true,'ANALİTİKA':true,'SİSTEM VƏ TƏHLÜKƏSİZLİK':false}),[data,D]=useState({products:[],orders:[],sales:[],cancel:[],settings:null,notifications:[],activity:[],returns:[],stockMovements:[],financeEntries:[],purchases:[],suppliers:[],loginEvents:[],birmarket:[]}),[toast,Q]=useState(''),[busy,B]=useState(false);
+ const [user,U]=useState(null),[isAdmin,setIsAdmin]=useState(false),[storeRegistrations,setStoreRegistrations]=useState([]),[recoveryRequested,SetRecoveryRequested]=useState(false),[ready,R]=useState(false),[splashDone,SD]=useState(false),[tab,T]=useState(()=>tabFromPath(window.location.pathname)),[mobile,M]=useState(false),[expandedGroups,EG]=useState({'İCMAL':true,'SATIŞ VƏ SİFARİŞ':true,'ANBAR VƏ TƏCHİZAT':true,'MALİYYƏ VƏ HESABAT':true,'ANALİTİKA':true,'SİSTEM VƏ TƏHLÜKƏSİZLİK':true}),[data,D]=useState({products:[],orders:[],sales:[],cancel:[],settings:null,notifications:[],activity:[],returns:[],stockMovements:[],financeEntries:[],purchases:[],suppliers:[],loginEvents:[],birmarket:[]}),[toast,Q]=useState(''),[busy,B]=useState(false);
  const [theme,setTheme]=useState(()=>localStorage.getItem('zed_store_theme')==='dark'?'dark':'light');
  const smsSeenIds=useRef(null),smsAudioContext=useRef(null);
  const lastAutoRefreshAt=useRef(0);
@@ -349,7 +349,7 @@ function App(){
     sb.from('login_events').select('*').order('created_at',{ascending:false}).limit(100),
     Promise.resolve({data:[],error:null}),
     loadAllRows('stock_movements','*','created_at'),
-     sb.from('birmarket_sms_events').select('*').order('received_at',{ascending:false}).limit(500)
+     isAdmin?sb.from('birmarket_sms_events').select('*').order('received_at',{ascending:false}).limit(500):Promise.resolve({data:[],error:null})
    ]);
    const results=[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p];
    const labels=['Məhsullar','Sifarişlər','Satışlar','Ləğvlər','Tənzimləmələr','API bağlantısı','Bildirişlər','Fəaliyyət tarixçəsi','Qaytarmalar','Maliyyə qeydləri','Mal qəbulu','Təchizatçılar','Giriş tarixçəsi','—','Stok hərəkətləri','Birmarket SMS'];
