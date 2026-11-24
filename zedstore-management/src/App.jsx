@@ -134,7 +134,7 @@ function Login({recoveryRequested=false}){
     if(pass!==confirm){Er('Şifrələr eyni deyil.');return}
     const r=await sb.auth.signUp({email:email.trim(),password:pass,options:{emailRedirectTo:redirectTo,data:{store_name:storeName.trim(),phone:phone.trim()}}});
     if(r.error){Er(r.error.message);return}
-    Msg('Qeydiyyat müraciətin qəbul edildi. E-poçtunu təsdiqlə və admin təsdiqini gözlə. Təsdiqdən sonra öz boş mağaza panelinə daxil ola biləcəksən.');
+    Msg('Qeydiyyat uğurla tamamlandı! Məlumatlar administratora göndərildi. Hesabınız təsdiq gözləyir. Təsdiqdən sonra sistemə daxil ola biləcəksiniz.');
     P('');C('');
     return;
    }
@@ -167,7 +167,7 @@ function Login({recoveryRequested=false}){
  return <div className="login"><form onSubmit={go}>
   <img className="brand-logo login-logo" src="/Picsart_26-10-14_20-57-41-838.png" alt="ZED STORE loqosu"/>
   <small>ZED STORE MANAGEMENT</small><h1>{title}</h1>
-  <p>{mode==='login'?'Təsdiqlənmiş mağazalar və administrator üçün giriş.':mode==='signup'?'Mağazanı qeydiyyatdan keçir. Giriş admin təsdiqindən sonra açılacaq.':mode==='forgot'?'Hesabına bağlı e-poçt ünvanını daxil et.':mode==='verify'?'E-poçtuna gələn 6 rəqəmli kodu daxil et.': 'Hesabın üçün yeni şifrə təyin et.'}</p>
+  <p>{mode==='login'?'Təsdiqlənmiş mağazalar və administrator üçün giriş.':mode==='signup'?'Mağazanı qeydiyyatdan keçir. Müraciət administrator təsdiqindən sonra aktivləşəcək.':mode==='forgot'?'Hesabına bağlı e-poçt ünvanını daxil et.':mode==='verify'?'E-poçtuna gələn 6 rəqəmli kodu daxil et.': 'Hesabın üçün yeni şifrə təyin et.'}</p>
   {mode==='signup'&&<label>Mağaza adı<input type="text" autoComplete="organization" required maxLength={120} value={storeName} onChange={e=>SN(e.target.value)} placeholder="Mağazanın adı"/></label>}
   {mode==='signup'&&<label>Mobil nömrə<input type="tel" autoComplete="tel" required value={phone} onChange={e=>{const digits=e.target.value.replace(/\D/g,'').replace(/^994/,'').slice(0,9);PH('+994 '+digits.slice(0,2)+(digits.length>2?' '+digits.slice(2,5):'')+(digits.length>5?' '+digits.slice(5,7):'')+(digits.length>7?' '+digits.slice(7,9):''))}} placeholder="🇦🇿 +994 XX XXX XX XX"/></label>}
   {(mode==='login'||mode==='signup'||mode==='forgot'||mode==='verify')&&<label>E-poçt<input type="email" autoComplete="username" required value={email} onChange={e=>E(e.target.value)} disabled={mode==='verify'}/></label>}
