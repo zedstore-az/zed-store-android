@@ -235,6 +235,7 @@ function App(){
  const [theme,setTheme]=useState(()=>localStorage.getItem('zed_store_theme')==='dark'?'dark':'light');
  const smsSeenIds=useRef(null),smsAudioContext=useRef(null);
  const lastAutoRefreshAt=useRef(0);
+ const recoveryFlowRef=useRef(false);
  useEffect(()=>{document.documentElement.dataset.theme=theme;localStorage.setItem('zed_store_theme',theme)},[theme]);
  const [storeEmail,SEmail]=useState(()=>localStorage.getItem('zed_store_contact_email')||''),[storePhone,SPhone]=useState(()=>localStorage.getItem('zed_store_contact_phone')||'');
  const [newPassword,NP]=useState(''),[confirmPassword,CP]=useState(''),[passwordBusy,PB]=useState(false);
@@ -288,7 +289,7 @@ function App(){
  const [o,SO]=useState({customer_name:'',customer_phone:'',product_id:'',quantity:1,delivery_address:'',source:'Birmarket',payment:'card',months:3});const [orderProductSearch,OPS]=useState('');const [orderItems,SOI]=useState([]);
  const [c,SC]=useState({cost:'',price:'',category:'',payment:'card',months:3,weight:'',length:'',width:'',height:'',qty:1});
  const [sett,SS]=useState({store_name:'ZED STORE',default_marketplace_commission_pct:8,default_logistics_fee:0,default_bank_fee:0});
- useEffect(()=>{const timer=setTimeout(()=>SD(true),2400);let active=true;async function acceptSession(session){if(!active)return;if(!session?.user){U(null);return}const access=await sb.from('admin_access').select('user_id').eq('user_id',session.user.id).maybeSingle();if(!active)return;if(access.error||!access.data){await sb.auth.signOut({scope:'local'});U(null);return}U(session.user)}sb.auth.getSession().then(x=>{acceptSession(x.data.session);R(true)});const {data:{subscription}}=sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){U(null);return}if(event==='PASSWORD_RECOVERY'){SetRecoveryRequested(true);return}if(session)setTimeout(()=>acceptSession(session),0)});return()=>{active=false;clearTimeout(timer);subscription.unsubscribe()}},[]);
+ useEffect(()=>{const timer=setTimeout(()=>SD(true),2400);let active=true;async function acceptSession(session){if(!active||recoveryFlowRef.current)return;if(!session?.user){U(null);return}const access=await sb.from('admin_access').select('user_id').eq('user_id',session.user.id).maybeSingle();if(!active)return;if(access.error||!access.data){await sb.auth.signOut({scope:'local'});U(null);return}U(session.user)}sb.auth.getSession().then(x=>{acceptSession(x.data.session);R(true)});const {data:{subscription}}=sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){U(null);return}if(event==='PASSWORD_RECOVERY'){recoveryFlowRef.current=true;SetRecoveryRequested(true);return}if(session)setTimeout(()=>acceptSession(session),0)});return()=>{active=false;clearTimeout(timer);subscription.unsubscribe()}},[]);
  const overlayHistory=useRef({modal:'',category:null});
  const handlingOverlayPop=useRef(false);
  useEffect(()=>{
