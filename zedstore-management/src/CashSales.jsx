@@ -61,7 +61,7 @@ export default function CashSales({client,products=[],sales=[],onRefresh=()=>{}}
     e.preventDefault();e.stopPropagation();
     const scanned=String(e.currentTarget.value||'').normalize('NFKC').trim();
     if(!scanned)return;
-    const normalize=value=>String(value??'').normalize('NFKC').trim().replace(/[\\s-]/g,'').toLocaleUpperCase('en-US');
+    const normalize=value=>String(value??'').normalize('NFKC').trim().replace(/[\s-]/g,'').toLocaleUpperCase('en-US');
     const code=normalize(scanned);
     const found=available.find(p=>normalize(p.barcode)===code);
     if(found){setProductId(found.id);setPrice(String(found.sale_price||''));}
