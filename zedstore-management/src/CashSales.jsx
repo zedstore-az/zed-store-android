@@ -30,37 +30,11 @@ export default function CashSales({client,products=[],sales=[],onRefresh=()=>{}}
   if(!Number.isInteger(q)||q<1||q>Number(chosen.stock_qty))return alert('Miqdar mövcud anbar qalığına uyğun olmalıdır.');
   if(!Number.isFinite(unitPrice)||unitPrice<=0)return alert('Satış qiymətini düzgün daxil et.');
   setBusy(true);
-  const {data,error}=await client.rpc('create_cash_sale',{
-   p_product_id:chosen.id,p_quantity:q,p_unit_price:unitPrice
+  const cleanName=String(customerName||'').trim();
+  const {error}=await client.rpc('create_cash_sale',{
+   p_product_id:chosen.id,p_quantity:q,p_unit_price:unitPrice,p_customer_name:cleanName||null
   });
   if(error){setBusy(false);alert('Nağd satış yaradılmadı: '+error.message);return}
-  const cleanName=String(customerName||'').trim();
-  if(cleanName){
-   const findReturnedId=value=>{
-    if(typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(value))return value;
-    if(Array.isArray(value)){for(const item of value){const found=findReturnedId(item);if(found)return found}return null}
-    if(value&&typeof value==='object'){
-     for(const key of ['id','sale_id','saleId','create_cash_sale','cash_sale_id','sale']){
-      if(value[key]!==undefined){const found=findReturnedId(value[key]);if(found)return found}
-     }
-     for(const nested of Object.values(value)){const found=findReturnedId(nested);if(found)return found}
-    }
-    return null;
-   };
-   let saleId=findReturnedId(data);
-   if(!saleId){
-    const {data:latest,error:lookupError}=await client.from('sales').select('id')
-     .eq('product_id',chosen.id).eq('sale_channel','cash')
-     .order('sold_at',{ascending:false}).limit(1).maybeSingle();
-    if(lookupError){setBusy(false);alert('Satış yaradıldı, amma müştəri adı ilə əlaqələndirilə bilmədi: '+lookupError.message);await onRefresh();return}
-    saleId=latest?.id||null;
-   }
-   if(!saleId){setBusy(false);alert('Satış yaradıldı, amma qəbz üçün müştəri adı satış qeydində tapılmadı.');await onRefresh();return}
-   const {data:savedName,error:nameError}=await client.from('sales').update({customer_name:cleanName}).eq('id',saleId).select('id,customer_name').maybeSingle();
-   if(nameError||!savedName?.customer_name){
-    setBusy(false);alert('Satış yaradıldı, amma müştəri adı yadda saxlanmadı: '+(nameError?.message||'Yadda saxlanma təsdiqlənmədi'));await onRefresh();return;
-   }
-  }
   setBusy(false);setOpen(false);setCustomerName('');await onRefresh();
  }
  function printReceipt(sale){
