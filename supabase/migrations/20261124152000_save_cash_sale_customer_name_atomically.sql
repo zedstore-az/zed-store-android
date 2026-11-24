@@ -70,5 +70,5 @@ begin
 end;
 $function$;
 
+revoke all on function public.create_cash_sale(uuid, numeric, numeric, text) from public, anon;
 grant execute on function public.create_cash_sale(uuid, numeric, numeric, text) to authenticated;
-revoke all on function public.create_cash_sale(uuid, numeric, numeric, text) from anon;
