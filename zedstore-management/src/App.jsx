@@ -739,7 +739,7 @@ function OrderItemAddress({item,onSave,busy}){
 function collectProductImages(record,products=[]){
  const product=products.find(p=>String(p.id)===String(record?.product_id||''))||products.find(p=>String(p.name||'').trim()===String(record?.product_name||'').trim());
  const values=[...(Array.isArray(product?.image_urls)?product.image_urls:[]),product?.image_url,record?.product_image_url,record?.image_url];
- return [...new Set(values.map(value=>String(value||'').trim()).filter(value=>/^https?:\\/\\//i.test(value)))];
+ return [...new Set(values.map(value=>String(value||'').trim()).filter(value=>value.startsWith('https://')||value.startsWith('http://')))];
 }
 function ProductImageViewer({images=[],title='Məhsul şəkilləri',onClose}){
  const [active,setActive]=useState(0); const list=Array.isArray(images)?images.filter(Boolean):[];
