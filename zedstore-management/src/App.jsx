@@ -382,6 +382,7 @@ function App(){
  async function refreshOrders(){if(!user)return;const result=await loadAllRows('orders','*,order_items(*)','ordered_at');if(!result.error)D(prev=>({...prev,orders:result.data||[]}))}
  useEffect(()=>{if(!user||tab!=="home")return;const channel=sb.channel("zed-overview-orders-"+user.id).on("postgres_changes",{event:"*",schema:"public",table:"orders"},()=>refreshOrders()).subscribe();return()=>{sb.removeChannel(channel)}},[user,tab]);
  useEffect(()=>{load()},[user,isAdmin]);
+ useEffect(()=>{if(!user)return;const channel=sb.channel("zed-notifications-"+user.id).on("postgres_changes",{event:"*",schema:"public",table:"notifications",filter:"owner_id=eq."+user.id},async()=>{const [n,registrations]=await Promise.all([sb.from("notifications").select("*").order("created_at",{ascending:false}).limit(100),isAdmin?sb.from("store_registrations").select("*").order("created_at",{ascending:false}):Promise.resolve({data:null,error:null})]);if(!n.error)D(prev=>({...prev,notifications:n.data||[]}));if(isAdmin&&!registrations.error&&registrations.data)setStoreRegistrations(registrations.data)}).subscribe();return()=>{sb.removeChannel(channel)}},[user,isAdmin]);
  useEffect(()=>{
   if(!user||!Array.isArray(data.birmarket))return;
   const ids=new Set(data.birmarket.map(row=>String(row.id)));
