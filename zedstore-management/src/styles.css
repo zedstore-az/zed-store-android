@@ -1808,3 +1808,12 @@ button.primary,.primary{min-height:42px}
 .product-gallery-footer{display:flex;justify-content:space-between;gap:12px;padding:11px 20px;border-top:1px solid rgba(148,174,220,.14);color:#9fb0ca;font-size:11px}
 @media(max-width:640px){.product-gallery-backdrop{padding:0;place-items:stretch}.product-gallery-dialog{width:100%;height:100dvh;max-height:100dvh;border:0;border-radius:0}.product-gallery-header{gap:10px;padding:14px}.product-gallery-header h3{font-size:14px}.product-gallery-stage{padding:8px 4px}.product-gallery-stage>img{max-height:calc(100dvh - 190px)}.product-gallery-arrow{width:40px;height:40px;font-size:29px}.product-gallery-thumb{width:58px;height:58px}.product-gallery-footer{padding:10px 13px;font-size:10px}}
 @media(hover:none){.record-image-zoom{opacity:1;transform:none}}
+
+
+/* Anbarım: clickable product images open the shared full-screen gallery */
+.stock-card-image-button{position:relative;appearance:none;-webkit-appearance:none;width:100%;min-width:0;border:0;background:transparent;color:inherit;cursor:zoom-in;text-align:initial}
+.stock-card-image-button:focus-visible{outline:3px solid #38bdf8;outline-offset:-4px;border-radius:9px}
+.stock-image-zoom{position:absolute;right:9px;bottom:9px;display:grid;place-items:center;width:29px;height:29px;border:1px solid rgba(255,255,255,.55);border-radius:9px;background:rgba(8,18,38,.78);color:#fff;font-size:20px;line-height:1;opacity:0;transform:translateY(3px);transition:opacity .18s ease,transform .18s ease}
+.stock-card-image-button:hover .stock-image-zoom,.stock-card-image-button:focus-visible .stock-image-zoom{opacity:1;transform:translateY(0)}
+@media(hover:none){.stock-image-zoom{opacity:1;transform:none}}
+
