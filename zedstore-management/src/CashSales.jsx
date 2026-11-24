@@ -58,10 +58,12 @@ export default function CashSales({client,products=[],sales=[],onRefresh=()=>{}}
    <label>Müştərinin adı<input type="text" value={customerName} onChange={e=>setCustomerName(e.target.value)} placeholder="Müştərinin adını daxil et" autoComplete="off"/></label>
    <div className="search cash-product-search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{
     if(e.key!=='Enter')return;
-    e.preventDefault();
-    const scanned=String(query||'').trim();
+    e.preventDefault();e.stopPropagation();
+    const scanned=String(e.currentTarget.value||'').normalize('NFKC').trim();
     if(!scanned)return;
-    const found=available.find(p=>String(p.barcode||'').trim()===scanned);
+    const normalize=value=>String(value??'').normalize('NFKC').trim().replace(/[\\s-]/g,'').toLocaleUpperCase('en-US');
+    const code=normalize(scanned);
+    const found=available.find(p=>normalize(p.barcode)===code);
     if(found){setProductId(found.id);setPrice(String(found.sale_price||''));}
     else alert('Bu barkodla aktiv və stokda olan məhsul tapılmadı: '+scanned);
    }} placeholder="Məhsul adı, SKU yaz və ya barkodu skan et..."/></div>
