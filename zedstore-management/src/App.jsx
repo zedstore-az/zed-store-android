@@ -107,9 +107,10 @@ async function optimizeProductImage(file){
   return new File([blob],base+'.webp',{type:'image/webp',lastModified:Date.now()});
  }finally{bitmap.close?.()}
 }
-function Login(){
+function Login({recoveryRequested=false}){
  const [mode,setMode]=useState('login'),[email,E]=useState(''),[pass,P]=useState(''),[confirm,C]=useState(''),[code,Code]=useState(''),[err,Er]=useState(''),[message,Msg]=useState(''),[busy,Busy]=useState(false);
  const redirectTo='https://zedstore-management.onrender.com';
+ useEffect(()=>{if(recoveryRequested){setMode('reset');Er('');Msg('E-poçt təsdiqləndi. İndi yeni şifrə təyin et.')}},[recoveryRequested]);
  function switchMode(next){setMode(next);Er('');Msg('');P('');C('');Code('')}
  async function go(e){
   e.preventDefault();Er('');Msg('');Busy(true);
@@ -137,8 +138,7 @@ function Login(){
    if(mode==='forgot'){
     const r=await sb.auth.resetPasswordForEmail(email.trim(),{redirectTo});
     if(r.error){Er(r.error.message);return}
-    Msg('Təsdiq kodu e-poçtuna göndərildi. Gələnlər və Spam qovluğunu yoxla.');
-    setMode('verify');
+    Msg('Şifrəni yeniləmək üçün e-poçtuna göndərilən bərpa linkini aç. Link bu səhifəyə qayıdanda yeni şifrə təyin edə biləcəksən. Gələnlər və Spam qovluğunu yoxla.');
     return;
    }
    if(mode==='verify'){
@@ -170,7 +170,7 @@ function Login(){
   {(mode==='login'||mode==='signup'||mode==='reset')&&<label>{mode==='reset'?'Yeni şifrə':'Şifrə'}<input type="password" autoComplete={mode==='login'?'current-password':'new-password'} minLength={8} required value={pass} onChange={e=>P(e.target.value)}/></label>}
   {(mode==='signup'||mode==='reset')&&<label>Şifrəni təkrar daxil et<input type="password" autoComplete="new-password" minLength={8} required value={confirm} onChange={e=>C(e.target.value)}/></label>}
   {err&&<div className="error" role="alert">{err}</div>}{message&&<div className="login-message" role="status">{message}</div>}
-  <button className="primary" disabled={busy}>{busy?'Gözləyin...':mode==='login'?'Daxil ol':mode==='signup'?'Qeydiyyatdan keç':mode==='forgot'?'Təsdiq kodu göndər':mode==='verify'?'Kodu təsdiqlə':'Şifrəni yenilə'}</button>
+  <button className="primary" disabled={busy}>{busy?'Gözləyin...':mode==='login'?'Daxil ol':mode==='signup'?'Qeydiyyatdan keç':mode==='forgot'?'Bərpa linki göndər':mode==='verify'?'Kodu təsdiqlə':'Şifrəni yenilə'}</button>
   <div className="login-links">
    {mode==='login'&&<><button type="button" className="link" onClick={()=>switchMode('forgot')}>Şifrəni unutdum</button><button type="button" className="link" onClick={()=>switchMode('signup')}>Qeydiyyat</button></>}
    {mode!=='login'&&mode!=='signup'&&<button type="button" className="link" onClick={()=>switchMode('login')}>Girişə qayıt</button>}
@@ -231,7 +231,7 @@ function playPremiumSmsChime(ctx){
   });
 }
 function App(){
- const [user,U]=useState(null),[ready,R]=useState(false),[splashDone,SD]=useState(false),[tab,T]=useState(()=>tabFromPath(window.location.pathname)),[mobile,M]=useState(false),[expandedGroups,EG]=useState({'İCMAL':true,'SATIŞ VƏ SİFARİŞ':true,'ANBAR VƏ TƏCHİZAT':true,'MALİYYƏ VƏ HESABAT':true,'ANALİTİKA':true,'SİSTEM VƏ TƏHLÜKƏSİZLİK':false}),[data,D]=useState({products:[],orders:[],sales:[],cancel:[],settings:null,notifications:[],activity:[],returns:[],stockMovements:[],financeEntries:[],purchases:[],suppliers:[],loginEvents:[],birmarket:[]}),[toast,Q]=useState(''),[busy,B]=useState(false);
+ const [user,U]=useState(null),[recoveryRequested,SetRecoveryRequested]=useState(false),[ready,R]=useState(false),[splashDone,SD]=useState(false),[tab,T]=useState(()=>tabFromPath(window.location.pathname)),[mobile,M]=useState(false),[expandedGroups,EG]=useState({'İCMAL':true,'SATIŞ VƏ SİFARİŞ':true,'ANBAR VƏ TƏCHİZAT':true,'MALİYYƏ VƏ HESABAT':true,'ANALİTİKA':true,'SİSTEM VƏ TƏHLÜKƏSİZLİK':false}),[data,D]=useState({products:[],orders:[],sales:[],cancel:[],settings:null,notifications:[],activity:[],returns:[],stockMovements:[],financeEntries:[],purchases:[],suppliers:[],loginEvents:[],birmarket:[]}),[toast,Q]=useState(''),[busy,B]=useState(false);
  const [theme,setTheme]=useState(()=>localStorage.getItem('zed_store_theme')==='dark'?'dark':'light');
  const smsSeenIds=useRef(null),smsAudioContext=useRef(null);
  const lastAutoRefreshAt=useRef(0);
@@ -288,7 +288,7 @@ function App(){
  const [o,SO]=useState({customer_name:'',customer_phone:'',product_id:'',quantity:1,delivery_address:'',source:'Birmarket',payment:'card',months:3});const [orderProductSearch,OPS]=useState('');const [orderItems,SOI]=useState([]);
  const [c,SC]=useState({cost:'',price:'',category:'',payment:'card',months:3,weight:'',length:'',width:'',height:'',qty:1});
  const [sett,SS]=useState({store_name:'ZED STORE',default_marketplace_commission_pct:8,default_logistics_fee:0,default_bank_fee:0});
- useEffect(()=>{const timer=setTimeout(()=>SD(true),2400);let active=true;async function acceptSession(session){if(!active)return;if(!session?.user){U(null);return}const access=await sb.from('admin_access').select('user_id').eq('user_id',session.user.id).maybeSingle();if(!active)return;if(access.error||!access.data){await sb.auth.signOut({scope:'local'});U(null);return}U(session.user)}sb.auth.getSession().then(x=>{acceptSession(x.data.session);R(true)});const {data:{subscription}}=sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){U(null);return}if(event==='PASSWORD_RECOVERY')return;if(session)setTimeout(()=>acceptSession(session),0)});return()=>{active=false;clearTimeout(timer);subscription.unsubscribe()}},[]);
+ useEffect(()=>{const timer=setTimeout(()=>SD(true),2400);let active=true;async function acceptSession(session){if(!active)return;if(!session?.user){U(null);return}const access=await sb.from('admin_access').select('user_id').eq('user_id',session.user.id).maybeSingle();if(!active)return;if(access.error||!access.data){await sb.auth.signOut({scope:'local'});U(null);return}U(session.user)}sb.auth.getSession().then(x=>{acceptSession(x.data.session);R(true)});const {data:{subscription}}=sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){U(null);return}if(event==='PASSWORD_RECOVERY'){SetRecoveryRequested(true);return}if(session)setTimeout(()=>acceptSession(session),0)});return()=>{active=false;clearTimeout(timer);subscription.unsubscribe()}},[]);
  const overlayHistory=useRef({modal:'',category:null});
  const handlingOverlayPop=useRef(false);
  useEffect(()=>{
@@ -673,7 +673,7 @@ function App(){
   a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
  }
- if(!ready||!splashDone)return <div className="splash"><img src="/Picsart_26-10-14_20-57-41-838.png" alt="ZED STORE"/><span>MANAGEMENT SYSTEM</span><i/></div>;if(!user)return <Login/>;
+ if(!ready||!splashDone)return <div className="splash"><img src="/Picsart_26-10-14_20-57-41-838.png" alt="ZED STORE"/><span>MANAGEMENT SYSTEM</span><i/></div>;if(!user)return <Login recoveryRequested={recoveryRequested}/>;
  const heading=menu.find(x=>x[0]===tab)?.[1];
 
  const unreadNotifications=data.notifications.filter(x=>!x.read_at).length;
