@@ -109,7 +109,7 @@ async function optimizeProductImage(file){
 }
 function Login(){
  const [mode,setMode]=useState('login'),[email,E]=useState(''),[pass,P]=useState(''),[confirm,C]=useState(''),[code,Code]=useState(''),[err,Er]=useState(''),[message,Msg]=useState(''),[busy,Busy]=useState(false);
- const redirectTo=window.location.origin;
+ const redirectTo='https://zedstore-management.onrender.com';
  function switchMode(next){setMode(next);Er('');Msg('');P('');C('');Code('')}
  async function go(e){
   e.preventDefault();Er('');Msg('');Busy(true);
