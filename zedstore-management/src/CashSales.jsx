@@ -1,5 +1,5 @@
 import React,{useMemo,useState} from 'react';
-import {Plus,Search,CheckCircle2,Clock3,Boxes,Wallet,Printer} from 'lucide-react';
+import {Plus,Search,CheckCircle2,Clock3,Boxes,Wallet,Printer,X} from 'lucide-react';
 
 const money=n=>new Intl.NumberFormat('az-AZ',{style:'currency',currency:'AZN'}).format(Number(n||0));
 const date=d=>d?new Date(d).toLocaleString('az-AZ'):'—';
@@ -75,6 +75,15 @@ export default function CashSales({client,products=[],sales=[],onRefresh=()=>{}}
   if(!w){alert('Qəbz pəncərəsi bloklandı. Brauzerdə pop-up icazəsi ver.');return}
   w.document.open();w.document.write(html);w.document.close();
  }
+async function deleteSale(sale){
+  const name=sale.product_name||'Bu məhsul';
+  if(!window.confirm(name+' üzrə nağd satış tamamilə silinəcək. Məhsul anbarda geri artırılacaq, satış tarixçəsi və hesabatlardan çıxacaq. Bu əməliyyat geri qaytarılmır. Davam edilsin?'))return;
+  setBusy(true);
+  const {error}=await client.rpc('delete_cash_sale',{p_sale_id:sale.id});
+  setBusy(false);
+  if(error){alert('Nağd satışı silmək olmadı: '+error.message);return}
+  await onRefresh();
+ }
 async function confirmPaid(sale){
   if(!window.confirm('Ödənişi təsdiqləyirsən? Məhsul artıq satış yaradılan anda anbardan çıxarılıb. Təsdiqdən sonra satış hesabatlara daxil ediləcək.'))return;
   setBusy(true);
@@ -86,7 +95,7 @@ async function confirmPaid(sale){
  return <div className="cash-sales">
   <div className="toolbar"><div><h2>Nağd satış</h2><p>Satış qiymətini özün təyin et. Komissiya və əlavə tutulma yoxdur.</p></div><button className="primary" onClick={startCreate}><Plus size={17}/> Yeni nağd satış</button></div>
   <div className="cash-sales-summary"><div><Wallet/><span><small>Ümumi nağd satış</small><b>{money(financials.revenue)}</b></span></div><div><Boxes/><span><small>Ümumi maya dəyəri</small><b>{money(financials.cost)}</b></span></div><div><CheckCircle2/><span><small>Ümumi mənfəət</small><b>{money(financials.profit)}</b></span></div><div><Clock3/><span><small>Köçürülməsi gözlənilən</small><b>{money(financials.pending)}</b></span></div><div><span><small>Satış qeydləri</small><b>{rows.length}</b></span></div></div>
-  <section className="panel cash-sales-list"><div className="cash-sales-list-head"><b>Satış tarixçəsi</b><span>{rows.length} qeyd</span></div>{rows.map(s=><article className="cash-sale-row" key={s.id}><div className="cash-sale-thumb">{s.product_image_url?<img src={s.product_image_url} alt=""/>:<Boxes size={23}/>}</div><div className="cash-sale-info"><b>{s.product_name}</b><small>{s.customer_name?`Müştəri: ${s.customer_name} · `:''}{date(s.sold_at)} · {s.quantity} ədəd · Maya: {money(Number(s.unit_cost)*Number(s.quantity))}</small><small>Satış qiyməti: {money(s.customer_sale_price)} × {s.quantity} · Mənfəət: {money(s.net_profit)}</small></div><div className="cash-sale-total"><b>{money(Number(s.customer_sale_price)*Number(s.quantity))}</b><span className={s.paid_at?'is-paid':'is-unpaid'}>{s.paid_at?'Ödənilib':'Ödəniş gözləyir'}</span><button type="button" className="primary" onClick={()=>printReceipt(s)}><Printer size={15}/> Qəbz çap et</button>{!s.paid_at&&<button className="pay pay-confirm" disabled={busy} onClick={()=>confirmPaid(s)}><CheckCircle2 size={14}/> Ödənilib qeyd et</button>}</div></article>)}{!rows.length&&<p className="empty">Hələ nağd satış yaradılmayıb.</p>}</section>
+  <section className="panel cash-sales-list"><div className="cash-sales-list-head"><b>Satış tarixçəsi</b><span>{rows.length} qeyd</span></div>{rows.map(s=><article className="cash-sale-row" key={s.id}><div className="cash-sale-thumb">{s.product_image_url?<img src={s.product_image_url} alt=""/>:<Boxes size={23}/>}</div><div className="cash-sale-info"><b>{s.product_name}</b><small>{s.customer_name?`Müştəri: ${s.customer_name} · `:''}{date(s.sold_at)} · {s.quantity} ədəd · Maya: {money(Number(s.unit_cost)*Number(s.quantity))}</small><small>Satış qiyməti: {money(s.customer_sale_price)} × {s.quantity} · Mənfəət: {money(s.net_profit)}</small></div><div className="cash-sale-total"><b>{money(Number(s.customer_sale_price)*Number(s.quantity))}</b><span className={s.paid_at?'is-paid':'is-unpaid'}>{s.paid_at?'Ödənilib':'Ödəniş gözləyir'}</span><button type="button" className="primary" onClick={()=>printReceipt(s)}><Printer size={15}/> Qəbz çap et</button>{!s.paid_at&&<button className="pay pay-confirm" disabled={busy} onClick={()=>confirmPaid(s)}><CheckCircle2 size={14}/> Ödənilib qeyd et</button>}<button type="button" className="cash-sale-delete" title="Nağd satışı ləğv et və sil" aria-label="Nağd satışı ləğv et və sil" disabled={busy} onClick={()=>deleteSale(s)}><X size={16}/></button></div></article>)}{!rows.length&&<p className="empty">Hələ nağd satış yaradılmayıb.</p>}</section>
   {open&&<div className="shade" onClick={e=>e.target===e.currentTarget&&!busy&&setOpen(false)}><section className="modal cash-sale-modal"><header><b>Yeni nağd satış</b><button type="button" onClick={()=>setOpen(false)}>×</button></header><form className="formmodal" onSubmit={createSale}>
    <label>Müştərinin adı<input type="text" value={customerName} onChange={e=>setCustomerName(e.target.value)} placeholder="Müştərinin adını daxil et" autoComplete="off"/></label>
    <div className="search cash-product-search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{
