@@ -59,7 +59,7 @@ export default function CashSales({client,products=[],sales=[],onRefresh=()=>{}}
    <div className="search cash-product-search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{
     if(e.key!=='Enter')return;
     e.preventDefault();
-    const scanned=String(query||'').trim().replace(/[\\r\\n]/g,'');
+    const scanned=String(query||'').trim();
     if(!scanned)return;
     const found=available.find(p=>String(p.barcode||'').trim()===scanned);
     if(found){setProductId(found.id);setPrice(String(found.sale_price||''));}
