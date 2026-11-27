@@ -1820,3 +1820,18 @@ button.primary,.primary{min-height:42px}
 
 /* Multi-store registration and admin management */
 .store-registration-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 18px}.store-registration-stats>div{background:#fff;border:1px solid #e8edf3;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:7px}.store-registration-stats small{font-size:11px;color:#7a879a}.store-registration-stats b{font-size:24px;color:#172238}.store-registration-panel{padding:6px 18px}.store-registration-list{display:flex;flex-direction:column}.store-registration-card{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 4px;border-bottom:1px solid #edf0f5}.store-registration-card:last-child{border-bottom:0}.store-registration-main{min-width:0}.store-registration-main>div{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.store-registration-main h3{font-size:15px;margin:0;color:#172238}.store-registration-main p{font-size:13px;color:#536176;margin:9px 0 5px;overflow-wrap:anywhere}.store-registration-main p span{padding:0 6px;color:#a3adba}.store-registration-main>small{font-size:11px;color:#8995a6}.store-registration-status{font-size:10px;font-weight:700;border-radius:20px;padding:5px 9px;background:#f2f4f7;color:#64748b}.status-pending{background:#fff4dc;color:#9a6715}.status-approved{background:#e5f8ef;color:#16764a}.status-rejected,.status-suspended{background:#fdecec;color:#a33d3d}.store-registration-actions{display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0}.store-registration-actions button{font-size:12px;padding:9px 12px}.danger-outline{color:#b44444;border-color:#e8bcbc}.danger-outline:hover{background:#fff2f2}@media(max-width:760px){.store-registration-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.store-registration-card{align-items:flex-start;flex-direction:column}.store-registration-actions{width:100%}.store-registration-actions button{flex:1}}
+
+/* Expanded cancellation order details */
+.cancel-order-more{margin-top:14px;border:1px solid #3b4b61;border-radius:13px;background:rgba(12,23,39,.28);overflow:hidden}
+.cancel-order-more summary{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;padding:13px 14px;cursor:pointer;list-style:none;color:#dce8f6;font-weight:750;font-size:13px}
+.cancel-order-more summary::-webkit-details-marker{display:none}
+.cancel-order-more summary:after{content:"+";font-size:19px;color:#77b5ff;margin-left:auto}
+.cancel-order-more[open] summary:after{content:"−"}
+.cancel-order-more-hint{font-size:10px;font-weight:500;color:#9eafc3}
+.cancel-order-more-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:0 12px 12px}
+.cancel-order-more-grid>div{min-width:0;padding:10px;border-radius:9px;background:rgba(5,15,29,.34)}
+.cancel-order-more-grid small,.cancel-order-more-items>small{display:block;color:#9eafc3;font-size:10px;margin-bottom:5px}
+.cancel-order-more-grid b{display:block;color:#edf4fc;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.cancel-order-more-items{padding:0 12px 12px}
+.cancel-order-more-item{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid #39485c;color:#dce8f6;font-size:12px}
+@media(max-width:520px){.cancel-order-more summary{align-items:flex-start;flex-direction:column}.cancel-order-more summary:after{position:absolute;right:27px}.cancel-order-more-grid{gap:7px}.cancel-order-more-grid>div{padding:8px}.cancel-order-more-grid b{font-size:11px}}
